@@ -1,7 +1,7 @@
 {
   "name": "lwx-crud",
   "type": "module",
-  "version": "1.0.4",
+  "version": "1.0.0",
   "description": "Electron本地人员管理CRUD桌面应用",
   "main": "./out/main/index.js",
   "scripts": {

@@ -25,9 +25,8 @@ if (process.platform === 'win32') {
  */
 
 // 单实例锁：只允许运行一个应用实例
-const gotTheLock = app.requestSingleInstanceLock()
-if (!gotTheLock) {
-  app.quit()
+if (!app.requestSingleInstanceLock()) {
+  process.exit(0)
 }
 
 // 安全设置：不允许渲染进程直接使用 Node.js API
