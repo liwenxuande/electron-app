@@ -142,14 +142,21 @@ app.whenReady().then(() => {
   // ① 初始化文件日志（延迟，因 app.getPath 需 ready 后调用）
   initFileTransport()
 
-  // ② 初始化数据库
-  // 安装版放在软件目录下，开发版放在 userData 隔离
+  // ② 初始化数据库（统一放 userData，升级不丢数据）
   const dbFile = app.isPackaged ? 'data.db' : 'data.dev.db'
-  const dbDir = app.isPackaged
-    ? path.join(path.dirname(app.getPath('exe')), 'data')
-    : app.getPath('userData')
+  const dbDir = app.getPath('userData')
   fs.mkdirSync(dbDir, { recursive: true })
   const dbPath = path.join(dbDir, dbFile)
+
+  // 迁移旧数据：如果安装目录下有旧 db 且 userData 下还没有，自动迁移
+  if (app.isPackaged) {
+    const oldDbPath = path.join(path.dirname(app.getPath('exe')), 'data', dbFile)
+    if (fs.existsSync(oldDbPath) && !fs.existsSync(dbPath)) {
+      fs.copyFileSync(oldDbPath, dbPath)
+      logger.info('检测到旧版本数据，已自动迁移到 userData')
+    }
+  }
+
   DbManager.getInstance().init(dbPath)
 
   // ③ 注册 IPC 通信控制器
