@@ -5,7 +5,7 @@
   "description": "Electron本地人员管理CRUD桌面应用",
   "main": "./out/main/index.js",
   "scripts": {
-    "dev": "electron-vite dev",
+    "dev": "chcp 65001 > nul && electron-vite dev",
     "build": "electron-vite build",
     "preview": "electron-vite preview",
     "postinstall": "electron-builder install-app-deps",

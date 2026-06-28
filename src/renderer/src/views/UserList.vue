@@ -2,7 +2,7 @@
   <div class="user-list-container">
     <!-- 顶部标题栏 -->
     <div class="header">
-      <h2>人员管理</h2>
+      <h2>人员管理444</h2>
     </div>
 
     <!-- 操作栏：搜索 + 新增 -->
@@ -18,6 +18,7 @@
         <el-button type="primary" @click="handleSearch">搜索</el-button>
       </div>
       <el-button type="primary" @click="handleCreate">新增人员</el-button>
+      <el-button type="warning" @click="handleTestNotify">🔔 系统通知测试</el-button>
     </div>
 
     <!-- 数据表格 -->
@@ -68,7 +69,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { ElMessageBox } from 'element-plus'
+import { ElMessageBox, ElMessage } from 'element-plus'
 import { useUserStore } from '../stores/userStore'
 import UserDialog from '../components/UserDialog.vue'
 
@@ -123,6 +124,16 @@ function handleDelete(row: any) {
 /** 分页切换 */
 function handlePageChange() {
   store.fetchUserList()
+}
+
+/** 测试系统通知 */
+async function handleTestNotify() {
+  const res = await window.userAPI.showNotification('测试通知', `这是一条来自 Electron 的系统消息\n时间: ${new Date().toLocaleTimeString()}`)
+  if (res.code === 0) {
+    ElMessage.success('系统通知已发送')
+  } else {
+    ElMessage.error(res.msg)
+  }
 }
 
 /** 弹窗操作成功后刷新列表 */

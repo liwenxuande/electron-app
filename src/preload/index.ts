@@ -30,5 +30,10 @@ contextBridge.exposeInMainWorld('userAPI', {
   /** 删除用户 */
   deleteUser: (id: number) => {
     return ipcRenderer.invoke('user:delete', id)
+  },
+
+  /** 发送系统通知 */
+  showNotification: (title: string, body: string) => {
+    return ipcRenderer.invoke('notification:show', title, body)
   }
 })

@@ -45,6 +45,7 @@ interface UserAPI {
   createUser(data: UserInput): Promise<ApiResponse<null>>
   updateUser(id: number, data: UserInput): Promise<ApiResponse<null>>
   deleteUser(id: number): Promise<ApiResponse<null>>
+  showNotification(title: string, body: string): Promise<ApiResponse<null>>
 }
 
 declare global {

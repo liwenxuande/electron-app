@@ -1,8 +1,16 @@
-import { app, BrowserWindow, shell } from 'electron'
+import { app, BrowserWindow, shell, Notification, ipcMain } from 'electron'
 import path from 'path'
 import { registerUserController } from './controller/userController'
 import DbManager from './db/database'
 import { logger, initFileTransport } from './utils/logger'
+
+// Windows 下修复控制台中文乱码（切换代码页为 UTF-8）
+import { execSync } from 'child_process'
+if (process.platform === 'win32') {
+  try { execSync('chcp 65001', { stdio: 'ignore' }) } catch {}
+  process.stdout.setDefaultEncoding('utf-8')
+  process.stderr.setDefaultEncoding('utf-8')
+}
 
 /**
  * Electron 主进程入口
@@ -24,12 +32,13 @@ function createWindow(): void {
     title: '人员管理系统',
     webPreferences: {
       // 预加载脚本：在渲染进程中安全暴露API
-      preload: path.join(__dirname, '../preload/index.js'),
+      preload: path.join(__dirname, '../preload/index.mjs'),
       // 安全隔离：禁止渲染进程直接访问 Node API
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: false
-    }
+    },
+    autoHideMenuBar: true  // 隐藏默认菜单栏（按 Alt 键可临时显示）
   })
 
   // 防止窗口标题被页面 <title> 覆盖
@@ -67,6 +76,19 @@ app.whenReady().then(() => {
 
   // ③ 注册 IPC 通信控制器
   registerUserController()
+
+  // ③½ 注册系统通知 IPC（测试用）
+  ipcMain.handle('notification:show', (_event, title: string, body: string) => {
+    try {
+      const notif = new Notification({ title, body })
+      notif.show()
+      logger.info(`[IPC] notification:show 发送成功: ${title}`)
+      return { code: 0, data: null, msg: '通知已发送' }
+    } catch (error: any) {
+      logger.error(`[IPC] notification:show 异常: ${error.message}`)
+      return { code: -1, data: null, msg: `通知失败: ${error.message}` }
+    }
+  })
 
   // ④ 创建渲染窗口
   createWindow()
