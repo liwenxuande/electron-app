@@ -1,7 +1,12 @@
 ---
 name: sync-electron-docs
-description: 提交代码前检查 Electron 相关改动，提醒同步更新 docs/electron-faq.md 或 docs/electron-knowledge.md
-argument-hint: [commit message or nothing]
+description: >-
+  TRIGGER — 当用户说"提交代码""commit""push""提交"时，
+  在 git commit 之前自动执行：
+  1. 扫描待提交文件中的 Electron 相关改动
+  2. 判断需要更新 docs/electron-faq.md 还是 docs/electron-knowledge.md
+  3. 生成文档条目供用户确认后写入
+argument-hint: "commit message (optional)"
 ---
 
 # Sync Electron Docs
