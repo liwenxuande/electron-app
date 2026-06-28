@@ -118,9 +118,22 @@ pnpm package:mac
 
 ## 数据库
 
-SQLite 数据库文件自动创建在应用用户目录下，路径为 `{userData}/data.db`。
+### 存储位置
 
-**user 表结构**：
+数据库文件存放在 Electron 的 `userData` 目录（不受软件升级/卸载影响）：
+
+| 模式 | 文件名 | 完整路径（Windows） |
+|------|--------|---------------------|
+| 开发 (`pnpm dev`) | `data.dev.db` | `%APPDATA%/人员管理系统/data.dev.db` |
+| 安装版 | `data.db` | `%APPDATA%/人员管理系统/data.db` |
+
+> **为什么放 userData 而不是安装目录？** NSIS 升级安装时会先卸载旧版，安装目录可能被清空。`userData` 不受安装/卸载影响，数据持久化。
+>
+> 旧版本数据在安装目录 `data/` 下时，首次启动会自动迁移到 userData。
+
+快速打开数据目录：`start %APPDATA%\人员管理系统`
+
+### 表结构
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
