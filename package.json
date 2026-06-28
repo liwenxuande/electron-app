@@ -2,7 +2,7 @@
   "name": "lwx-crud",
   "type": "module",
   "version": "1.0.0",
-  "description": "Electron本地人员管理CRUD桌面应用",
+  "description": "Electron 桌面应用开发脚手架，开箱即用的 IPC + SQLite + 日志架构",
   "main": "./out/main/index.js",
   "scripts": {
     "dev": "chcp 65001 > nul && electron-vite dev",
