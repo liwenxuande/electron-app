@@ -1,5 +1,5 @@
 {
-  "name": "electron-crud-app",
+  "name": "lwx-crud",
   "type": "module",
   "version": "1.0.0",
   "description": "Electron本地人员管理CRUD桌面应用",

@@ -1,5 +1,6 @@
 import { app, BrowserWindow, shell, Notification, ipcMain } from 'electron'
 import path from 'path'
+import fs from 'fs'
 import { registerUserController } from './controller/userController'
 import DbManager from './db/database'
 import { logger, initFileTransport } from './utils/logger'
@@ -10,6 +11,12 @@ if (process.platform === 'win32') {
   try { execSync('chcp 65001', { stdio: 'ignore' }) } catch {}
   process.stdout.setDefaultEncoding('utf-8')
   process.stderr.setDefaultEncoding('utf-8')
+}
+
+// 设置应用名称和 Windows 通知标识（必须在 app.whenReady 之前）
+app.setName('人员管理系统')
+if (process.platform === 'win32') {
+  app.setAppUserModelId('com.electron.crud-app')
 }
 
 /**
@@ -30,6 +37,9 @@ function createWindow(): void {
     minWidth: 800,
     minHeight: 500,
     title: '人员管理系统',
+    icon: app.isPackaged
+      ? path.join(process.resourcesPath, 'icon.ico')
+      : path.join(__dirname, '../../build/icon.ico'),
     webPreferences: {
       // 预加载脚本：在渲染进程中安全暴露API
       preload: path.join(__dirname, '../preload/index.mjs'),
@@ -70,8 +80,14 @@ app.whenReady().then(() => {
   // ① 初始化文件日志（延迟，因 app.getPath 需 ready 后调用）
   initFileTransport()
 
-  // ② 初始化数据库（全局单例，路径为 userData/data.db）
-  const dbPath = path.join(app.getPath('userData'), 'data.db')
+  // ② 初始化数据库
+  // 安装版放在软件目录下，开发版放在 userData 隔离
+  const dbFile = app.isPackaged ? 'data.db' : 'data.dev.db'
+  const dbDir = app.isPackaged
+    ? path.join(path.dirname(app.getPath('exe')), 'data')
+    : app.getPath('userData')
+  fs.mkdirSync(dbDir, { recursive: true })
+  const dbPath = path.join(dbDir, dbFile)
   DbManager.getInstance().init(dbPath)
 
   // ③ 注册 IPC 通信控制器
