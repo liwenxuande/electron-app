@@ -24,6 +24,12 @@ if (process.platform === 'win32') {
  * 启动顺序：初始化数据库 → 注册IPC控制器 → 创建渲染窗口
  */
 
+// 单实例锁：只允许运行一个应用实例
+const gotTheLock = app.requestSingleInstanceLock()
+if (!gotTheLock) {
+  app.quit()
+}
+
 // 安全设置：不允许渲染进程直接使用 Node.js API
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
 
@@ -189,6 +195,14 @@ app.whenReady().then(() => {
   })
 
   logger.info('应用启动完成')
+})
+
+// 二次启动时将已有窗口提到最前
+app.on('second-instance', () => {
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore()
+    mainWindow.focus()
+  }
 })
 
 // 所有窗口关闭时退出（macOS 除外）
