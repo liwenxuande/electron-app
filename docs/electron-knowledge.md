@@ -226,6 +226,42 @@ app.whenReady()
 
 ---
 
+### 4.3 单实例锁：防止重复打开
+
+桌面软件通常只允许一个实例运行。Electron 提供 `requestSingleInstanceLock()`：
+
+```ts
+const gotTheLock = app.requestSingleInstanceLock()
+if (!gotTheLock) {
+  app.quit()  // 获取锁失败 → 已有实例在跑，直接退出
+}
+```
+
+二次启动时，第一个实例会收到 `second-instance` 事件——此时把窗口提到最前：
+
+```ts
+app.on('second-instance', () => {
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore()
+    mainWindow.focus()
+  }
+})
+```
+
+**知识点**：`requestSingleInstanceLock()` 必须在 `app.whenReady()` 之前调用。它利用系统级命名锁确保同一应用只有一个进程。
+
+**相关 API**：
+
+| API | 说明 |
+|-----|------|
+| `app.requestSingleInstanceLock()` | 尝试获取单实例锁，返回 `boolean` |
+| `app.on('second-instance', cb)` | 第二个实例启动时触发 |
+| `win.isMinimized()` | 窗口是否最小化 |
+| `win.restore()` | 从最小化还原 |
+| `win.focus()` | 窗口获取焦点 |
+
+---
+
 ## 五、系统通知
 
 ### 5.1 调用链
