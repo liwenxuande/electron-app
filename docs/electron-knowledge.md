@@ -262,19 +262,32 @@ app.setAppUserModelId('com.electron.crud-app')
 
 ### 6.3 数据库放哪里
 
-这是一个需要权衡的设计决策：
+这是一个有实际教训的设计决策：
 
 | 方案 | 优点 | 缺点 |
 |------|------|------|
-| `userData`（`%APPDATA%`） | 标准做法，跨用户隔离 | 路径隐蔽，用户难找到 |
-| 安装目录下 | 用户可见，方便备份 | 写 Program Files 可能没权限 |
+| `userData`（`%APPDATA%`） | 标准做法，**升级不丢数据**，跨用户隔离 | 路径隐蔽 |
+| 安装目录下 | 用户可见，方便备份 | **NSIS 升级时可能被清空**，写 Program Files 可能没权限 |
 
-本项目折中：**打包后放安装目录**（因为 NSIS 允许用户选非保护目录），**开发时放 userData**（隔离测试数据）。
+**关键教训**：NSIS 安装器升级流程是"卸载旧版 → 装新版"。如果数据库在安装目录下，卸载时整个目录可能被删除，用户数据全部丢失。Electron 的 `userData` 目录不受安装/卸载影响，是专门为持久化数据设计的。
+
+**本项目最终方案**：统一放 `userData`，开发/生产用不同文件名隔离：
 
 ```ts
-const dbDir = app.isPackaged
-  ? path.join(path.dirname(app.getPath('exe')), 'data')   // 安装目录/data/
-  : app.getPath('userData')                                 // %APPDATA%
+const dbFile = app.isPackaged ? 'data.db' : 'data.dev.db'
+const dbDir = app.getPath('userData')
+const dbPath = path.join(dbDir, dbFile)
+```
+
+**旧数据自动迁移**：如果检测到安装目录下有旧版本的 db 文件且 userData 下还没有，自动复制一份——让老用户升级时无感：
+
+```ts
+if (app.isPackaged) {
+  const oldDbPath = path.join(path.dirname(app.getPath('exe')), 'data', dbFile)
+  if (fs.existsSync(oldDbPath) && !fs.existsSync(dbPath)) {
+    fs.copyFileSync(oldDbPath, dbPath)
+  }
+}
 ```
 
 `app.isPackaged` 是 Electron 提供的布尔值——开发时 `false`，打包后 `true`。经常用来区分环境。
