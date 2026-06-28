@@ -9,6 +9,8 @@ files:
 extraResources:
   - from: build/icon.ico
     to: icon.ico
+  - from: src/renderer/splash.html
+    to: splash.html
 win:
   target:
     - target: nsis

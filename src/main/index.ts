@@ -51,7 +51,7 @@ function createSplashWindow(): void {
   if (process.env['ELECTRON_RENDERER_URL']) {
     splashWindow.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/splash.html`)
   } else {
-    splashWindow.loadFile(path.join(__dirname, '../renderer/splash.html'))
+    splashWindow.loadFile(path.join(process.resourcesPath, 'splash.html'))
   }
 
   splashWindow.center()
