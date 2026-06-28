@@ -28,6 +28,34 @@ if (process.platform === 'win32') {
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
 
 let mainWindow: BrowserWindow | null = null
+let splashWindow: BrowserWindow | null = null
+
+/** 创建启动动画窗口 */
+function createSplashWindow(): void {
+  splashWindow = new BrowserWindow({
+    width: 400,
+    height: 280,
+    frame: false,
+    backgroundColor: '#0d5bbd',
+    resizable: false,
+    alwaysOnTop: true,
+    skipTaskbar: true,
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: false
+    }
+  })
+
+  // 开发/生产模式加载 splash 页面
+  if (process.env['ELECTRON_RENDERER_URL']) {
+    splashWindow.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/splash.html`)
+  } else {
+    splashWindow.loadFile(path.join(__dirname, '../renderer/splash.html'))
+  }
+
+  splashWindow.center()
+}
 
 /** 创建主窗口 */
 function createWindow(): void {
@@ -37,6 +65,7 @@ function createWindow(): void {
     minWidth: 800,
     minHeight: 500,
     title: '人员管理系统',
+    show: false,            // 先隐藏，ready-to-show 后再显示
     icon: app.isPackaged
       ? path.join(process.resourcesPath, 'icon.ico')
       : path.join(__dirname, '../../build/icon.ico'),
@@ -48,13 +77,32 @@ function createWindow(): void {
       nodeIntegration: false,
       sandbox: false
     },
-    autoHideMenuBar: true  // 隐藏默认菜单栏（按 Alt 键可临时显示）
+    frame: false,           // 无边框窗口，自定义标题栏
+    backgroundColor: '#156ad9',
+    autoHideMenuBar: true
   })
+
+  // 窗口控制 IPC（最小化 / 最大化 / 关闭）
+  ipcMain.handle('window:minimize', () => mainWindow?.minimize())
+  ipcMain.handle('window:maximize', () => {
+    if (mainWindow?.isMaximized()) {
+      mainWindow.unmaximize()
+    } else {
+      mainWindow?.maximize()
+    }
+  })
+  ipcMain.handle('window:close', () => mainWindow?.close())
+  ipcMain.handle('window:isMaximized', () => mainWindow?.isMaximized() ?? false)
+  ipcMain.handle('window:toggleDevTools', () => mainWindow?.webContents.toggleDevTools())
 
   // 防止窗口标题被页面 <title> 覆盖
   mainWindow.on('page-title-updated', (event) => {
     event.preventDefault()
   })
+
+  // 最大化/还原时通知渲染进程切换图标
+  mainWindow.on('maximize', () => mainWindow?.webContents.send('window:maximizeChange', true))
+  mainWindow.on('unmaximize', () => mainWindow?.webContents.send('window:maximizeChange', false))
 
   // 外部链接使用系统默认浏览器打开
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
@@ -70,6 +118,20 @@ function createWindow(): void {
     // 生产模式：加载打包后的文件
     mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
+
+  // 主窗口就绪后关闭启动动画（至少展示 5.5 秒）
+  const splashStart = Date.now()
+  mainWindow.once('ready-to-show', () => {
+    const elapsed = Date.now() - splashStart
+    const delay = Math.max(0, 5500 - elapsed)
+    setTimeout(() => {
+      if (splashWindow && !splashWindow.isDestroyed()) {
+        splashWindow.close()
+        splashWindow = null
+      }
+      mainWindow?.show()
+    }, delay)
+  })
 
   logger.info('主窗口创建完成')
 }
@@ -106,7 +168,10 @@ app.whenReady().then(() => {
     }
   })
 
-  // ④ 创建渲染窗口
+  // ④ 显示启动动画
+  createSplashWindow()
+
+  // ⑤ 创建渲染窗口（后台加载）
   createWindow()
 
   // macOS：点击 dock 图标重新创建窗口

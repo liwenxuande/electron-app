@@ -35,5 +35,25 @@ contextBridge.exposeInMainWorld('userAPI', {
   /** 发送系统通知 */
   showNotification: (title: string, body: string) => {
     return ipcRenderer.invoke('notification:show', title, body)
-  }
+  },
+
+  /** 窗口最小化 */
+  minimize: () => ipcRenderer.invoke('window:minimize'),
+
+  /** 窗口最大化/还原 */
+  maximize: () => ipcRenderer.invoke('window:maximize'),
+
+  /** 关闭窗口 */
+  close: () => ipcRenderer.invoke('window:close'),
+
+  /** 查询是否最大化 */
+  isMaximized: () => ipcRenderer.invoke('window:isMaximized'),
+
+  /** 监听最大化状态变化 */
+  onMaximizeChange: (callback: (isMaximized: boolean) => void) => {
+    ipcRenderer.on('window:maximizeChange', (_event, state) => callback(state))
+  },
+
+  /** 切换开发者工具 */
+  toggleDevTools: () => ipcRenderer.invoke('window:toggleDevTools')
 })

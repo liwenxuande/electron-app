@@ -1,10 +1,5 @@
 <template>
   <div class="user-list-container">
-    <!-- 顶部标题栏 -->
-    <div class="header">
-      <h2>人员管理444</h2>
-    </div>
-
     <!-- 操作栏：搜索 + 新增 -->
     <div class="toolbar">
       <div class="search-bar">
@@ -145,16 +140,12 @@ function handleDialogSuccess() {
 
 <style scoped>
 .user-list-container {
-  height: 100vh;
+  flex: 1;
   display: flex;
   flex-direction: column;
   padding: 20px;
   gap: 16px;
-}
-
-.header h2 {
-  font-size: 22px;
-  color: #303133;
+  overflow: hidden;
 }
 
 .toolbar {

@@ -47,6 +47,12 @@ interface UserAPI {
   updateUser(id: number, data: UserInput): Promise<ApiResponse<null>>
   deleteUser(id: number): Promise<ApiResponse<null>>
   showNotification(title: string, body: string): Promise<ApiResponse<null>>
+  minimize(): Promise<void>
+  maximize(): Promise<void>
+  close(): Promise<void>
+  isMaximized(): Promise<boolean>
+  onMaximizeChange(callback: (isMaximized: boolean) => void): void
+  toggleDevTools(): Promise<void>
 }
 
 declare global {
