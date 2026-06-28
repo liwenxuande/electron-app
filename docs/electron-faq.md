@@ -231,3 +231,27 @@ app.setAppUserModelId('com.electron.crud-app')
 ## 17. exe 文件名是中文
 
 **解决**：`electron-builder.yml` 加 `executableName: lwx-crud`。
+
+---
+
+## 18. 安装版 Splash 动画不显示
+
+**现象**：安装后启动，splash 窗口只有纯色背景，logo/文字/动画全没。
+
+**原因**：`splash.html` 在 `src/renderer/` 下，electron-vite 不会把它编译到 `out/renderer/`。打包后的 asar 里根本没有这个文件，`loadFile` 找不到。
+
+**解决**：
+
+```yaml
+# electron-builder.yml — 打包时复制 splash.html 到 resources/
+extraResources:
+  - from: src/renderer/splash.html
+    to: splash.html
+```
+
+```ts
+// main — 生产模式从 resourcesPath 加载
+splashWindow.loadFile(path.join(process.resourcesPath, 'splash.html'))
+```
+
+> 开发模式走 Vite dev server（`/splash.html` 直接能用），不受影响。
