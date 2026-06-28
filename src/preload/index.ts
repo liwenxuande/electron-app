@@ -1,4 +1,5 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import * as electron from 'electron'
+const { contextBridge, ipcRenderer } = electron
 
 /**
  * preload 预加载脚本 —— 安全桥接层

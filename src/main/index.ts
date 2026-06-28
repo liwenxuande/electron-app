@@ -1,4 +1,5 @@
-import { app, BrowserWindow, shell, Notification, ipcMain } from 'electron'
+import * as electron from 'electron/main'
+const { app, BrowserWindow, shell, Notification, ipcMain } = electron
 import path from 'path'
 import fs from 'fs'
 import { registerUserController } from './controller/userController'
@@ -15,7 +16,7 @@ if (process.platform === 'win32') {
 
 // 设置应用名称和 Windows 通知标识（必须在 app.whenReady 之前）
 app.setName('人员管理系统')
-if (process.platform === 'win32') {
+if (process.platform === 'win32' && app.isPackaged) {
   app.setAppUserModelId('com.electron.crud-app')
 }
 

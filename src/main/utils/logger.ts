@@ -1,7 +1,8 @@
 import winston from 'winston'
 import path from 'path'
 import fs from 'fs'
-import { app } from 'electron'
+import * as electron from 'electron/main'
+const { app } = electron
 
 /**
  * winston 日志模块

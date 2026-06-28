@@ -1,4 +1,5 @@
-import { ipcMain } from 'electron'
+import * as electron from 'electron/main'
+const { ipcMain } = electron
 import { UserService, UserInput, ListParams } from '../service/userService'
 import { UserRepository } from '../repository/userRepository'
 import DbManager from '../db/database'
