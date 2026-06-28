@@ -255,3 +255,34 @@ splashWindow.loadFile(path.join(process.resourcesPath, 'splash.html'))
 ```
 
 > 开发模式走 Vite dev server（`/splash.html` 直接能用），不受影响。
+
+---
+
+## 19. 升级安装后数据库被清空
+
+**现象**：安装新版本后，之前录入的人员数据全部丢失。
+
+**原因**：数据库放在了安装目录 `<install_dir>/data/` 下。NSIS 升级流程是"先卸载旧版再装新版"，卸载时安装目录整个被删除，数据库一起没了。
+
+**解决**：
+
+数据库必须放在 `app.getPath('userData')`（`%APPDATA%`），这个目录不受安装/卸载影响。
+
+```ts
+// ✅ 统一放 userData，升级不丢数据
+const dbDir = app.getPath('userData')
+const dbPath = path.join(dbDir, app.isPackaged ? 'data.db' : 'data.dev.db')
+```
+
+**旧数据自动迁移**：启动时检测安装目录是否残留旧 db，有则自动复制到 userData：
+
+```ts
+if (app.isPackaged) {
+  const oldDbPath = path.join(path.dirname(app.getPath('exe')), 'data', 'data.db')
+  if (fs.existsSync(oldDbPath) && !fs.existsSync(dbPath)) {
+    fs.copyFileSync(oldDbPath, dbPath)
+  }
+}
+```
+
+> **教训**：`userData` 是 Electron 专门为"需要持久化、不受升级影响"的数据设计的目录。安装目录只适合放不需要保留的文件。
