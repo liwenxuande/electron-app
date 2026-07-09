@@ -286,3 +286,30 @@ if (app.isPackaged) {
 ```
 
 > **教训**：`userData` 是 Electron 专门为"需要持久化、不受升级影响"的数据设计的目录。安装目录只适合放不需要保留的文件。
+
+---
+
+## 20. SQL 保留关键字作表名导致查询失败
+
+**现象**：`better-sqlite3` 中 `SELECT * FROM "transaction"` 查询返回结果为空或报错，但表确实存在。
+
+**原因**：`transaction` 是 SQL 标准保留关键字。虽然 SQLite 允许用双引号 `"transaction"` 括起来使用，但 `better-sqlite3` 的预编译语句 `prepare(sql).get(...)` / `prepare(sql).all(...)` 在处理带保留字的表名时行为不一致——某些查询正常、某些异常（尤其带 JOIN 和条件筛选时），排查困难。
+
+**解决**：表名不要用任何 SQL 保留关键字。如果已经用了，改名并添加自动迁移逻辑：
+
+```ts
+// ① 建表时不使用保留字
+CREATE TABLE IF NOT EXISTS transactions ( ... )
+
+// ② 自动迁移：如果旧表名存在，重命名
+const oldTableExists = db.prepare(
+  "SELECT count(*) as count FROM sqlite_master WHERE type='table' AND name='transaction'"
+).get() as { count: number }
+if (oldTableExists.count > 0) {
+  db.exec('ALTER TABLE "transaction" RENAME TO transactions')
+}
+```
+
+**常见 SQL 保留字**（建议无条件避开）：`transaction`、`order`、`group`、`index`、`table`、`select`、`from`、`where`、`join`、`limit`、`offset`、`case`、`when`、`then`、`else`、`as`、`by`、`on`、`or`、`and`、`not`、`null`、`check`。
+
+> **教训**：命名表/字段时顺手查一下 SQL 保留字列表。双引号不是万能药——原生绑定层（如 better-sqlite3）可能不完美兼容。

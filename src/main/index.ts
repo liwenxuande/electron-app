@@ -1,8 +1,9 @@
-import * as electron from 'electron/main'
-const { app, BrowserWindow, shell, Notification, ipcMain } = electron
+import { app, BrowserWindow, shell, Notification, ipcMain } from 'electron'
 import path from 'path'
 import fs from 'fs'
-import { registerUserController } from './controller/userController'
+import { registerTransactionController } from './controller/transactionController'
+import { registerCategoryController } from './controller/categoryController'
+import { registerLedgerController } from './controller/ledgerController'
 import DbManager from './db/database'
 import { logger, initFileTransport } from './utils/logger'
 
@@ -10,14 +11,14 @@ import { logger, initFileTransport } from './utils/logger'
 import { execSync } from 'child_process'
 if (process.platform === 'win32') {
   try { execSync('chcp 65001', { stdio: 'ignore' }) } catch {}
-  process.stdout.setDefaultEncoding('utf-8')
-  process.stderr.setDefaultEncoding('utf-8')
+  try { process.stdout.setEncoding('utf-8') } catch {}
+  try { process.stderr.setEncoding('utf-8') } catch {}
 }
 
 // 设置应用名称和 Windows 通知标识（必须在 app.whenReady 之前）
-app.setName('人员管理系统')
+app.setName('个人记账')
 if (process.platform === 'win32' && app.isPackaged) {
-  app.setAppUserModelId('com.electron.crud-app')
+  app.setAppUserModelId('com.electron.personal-finance')
 }
 
 /**
@@ -42,7 +43,7 @@ function createSplashWindow(): void {
     width: 400,
     height: 280,
     frame: false,
-    backgroundColor: '#0d5bbd',
+    backgroundColor: '#E07800',
     resizable: false,
     alwaysOnTop: true,
     skipTaskbar: true,
@@ -70,7 +71,7 @@ function createWindow(): void {
     height: 700,
     minWidth: 800,
     minHeight: 500,
-    title: '人员管理系统',
+    title: '个人记账',
     show: false,            // 先隐藏，ready-to-show 后再显示
     icon: app.isPackaged
       ? path.join(process.resourcesPath, 'icon.ico')
@@ -84,7 +85,7 @@ function createWindow(): void {
       sandbox: false
     },
     frame: false,           // 无边框窗口，自定义标题栏
-    backgroundColor: '#156ad9',
+    backgroundColor: '#FFF8F0',
     autoHideMenuBar: true
   })
 
@@ -125,11 +126,11 @@ function createWindow(): void {
     mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
 
-  // 主窗口就绪后关闭启动动画（至少展示 5.5 秒）
+  // 主窗口就绪后关闭启动动画（至少展示 1 秒）
   const splashStart = Date.now()
   mainWindow.once('ready-to-show', () => {
     const elapsed = Date.now() - splashStart
-    const delay = Math.max(0, 5500 - elapsed)
+    const delay = Math.max(0, 1500 - elapsed)
     setTimeout(() => {
       if (splashWindow && !splashWindow.isDestroyed()) {
         splashWindow.close()
@@ -166,7 +167,9 @@ app.whenReady().then(() => {
   DbManager.getInstance().init(dbPath)
 
   // ③ 注册 IPC 通信控制器
-  registerUserController()
+  registerCategoryController()
+  registerLedgerController()
+  registerTransactionController()
 
   // ③½ 注册系统通知 IPC（测试用）
   ipcMain.handle('notification:show', (_event, title: string, body: string) => {
@@ -175,9 +178,10 @@ app.whenReady().then(() => {
       notif.show()
       logger.info(`[IPC] notification:show 发送成功: ${title}`)
       return { code: 0, data: null, msg: '通知已发送' }
-    } catch (error: any) {
-      logger.error(`[IPC] notification:show 异常: ${error.message}`)
-      return { code: -1, data: null, msg: `通知失败: ${error.message}` }
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : String(error)
+      logger.error(`[IPC] notification:show 异常: ${errMsg}`)
+      return { code: -1, data: null, msg: `通知失败: ${errMsg}` }
     }
   })
 

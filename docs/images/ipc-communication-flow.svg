@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" font-family="Microsoft YaHei, PingFang SC, sans-serif">
+  <defs>
+    <linearGradient id="vueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4CAF50;stop-opacity:0.1"/>
+      <stop offset="100%" style="stop-color:#4CAF50;stop-opacity:0.2"/>
+    </linearGradient>
+    <linearGradient id="preloadGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF9800;stop-opacity:0.1"/>
+      <stop offset="100%" style="stop-color:#FF9800;stop-opacity:0.2"/>
+    </linearGradient>
+    <linearGradient id="mainProcGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2196F3;stop-opacity:0.08"/>
+      <stop offset="100%" style="stop-color:#2196F3;stop-opacity:0.15"/>
+    </linearGradient>
+    <filter id="sh">
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- 三列标题 -->
+  <rect x="15" y="15" width="280" height="35" rx="8" fill="url(#vueGrad)" stroke="#4CAF50" stroke-width="1.5"/>
+  <text x="155" y="38" text-anchor="middle" font-size="14" font-weight="bold" fill="#2E7D32">Vue Component</text>
+
+  <rect x="315" y="15" width="260" height="35" rx="8" fill="url(#preloadGrad)" stroke="#FF9800" stroke-width="1.5"/>
+  <text x="445" y="38" text-anchor="middle" font-size="14" font-weight="bold" fill="#E65100">Preload</text>
+
+  <rect x="605" y="15" width="280" height="35" rx="8" fill="url(#mainProcGrad)" stroke="#2196F3" stroke-width="1.5"/>
+  <text x="745" y="38" text-anchor="middle" font-size="14" font-weight="bold" fill="#1565C0">Main Process</text>
+
+  <!-- Vue 侧流程 -->
+  <!-- TransactionDialog.vue -->
+  <rect x="35" y="70" width="240" height="40" rx="8" fill="#E8F5E9" stroke="#66BB6A" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="155" y="95" text-anchor="middle" font-size="13" fill="#2E7D32">TransactionDialog.vue</text>
+
+  <!-- 箭头 -->
+  <line x1="155" y1="110" x2="155" y2="135" stroke="#BDBDBD" stroke-width="1.5"/>
+  <polygon points="149,133 161,133 155,143" fill="#BDBDBD"/>
+  <text x="175" y="128" font-size="10" fill="#888">用户点击"保存"</text>
+
+  <!-- transactionStore.create() -->
+  <rect x="35" y="143" width="240" height="40" rx="8" fill="#C8E6C9" stroke="#66BB6A" stroke-width="1" filter="url(#sh)"/>
+  <text x="155" y="168" text-anchor="middle" font-size="13" fill="#2E7D32">transactionStore.create()</text>
+
+  <!-- 箭头 -->
+  <line x1="155" y1="183" x2="155" y2="210" stroke="#BDBDBD" stroke-width="1.5"/>
+  <polygon points="149,208 161,208 155,218" fill="#BDBDBD"/>
+
+  <!-- Preload 调用 -->
+  <rect x="35" y="218" width="240" height="50" rx="8" fill="#FFF3E0" stroke="#FFB74D" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="155" y="240" text-anchor="middle" font-size="12" fill="#E65100">window.transactionAPI</text>
+  <text x="155" y="258" text-anchor="middle" font-size="11" fill="#888">.createTransaction(data)</text>
+
+  <!-- Preload 列 -->
+  <rect x="335" y="218" width="220" height="50" rx="8" fill="#FFF8E1" stroke="#FFB74D" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="445" y="240" text-anchor="middle" font-size="12" fill="#E65100">ipcRenderer.invoke()</text>
+  <text x="445" y="258" text-anchor="middle" font-size="11" fill="#888">'transaction:create'</text>
+
+  <!-- 横向箭头 -->
+  <line x1="275" y1="243" x2="335" y2="243" stroke="#FF9800" stroke-width="2"/>
+  <polygon points="333,237 345,243 333,249" fill="#FF9800"/>
+
+  <!-- Main Process 列 -->
+  <!-- Controller -->
+  <rect x="625" y="218" width="240" height="50" rx="8" fill="#E3F2FD" stroke="#64B5F6" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="745" y="238" text-anchor="middle" font-size="13" font-weight="bold" fill="#1565C0">④ Controller</text>
+  <text x="745" y="258" text-anchor="middle" font-size="11" fill="#555">try/catch + log</text>
+
+  <!-- 横向箭头 -->
+  <line x1="555" y1="243" x2="625" y2="243" stroke="#2196F3" stroke-width="2"/>
+  <polygon points="623,237 635,243 623,249" fill="#2196F3"/>
+
+  <!-- 箭头 向下 -->
+  <line x1="745" y1="268" x2="745" y2="300" stroke="#BDBDBD" stroke-width="1.5"/>
+  <polygon points="739,298 751,298 745,308" fill="#BDBDBD"/>
+
+  <!-- Service -->
+  <rect x="625" y="308" width="240" height="55" rx="8" fill="#E3F2FD" stroke="#64B5F6" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="745" y="328" text-anchor="middle" font-size="13" font-weight="bold" fill="#1565C0">③ Service</text>
+  <text x="745" y="345" text-anchor="middle" font-size="11" fill="#555">validateInput()</text>
+  <text x="745" y="358" text-anchor="middle" font-size="11" fill="#555">dbManager.transaction()</text>
+
+  <!-- 箭头 -->
+  <line x1="745" y1="363" x2="745" y2="395" stroke="#BDBDBD" stroke-width="1.5"/>
+  <polygon points="739,393 751,393 745,403" fill="#BDBDBD"/>
+
+  <!-- Repository -->
+  <rect x="625" y="403" width="240" height="45" rx="8" fill="#E3F2FD" stroke="#64B5F6" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="745" y="423" text-anchor="middle" font-size="13" font-weight="bold" fill="#1565C0">② Repository</text>
+  <text x="745" y="440" text-anchor="middle" font-size="11" fill="#555">insert(SQL)</text>
+
+  <!-- 箭头 -->
+  <line x1="745" y1="448" x2="745" y2="480" stroke="#BDBDBD" stroke-width="1.5"/>
+  <polygon points="739,478 751,478 745,488" fill="#BDBDBD"/>
+
+  <!-- DbManager -->
+  <rect x="625" y="488" width="240" height="55" rx="8" fill="#E8EAF6" stroke="#5C6BC0" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="745" y="508" text-anchor="middle" font-size="13" font-weight="bold" fill="#283593">① DbManager</text>
+  <text x="745" y="525" text-anchor="middle" font-size="11" fill="#555">writeQueue.add()</text>
+  <text x="745" y="540" text-anchor="middle" font-size="11" fill="#555">db.prepare().run()</text>
+
+  <!-- 返回箭头 -->
+  <line x1="625" y1="516" x2="445" y2="516" stroke="#4CAF50" stroke-width="2" stroke-dasharray="6,3"/>
+  <line x1="445" y1="516" x2="275" y2="260" stroke="#4CAF50" stroke-width="2" stroke-dasharray="6,3"/>
+  <polygon points="279,263 279,253 271,258" fill="#4CAF50"/>
+
+  <!-- ApiResponse 返回 -->
+  <rect x="135" y="290" width="180" height="50" rx="8" fill="#E8F5E9" stroke="#66BB6A" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="225" y="310" text-anchor="middle" font-size="12" fill="#2E7D32">ApiResponse</text>
+  <text x="225" y="330" text-anchor="middle" font-size="10" fill="#555">{code:0, data:null, msg:'新增成功'}</text>
+
+  <!-- 最终处理 -->
+  <line x1="155" y1="268" x2="155" y2="370" stroke="#BDBDBD" stroke-width="1.5"/>
+  <polygon points="149,368 161,368 155,378" fill="#BDBDBD"/>
+
+  <rect x="35" y="378" width="240" height="36" rx="8" fill="#C8E6C9" stroke="#66BB6A" stroke-width="1" filter="url(#sh)"/>
+  <text x="155" y="401" text-anchor="middle" font-size="12" fill="#2E7D32">ElMessage.success() / 刷新列表</text>
+
+  <!-- 图例 -->
+  <rect x="35" y="440" width="240" height="90" rx="8" fill="#FAFAFA" stroke="#E0E0E0" stroke-width="1"/>
+  <text x="155" y="462" text-anchor="middle" font-size="11" font-weight="bold" fill="#555">数据流方向</text>
+  <line x1="55" y1="478" x2="100" y2="478" stroke="#FF9800" stroke-width="2"/>
+  <text x="110" y="482" font-size="10" fill="#555">请求（invoke）</text>
+  <line x1="55" y1="498" x2="100" y2="498" stroke="#4CAF50" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="110" y="502" font-size="10" fill="#555">响应（ApiResponse）</text>
+  <line x1="55" y1="518" x2="100" y2="518" stroke="#BDBDBD" stroke-width="1.5"/>
+  <text x="110" y="522" font-size="10" fill="#555">内部调用链</text>
+</svg>

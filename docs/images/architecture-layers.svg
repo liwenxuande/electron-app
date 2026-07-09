@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 680" font-family="Microsoft YaHei, PingFang SC, sans-serif">
+  <defs>
+    <linearGradient id="rendererGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4FC3F7;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#29B6F6;stop-opacity:0.25"/>
+    </linearGradient>
+    <linearGradient id="mainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#AB47BC;stop-opacity:0.08"/>
+      <stop offset="100%" style="stop-color:#AB47BC;stop-opacity:0.15"/>
+    </linearGradient>
+    <linearGradient id="controllerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF7043;stop-opacity:0.2"/>
+      <stop offset="100%" style="stop-color:#FF7043;stop-opacity:0.3"/>
+    </linearGradient>
+    <linearGradient id="serviceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFA726;stop-opacity:0.2"/>
+      <stop offset="100%" style="stop-color:#FFA726;stop-opacity:0.3"/>
+    </linearGradient>
+    <linearGradient id="repoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#66BB6A;stop-opacity:0.2"/>
+      <stop offset="100%" style="stop-color:#66BB6A;stop-opacity:0.3"/>
+    </linearGradient>
+    <linearGradient id="dbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#5C6BC0;stop-opacity:0.2"/>
+      <stop offset="100%" style="stop-color:#5C6BC0;stop-opacity:0.3"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.1"/>
+    </filter>
+  </defs>
+
+  <rect x="30" y="20" width="840" height="100" rx="10" fill="url(#rendererGrad)" stroke="#29B6F6" stroke-width="2" filter="url(#shadow)"/>
+  <text x="450" y="50" text-anchor="middle" font-size="16" font-weight="bold" fill="#0277BD">渲染进程 (Renderer Process)</text>
+  <text x="450" y="75" text-anchor="middle" font-size="13" fill="#555">Vue 3 + Element Plus + Pinia + ECharts</text>
+  <text x="450" y="95" text-anchor="middle" font-size="12" fill="#777">Views / Components / Stores — 无 Node.js / SQLite 直接访问权限</text>
+
+  <line x1="450" y1="120" x2="450" y2="160" stroke="#78909C" stroke-width="2" stroke-dasharray="6,3"/>
+  <polygon points="444,158 456,158 450,168" fill="#78909C"/>
+  <rect x="475" y="130" width="260" height="22" rx="4" fill="white" stroke="#B0BEC5" stroke-width="1"/>
+  <text x="605" y="145" text-anchor="middle" font-size="11" fill="#546E7A">contextBridge (preload 桥接) · ipcRenderer.invoke()</text>
+
+  <rect x="30" y="165" width="840" height="500" rx="10" fill="url(#mainGrad)" stroke="#7E57C2" stroke-width="2" filter="url(#shadow)"/>
+  <text x="450" y="195" text-anchor="middle" font-size="16" font-weight="bold" fill="#4527A0">主进程 (Main Process)</text>
+
+  <!-- ④ Controller 层 -->
+  <rect x="70" y="210" width="760" height="95" rx="8" fill="url(#controllerGrad)" stroke="#FF7043" stroke-width="1.5"/>
+  <text x="90" y="235" font-size="14" font-weight="bold" fill="#D84315">④ IPC 控制器层 (Controller)</text>
+  <text x="90" y="258" font-size="12" fill="#555">· registerTransactionController() — 8 channels</text>
+  <text x="460" y="258" font-size="12" fill="#555">· registerCategoryController() — 4 channels</text>
+  <text x="90" y="276" font-size="12" fill="#555">· registerLedgerController() — 4 channels</text>
+  <text x="90" y="295" font-size="11" fill="#888">职责：ipcMain.handle 注册、统一 try/catch、日志记录</text>
+
+  <line x1="450" y1="305" x2="450" y2="330" stroke="#BDBDBD" stroke-width="1.5"/>
+  <polygon points="444,328 456,328 450,338" fill="#BDBDBD"/>
+
+  <!-- ③ Service 层 -->
+  <rect x="70" y="340" width="760" height="95" rx="8" fill="url(#serviceGrad)" stroke="#FFA726" stroke-width="1.5"/>
+  <text x="90" y="365" font-size="14" font-weight="bold" fill="#E65100">③ Service 业务层</text>
+  <text x="90" y="388" font-size="12" fill="#555">· TransactionService — 参数校验、CSV解析、月度/区间统计</text>
+  <text x="460" y="388" font-size="12" fill="#555">· CategoryService — CRUD + 外键约束冲突友好提示</text>
+  <text x="90" y="406" font-size="12" fill="#555">· LedgerService — 默认账本保护(id=1不可删)</text>
+  <text x="90" y="425" font-size="11" fill="#888">职责：校验、事务编排、统一 ApiResponse {code, data, msg}</text>
+
+  <line x1="450" y1="435" x2="450" y2="460" stroke="#BDBDBD" stroke-width="1.5"/>
+  <polygon points="444,458 456,458 450,468" fill="#BDBDBD"/>
+
+  <!-- ② Repository 层 -->
+  <rect x="70" y="470" width="760" height="80" rx="8" fill="url(#repoGrad)" stroke="#66BB6A" stroke-width="1.5"/>
+  <text x="90" y="495" font-size="14" font-weight="bold" fill="#2E7D32">② Repository 仓储层</text>
+  <text x="90" y="518" font-size="12" fill="#555">· TransactionRepository — 动态WHERE拼接 + JOIN + 统计聚合</text>
+  <text x="460" y="518" font-size="12" fill="#555">· CategoryRepository — 按type分组查询</text>
+  <text x="90" y="536" font-size="12" fill="#555">· LedgerRepository — 单表CRUD</text>
+  <text x="90" y="546" font-size="11" fill="#888">职责：纯SQL编写，零业务逻辑，依赖注入DbManager</text>
+
+  <line x1="450" y1="550" x2="450" y2="575" stroke="#BDBDBD" stroke-width="1.5"/>
+  <polygon points="444,573 456,573 450,583" fill="#BDBDBD"/>
+
+  <!-- ① DB 层 -->
+  <rect x="70" y="585" width="760" height="70" rx="8" fill="url(#dbGrad)" stroke="#5C6BC0" stroke-width="1.5"/>
+  <text x="90" y="610" font-size="14" font-weight="bold" fill="#283593">① DB 底层层 (DbManager 全局单例)</text>
+  <text x="90" y="632" font-size="12" fill="#555">· init() 连接创建 + WAL模式 + 建表 + 预置数据</text>
+  <text x="400" y="632" font-size="12" fill="#555">· run() 写操作→p-queue串行队列</text>
+  <text x="90" y="648" font-size="12" fill="#555">· get()/all() 读操作→直接查询</text>
+  <text x="400" y="648" font-size="12" fill="#555">· transaction() 事务包裹→写队列保证原子性</text>
+
+  <text x="450" y="678" text-anchor="middle" font-size="11" fill="#999">职责：连接管理、读写分离、写串行防锁、数据库迁移</text>
+</svg>

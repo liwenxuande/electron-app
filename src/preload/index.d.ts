@@ -1,6 +1,5 @@
 /**
  * preload API 类型声明
- * 渲染进程通过 window.userAPI 调用这些方法
  */
 
 /** 统一返回格式 */
@@ -10,47 +9,112 @@ interface ApiResponse<T = any> {
   msg: string
 }
 
-/** 用户数据行 */
-interface UserRow {
-  id: number
-  name: string
-  phone: string
-  address: string
-  create_time: string
-}
-
-/** 分页查询结果 */
-interface PaginatedResult {
-  list: UserRow[]
-  total: number
-}
-
-/** 用户输入数据 */
-interface UserInput {
-  name: string
-  phone: string
-  address: string
-}
-
-/** 列表查询参数 */
-interface ListParams {
-  searchName?: string
-  page?: number
-  pageSize?: number
-}
-
-interface UserAPI {
-  getUserList(params: ListParams): Promise<ApiResponse<PaginatedResult>>
-  getUserById(id: number): Promise<ApiResponse<UserRow>>
-  createUser(data: UserInput): Promise<ApiResponse<null>>
-  updateUser(id: number, data: UserInput): Promise<ApiResponse<null>>
-  deleteUser(id: number): Promise<ApiResponse<null>>
+interface ElectronAPI {
   showNotification(title: string, body: string): Promise<ApiResponse<null>>
+  minimize(): Promise<void>
+  maximize(): Promise<void>
+  close(): Promise<void>
+  isMaximized(): Promise<boolean>
+  onMaximizeChange(callback: (isMaximized: boolean) => void): void
+  toggleDevTools(): Promise<void>
 }
 
 declare global {
   interface Window {
-    /** 安全的用户管理API桥接对象 */
-    userAPI: UserAPI
+    electronAPI: ElectronAPI
+    categoryAPI: CategoryAPI
+    transactionAPI: TransactionAPI
+    ledgerAPI: LedgerAPI
   }
+}
+
+interface LedgerAPI {
+  getLedgerList(): Promise<ApiResponse<LedgerRow[]>>
+  createLedger(name: string, description?: string): Promise<ApiResponse<null>>
+  updateLedger(id: number, name: string, description: string): Promise<ApiResponse<null>>
+  deleteLedger(id: number): Promise<ApiResponse<null>>
+}
+
+interface LedgerRow {
+  id: number
+  name: string
+  description: string
+  create_time: string
+}
+
+interface CategoryAPI {
+  getCategoryList(type?: string): Promise<ApiResponse<CategoryRow[]>>
+  createCategory(name: string, type: string, icon?: string, sortOrder?: number): Promise<ApiResponse<null>>
+  updateCategory(id: number, name: string, icon: string, sortOrder: number): Promise<ApiResponse<null>>
+  deleteCategory(id: number): Promise<ApiResponse<null>>
+}
+
+interface CategoryRow {
+  id: number
+  name: string
+  type: 'income' | 'expense'
+  icon: string
+  sort_order: number
+}
+
+interface TransactionRow2 {
+  id: number
+  type: 'income' | 'expense'
+  amount: number
+  category_id: number
+  category_name?: string
+  ledger_id: number
+  ledger_name?: string
+  trans_date: string
+  description: string
+  payment_method: string
+  create_time: string
+  update_time: string
+}
+
+interface PaginatedTransactions {
+  list: TransactionRow2[]
+  total: number
+}
+
+interface MonthlyStats {
+  totalIncome: number
+  totalExpense: number
+}
+
+interface CsvImportResult {
+  successCount: number
+  failCount: number
+  skipCount: number
+  errors: string[]
+}
+
+interface DailyStat {
+  date: string
+  income: number
+  expense: number
+}
+
+interface CategoryStat {
+  category_id: number
+  category_name: string
+  type: string
+  total: number
+}
+
+interface StatsData {
+  dailyStats: DailyStat[]
+  expenseCategoryStats: CategoryStat[]
+  incomeCategoryStats: CategoryStat[]
+}
+
+interface TransactionAPI {
+  getTransactionList(params: Record<string, unknown>): Promise<ApiResponse<PaginatedTransactions>>
+  getTransactionById(id: number): Promise<ApiResponse<TransactionRow2>>
+  createTransaction(data: Record<string, unknown>): Promise<ApiResponse<null>>
+  updateTransaction(id: number, data: Record<string, unknown>): Promise<ApiResponse<null>>
+  deleteTransaction(id: number): Promise<ApiResponse<null>>
+  getMonthlyStats(yearMonth: string): Promise<ApiResponse<MonthlyStats>>
+  getStats(startDate: string, endDate: string, categoryId?: number, ledgerId?: number, keyword?: string): Promise<ApiResponse<StatsData>>
+  importCsv(csvText: string, ledgerId?: number): Promise<ApiResponse<CsvImportResult>>
 }

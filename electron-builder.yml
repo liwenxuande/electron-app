@@ -1,6 +1,6 @@
-appId: com.electron.crud-app
-productName: 人员管理系统
-executableName: lwx-crud
+appId: com.electron.personal-finance
+productName: 个人记账
+executableName: personal-finance
 directories:
   buildResources: build
   output: release

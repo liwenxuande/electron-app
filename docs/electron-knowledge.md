@@ -328,6 +328,37 @@ if (app.isPackaged) {
 
 `app.isPackaged` 是 Electron 提供的布尔值——开发时 `false`，打包后 `true`。经常用来区分环境。
 
+### 6.4 表结构迁移：当表名或字段需要调整时
+
+数据库结构不是一成不变的——有时候表名用了 SQL 保留字需要改名，有时候字段类型需要调整。SQLite 不像 MySQL 那样有成熟的 migration 框架，需要自己处理。
+
+**核心思路**：启动时检测旧结构是否存在 → 存在则自动迁移 → 再创建新结构（`CREATE TABLE IF NOT EXISTS`）。
+
+```ts
+// 例：将保留字表名 "transaction" 迁移到 transactions
+const oldTable = db.prepare(
+  "SELECT count(*) as count FROM sqlite_master WHERE type='table' AND name='transaction'"
+).get() as { count: number }
+
+if (oldTable.count > 0) {
+  db.exec('ALTER TABLE "transaction" RENAME TO transactions')
+}
+
+// 然后正常建表（幂等，已有就不会重复创建）
+db.exec(`CREATE TABLE IF NOT EXISTS transactions ( ... )`)
+```
+
+**关键 API**：`sqlite_master` 是 SQLite 的系统表，记录了所有表、索引、视图的元信息。用它判断"某个表/列是否存在"是最可靠的方式。
+
+**迁移的时机**：必须在 `init()` 里、**建表语句之前**执行迁移。因为 `CREATE TABLE IF NOT EXISTS` 发现新表名已存在就会跳过——如果旧表还没来得及重命名，新表就不会被创建（因为并不存在），导致后续所有 SQL 报 "no such table"。
+
+**适用场景**：
+- 表名用了 SQL 保留字需要改名
+- 新增字段（`ALTER TABLE ADD COLUMN`）
+- 数据库位置从安装目录迁移到 `userData`（见 6.3）
+
+> **原则**：迁移逻辑要幂等——多次执行不会出错。`sqlite_master` 检查 + `IF NOT EXISTS` 是保证幂等的标准组合。同时建议先 `ALTER TABLE RENAME` 再 `CREATE TABLE IF NOT EXISTS`，确保无论旧表存在与否都能得到正确的最终状态。
+
 ---
 
 ## 七、打包：electron-builder 那些事

@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 220" font-family="Microsoft YaHei, PingFang SC, sans-serif">
+  <defs>
+    <linearGradient id="leftGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#EF5350;stop-opacity:0.1"/>
+      <stop offset="100%" style="stop-color:#EF5350;stop-opacity:0.18"/>
+    </linearGradient>
+    <linearGradient id="midGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFA726;stop-opacity:0.12"/>
+      <stop offset="100%" style="stop-color:#FFA726;stop-opacity:0.2"/>
+    </linearGradient>
+    <linearGradient id="rightGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#66BB6A;stop-opacity:0.12"/>
+      <stop offset="100%" style="stop-color:#66BB6A;stop-opacity:0.2"/>
+    </linearGradient>
+    <filter id="sh">
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <rect x="15" y="15" width="280" height="190" rx="10" fill="url(#leftGrad)" stroke="#EF5350" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="155" y="42" text-anchor="middle" font-size="13" font-weight="bold" fill="#C62828">渲染进程（不可信沙箱）</text>
+  <rect x="30" y="55" width="250" height="40" rx="6" fill="white" stroke="#E0E0E0" stroke-width="1"/>
+  <text x="155" y="72" text-anchor="middle" font-size="11" fill="#333">window.transactionAPI.xxx</text>
+  <text x="155" y="87" text-anchor="middle" font-size="10" fill="#888">只能调用暴露的 API</text>
+  <rect x="30" y="105" width="250" height="40" rx="6" fill="white" stroke="#E0E0E0" stroke-width="1"/>
+  <text x="155" y="122" text-anchor="middle" font-size="11" fill="#333">window.categoryAPI</text>
+  <text x="155" y="137" text-anchor="middle" font-size="10" fill="#888">window.ledgerAPI</text>
+  <text x="155" y="185" text-anchor="middle" font-size="10" fill="#999">无法访问 Node.js / SQLite</text>
+
+  <line x1="295" y1="95" x2="345" y2="95" stroke="#FF9800" stroke-width="2"/>
+  <polygon points="343,89 355,95 343,101" fill="#FF9800"/>
+  <rect x="300" y="103" width="50" height="18" rx="3" fill="white" stroke="#FFB74D" stroke-width="1"/>
+  <text x="325" y="115" text-anchor="middle" font-size="9" fill="#E65100">invoke</text>
+
+  <rect x="355" y="15" width="250" height="190" rx="10" fill="url(#midGrad)" stroke="#FFA726" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="480" y="42" text-anchor="middle" font-size="13" font-weight="bold" fill="#E65100">预加载脚本（可信桥接）</text>
+  <rect x="370" y="55" width="220" height="45" rx="6" fill="white" stroke="#E0E0E0" stroke-width="1"/>
+  <text x="480" y="75" text-anchor="middle" font-size="11" fill="#333">ipcRenderer</text>
+  <text x="480" y="92" text-anchor="middle" font-size="10" fill="#888">.invoke(channel)</text>
+  <rect x="370" y="115" width="220" height="45" rx="6" fill="white" stroke="#E0E0E0" stroke-width="1"/>
+  <text x="480" y="135" text-anchor="middle" font-size="11" fill="#333">不暴露 Node API</text>
+  <text x="480" y="150" text-anchor="middle" font-size="10" fill="#888">不暴露 SQLite / fs / path</text>
+  <text x="480" y="185" text-anchor="middle" font-size="10" fill="#999">contextBridge 隔离层</text>
+
+  <line x1="605" y1="95" x2="655" y2="95" stroke="#4CAF50" stroke-width="2"/>
+  <polygon points="653,89 665,95 653,101" fill="#4CAF50"/>
+  <rect x="610" y="103" width="55" height="18" rx="3" fill="white" stroke="#A5D6A7" stroke-width="1"/>
+  <text x="637" y="115" text-anchor="middle" font-size="9" fill="#2E7D32">handle</text>
+
+  <rect x="665" y="15" width="280" height="190" rx="10" fill="url(#rightGrad)" stroke="#66BB6A" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="805" y="42" text-anchor="middle" font-size="13" font-weight="bold" fill="#2E7D32">主进程（Node.js 环境）</text>
+  <rect x="680" y="55" width="250" height="95" rx="6" fill="white" stroke="#E0E0E0" stroke-width="1"/>
+  <text x="805" y="78" text-anchor="middle" font-size="12" fill="#333">Controller</text>
+  <text x="805" y="98" text-anchor="middle" font-size="11" fill="#555">→ Service</text>
+  <text x="805" y="118" text-anchor="middle" font-size="11" fill="#555">→ Repository</text>
+  <text x="805" y="138" text-anchor="middle" font-size="11" fill="#555">→ DbManager</text>
+  <text x="805" y="185" text-anchor="middle" font-size="10" fill="#999">完整 Node.js 权限</text>
+</svg>
