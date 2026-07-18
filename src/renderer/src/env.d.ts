@@ -31,6 +31,7 @@ declare global {
     categoryAPI: CategoryAPI
     transactionAPI: TransactionAPI
     ledgerAPI: LedgerAPI
+    aiAPI: AIAPI
   }
 }
 
@@ -123,6 +124,45 @@ interface TransactionAPI {
   getMonthlyStats(yearMonth: string): Promise<ApiResponse<MonthlyStats>>
   getStats(startDate: string, endDate: string, categoryId?: number, ledgerId?: number, keyword?: string): Promise<ApiResponse<StatsData>>
   importCsv(csvText: string, ledgerId?: number): Promise<ApiResponse<CsvImportResult>>
+}
+
+interface ChatHistoryRecord {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  timestamp: number
+}
+
+interface AISessionSummary {
+  sessionId: string
+  title: string
+  createdAt: number
+  updatedAt: number
+  recordCount: number
+}
+
+type AIModel = 'deepseek-v4-flash' | 'deepseek-v4-pro'
+
+interface AIAPI {
+  saveConfig(config: { key: string; model: AIModel }): Promise<ApiResponse<null>>
+  getConfig(): Promise<ApiResponse<{ hasKey: boolean; model: AIModel }>>
+  testConnection(): Promise<ApiResponse<null>>
+  chat(params: { messages: Array<{ role: string; content: string | null }>; ledgerId: number; sessionId?: string }): Promise<ApiResponse<{ sessionId: string }>>
+  reportMonthly(params: { yearMonth: string; ledgerId: number }): Promise<ApiResponse<null>>
+  reportStats(params: { statsData: Record<string, unknown>; ledgerId: number }): Promise<ApiResponse<null>>
+  getHistory(params?: { sessionId?: string }): Promise<ApiResponse<ChatHistoryRecord[]>>
+  clearHistory(): Promise<ApiResponse<null>>
+  listSessions(): Promise<ApiResponse<AISessionSummary[]>>
+  createSession(ledgerId: number): Promise<ApiResponse<{ sessionId: string }>>
+  switchSession(sessionId: string): Promise<ApiResponse<{ sessionId: string }>>
+  deleteSession(sessionId: string): Promise<ApiResponse<null>>
+  onChatChunk(cb: (data: { sessionId: string; chunk: string }) => void): void
+  onChatDone(cb: (data: { sessionId: string; result: string }) => void): void
+  onChatError(cb: (data: { sessionId: string; error: string }) => void): void
+  onReportChunk(cb: (chunk: string) => void): void
+  onReportDone(cb: (result: string) => void): void
+  onReportError(cb: (err: string) => void): void
+  removeAllListeners(): void
 }
 
 export {}

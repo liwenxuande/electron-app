@@ -84,6 +84,79 @@ mainWindow.on('maximize', () => {
 onMaximizeChange: (cb) => ipcRenderer.on('window:maximizeChange', (_e, state) => cb(state))
 ```
 
+### 2.4 流式推送模式——多次响应的"单向推送"
+
+上面说的"单向推送"是一次性的——主进程发一条消息就结束了。但有些场景需要**持续推送数据流**：AI 聊天逐个 token 返回、大文件处理报告进度、日志实时输出等。
+
+这种情况下，渲染进程发起一个请求（invoke）触发任务，主进程通过 `webContents.send` 多次推送数据，直到任务完成：
+
+```
+renderer                          main
+  │                                │
+  ├──invoke('ai:chat', params)────→│  ← 发起请求（触发任务）
+  │                                │
+  │←──on('ai:chat:chunk', "你好")──┤  ← 推送第一个 chunk
+  │←──on('ai:chat:chunk', "世界")──┤  ← 推送第二个 chunk
+  │←──on('ai:chat:done', result)───┤  ← 推送完成信号
+  │                                │
+```
+
+**preload 桥接实现**：
+
+```ts
+// preload — 同时注册 invoke 和监听器
+contextBridge.exposeInMainWorld('aiAPI', {
+  // ① 请求-响应：触发任务
+  chat: (params) => ipcRenderer.invoke('ai:chat', params),
+
+  // ② 流式监听：注册回调，每次主进程推送都会触发
+  onChatChunk: (cb) => {
+    ipcRenderer.on('ai:chat:chunk', (_event, data) => cb(data))
+  },
+  onChatDone: (cb) => {
+    ipcRenderer.on('ai:chat:done', (_event, data) => cb(data))
+  },
+  onChatError: (cb) => {
+    ipcRenderer.on('ai:chat:error', (_event, data) => cb(data))
+  },
+
+  // ③ 清理：退出页面时必须移除监听，否则会重复触发
+  removeAllListeners: () => {
+    ipcRenderer.removeAllListeners('ai:chat:chunk')
+    ipcRenderer.removeAllListeners('ai:chat:done')
+    ipcRenderer.removeAllListeners('ai:chat:error')
+  },
+})
+```
+
+**渲染进程使用**：
+
+```ts
+// 组件挂载时注册监听
+aiAPI.onChatChunk(({ chunk }) => message.value += chunk)
+aiAPI.onChatDone(({ result }) => loading.value = false)
+aiAPI.onChatError(({ error }) => showError(error))
+
+// 发送请求（不阻塞，监听器接收结果）
+await aiAPI.chat({ messages, ledgerId })
+
+// 组件卸载时清理，防止内存泄漏和重复触发
+onUnmounted(() => aiAPI.removeAllListeners())
+```
+
+**关键要点**：
+
+| 要点 | 说明 |
+|------|------|
+| 监听器注册时机 | 在调用 invoke 之前注册，否则可能漏掉先到达的 chunk |
+| 清理的必要性 | `ipcRenderer.on` 注册的监听器在组件卸载后仍然存活。不清理的话，组件再次挂载时会注册第二个监听器，收到一个 chunk 执行两次回调 |
+| 错误处理 | 流式模式有两种错误：invoke 返回的 Promise reject（任务未启动）；`onChatError` 消息（任务启动后中途失败） |
+| 数据约定 | 通常定义消息类型（chunk/done/error），主进程按约定推送 |
+
+这种模式本质上是对 Electron 两种 IPC 模式的组合运用——invoke/handle 触发任务，send/on 接收流式结果。
+
+---
+
 ### 2.3 TypeScript 类型怎么配
 
 渲染进程本来不知道 `window` 上有 `userAPI`，需要手动声明：
@@ -358,6 +431,54 @@ db.exec(`CREATE TABLE IF NOT EXISTS transactions ( ... )`)
 - 数据库位置从安装目录迁移到 `userData`（见 6.3）
 
 > **原则**：迁移逻辑要幂等——多次执行不会出错。`sqlite_master` 检查 + `IF NOT EXISTS` 是保证幂等的标准组合。同时建议先 `ALTER TABLE RENAME` 再 `CREATE TABLE IF NOT EXISTS`，确保无论旧表存在与否都能得到正确的最终状态。
+
+### 6.5 外键级联删除（ON DELETE CASCADE）
+
+SQLite 默认**不启用外键约束**，需要显式开启：
+
+```ts
+this.db.pragma('journal_mode = WAL')
+this.db.pragma('foreign_keys = ON')  // ← 关键
+```
+
+**项目实际应用**：AI 会话和消息的一对多关系
+
+```ts
+// 会话表（父）
+CREATE TABLE IF NOT EXISTS ai_sessions (
+  session_id  TEXT PRIMARY KEY,
+  ledger_id   INTEGER NOT NULL DEFAULT 1,
+  title       TEXT NOT NULL DEFAULT '新对话',
+  created_at  INTEGER NOT NULL DEFAULT (unixepoch()),
+  updated_at  INTEGER NOT NULL DEFAULT (unixepoch())
+)
+
+// 消息表（子）— 外键指向父表，级联删除
+CREATE TABLE IF NOT EXISTS ai_messages (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  session_id TEXT NOT NULL,
+  role       TEXT NOT NULL CHECK(role IN ('user','assistant','system')),
+  content    TEXT NOT NULL,
+  timestamp  INTEGER NOT NULL DEFAULT (unixepoch()),
+  FOREIGN KEY (session_id) REFERENCES ai_sessions(session_id) ON DELETE CASCADE
+)
+```
+
+**ON DELETE CASCADE 的行为**：删除父表记录时，子表中所有关联记录自动删除。删除一个会话 → 该会话的所有消息自动清理，不需要手动遍历删除。
+
+**索引优化**：外键关联字段加上索引，避免每次查询全表扫描：
+
+```ts
+CREATE INDEX IF NOT EXISTS idx_ai_messages_session_time ON ai_messages(session_id, timestamp)
+```
+
+**CHECK 约束**：SQLite 支持列级别的 CHECK 约束，用来限制字段取值范围：
+
+```ts
+role TEXT NOT NULL CHECK(role IN ('user','assistant','system'))
+```
+
+`better-sqlite3` 会校验 CHECK 约束，插入非法值会抛 `SQLITE_CONSTRAINT_CHECK` 错误。
 
 ---
 

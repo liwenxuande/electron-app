@@ -118,3 +118,54 @@ contextBridge.exposeInMainWorld('ledgerAPI', {
     return ipcRenderer.invoke('ledger:delete', id)
   }
 })
+
+contextBridge.exposeInMainWorld('aiAPI', {
+  saveConfig: (config: { key: string; model: string }) =>
+    ipcRenderer.invoke('ai:config:save', config),
+  getConfig: () =>
+    ipcRenderer.invoke('ai:config:get'),
+  testConnection: () =>
+    ipcRenderer.invoke('ai:config:test'),
+
+  chat: (params: { messages: Array<{ role: string; content: string | null }>; ledgerId: number; sessionId?: string }) =>
+    ipcRenderer.invoke('ai:chat', params),
+  reportMonthly: (params: { yearMonth: string; ledgerId: number }) =>
+    ipcRenderer.invoke('ai:report:monthly', params),
+  reportStats: (params: { statsData: Record<string, unknown>; ledgerId: number }) =>
+    ipcRenderer.invoke('ai:report:stats', params),
+
+  getHistory: (params?: { sessionId?: string }) => ipcRenderer.invoke('ai:chat:history', params ?? {}),
+  clearHistory: () => ipcRenderer.invoke('ai:chat:clear'),
+
+  listSessions: () => ipcRenderer.invoke('ai:session:list'),
+  createSession: (ledgerId: number) => ipcRenderer.invoke('ai:session:create', { ledgerId }),
+  switchSession: (sessionId: string) => ipcRenderer.invoke('ai:session:switch', { sessionId }),
+  deleteSession: (sessionId: string) => ipcRenderer.invoke('ai:session:delete', { sessionId }),
+
+  onChatChunk: (cb: (data: { sessionId: string; chunk: string }) => void) => {
+    ipcRenderer.on('ai:chat:chunk', (_event, data: { sessionId: string; chunk: string }) => cb(data))
+  },
+  onChatDone: (cb: (data: { sessionId: string; result: string }) => void) => {
+    ipcRenderer.on('ai:chat:done', (_event, data: { sessionId: string; result: string }) => cb(data))
+  },
+  onChatError: (cb: (data: { sessionId: string; error: string }) => void) => {
+    ipcRenderer.on('ai:chat:error', (_event, data: { sessionId: string; error: string }) => cb(data))
+  },
+  onReportChunk: (cb: (chunk: string) => void) => {
+    ipcRenderer.on('ai:report:chunk', (_event, chunk: string) => cb(chunk))
+  },
+  onReportDone: (cb: (result: string) => void) => {
+    ipcRenderer.on('ai:report:done', (_event, result: string) => cb(result))
+  },
+  onReportError: (cb: (err: string) => void) => {
+    ipcRenderer.on('ai:report:error', (_event, err: string) => cb(err))
+  },
+  removeAllListeners: () => {
+    ipcRenderer.removeAllListeners('ai:chat:chunk')
+    ipcRenderer.removeAllListeners('ai:chat:done')
+    ipcRenderer.removeAllListeners('ai:chat:error')
+    ipcRenderer.removeAllListeners('ai:report:chunk')
+    ipcRenderer.removeAllListeners('ai:report:done')
+    ipcRenderer.removeAllListeners('ai:report:error')
+  },
+})

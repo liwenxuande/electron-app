@@ -4,8 +4,10 @@ import fs from 'fs'
 import { registerTransactionController } from './controller/transactionController'
 import { registerCategoryController } from './controller/categoryController'
 import { registerLedgerController } from './controller/ledgerController'
+import { registerAIController } from './controller/aiController'
 import DbManager from './db/database'
 import { logger, initFileTransport } from './utils/logger'
+import { initAILogTransport } from './utils/aiLogger'
 
 // Windows 下修复控制台中文乱码（切换代码页为 UTF-8）
 import { execSync } from 'child_process'
@@ -148,6 +150,7 @@ function createWindow(): void {
 app.whenReady().then(() => {
   // ① 初始化文件日志（延迟，因 app.getPath 需 ready 后调用）
   initFileTransport()
+  initAILogTransport()
 
   // ② 初始化数据库（统一放 userData，升级不丢数据）
   const dbFile = app.isPackaged ? 'data.db' : 'data.dev.db'
@@ -170,6 +173,7 @@ app.whenReady().then(() => {
   registerCategoryController()
   registerLedgerController()
   registerTransactionController()
+  registerAIController()
 
   // ③½ 注册系统通知 IPC（测试用）
   ipcMain.handle('notification:show', (_event, title: string, body: string) => {

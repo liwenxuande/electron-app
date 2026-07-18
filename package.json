@@ -11,7 +11,8 @@
     "postinstall": "electron-builder install-app-deps",
     "postinstall2": "node node_modules/electron/install.js",
     "package:win": "electron-vite build && electron-builder --win",
-    "package:mac": "electron-vite build && electron-builder --mac"
+    "package:mac": "electron-vite build && electron-builder --mac",
+    "logs:ai": "node scripts/view-ai-log.js"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",

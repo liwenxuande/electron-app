@@ -91,3 +91,4 @@ npm run package:mac
 - [代码知识库](docs/code-wiki.md)
 - [Electron 踩坑记录](docs/electron-faq.md)
 - [Electron 知识点](docs/electron-knowledge.md)
+- [AI 对话调试日志上手指南](docs/ai-log-guide.md)

@@ -84,6 +84,34 @@ class DbManager {
       "INSERT OR IGNORE INTO ledger (id, name, description) VALUES (1, ?, ?)"
     ).run('默认账本', '系统默认账本')
 
+    // 创建 ai_sessions AI 会话表
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS ai_sessions (
+        session_id  TEXT PRIMARY KEY,
+        ledger_id   INTEGER NOT NULL DEFAULT 1,
+        title       TEXT NOT NULL DEFAULT '新对话',
+        created_at  INTEGER NOT NULL DEFAULT (unixepoch()),
+        updated_at  INTEGER NOT NULL DEFAULT (unixepoch())
+      )
+    `)
+
+    // 创建 ai_messages AI 消息表
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS ai_messages (
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        session_id TEXT NOT NULL,
+        role       TEXT NOT NULL CHECK(role IN ('user','assistant','system')),
+        content    TEXT NOT NULL,
+        timestamp  INTEGER NOT NULL DEFAULT (unixepoch()),
+        FOREIGN KEY (session_id) REFERENCES ai_sessions(session_id) ON DELETE CASCADE
+      )
+    `)
+
+    // 索引：加速按会话+时间排序
+    this.db.prepare(
+      'CREATE INDEX IF NOT EXISTS idx_ai_messages_session_time ON ai_messages(session_id, timestamp)'
+    ).run()
+
     // 数据库迁移：将旧表名 "transaction"（SQL保留字）迁移到 transactions
     const oldTableExists = this.db.prepare(
       "SELECT count(*) as count FROM sqlite_master WHERE type='table' AND name='transaction'"
