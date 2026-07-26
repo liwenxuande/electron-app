@@ -77,7 +77,11 @@ function postJSON(
         }
       })
     })
-    signal?.addEventListener('abort', () => req.destroy(), { once: true })
+    signal?.addEventListener('abort', () => {
+      req.removeAllListeners('error')
+      req.destroy()
+      reject(new Error('ABORTED'))
+    }, { once: true })
     req.on('error', reject)
     req.on('timeout', () => { req.destroy(); reject(new Error('请求超时')) })
     req.write(payload)
@@ -145,7 +149,11 @@ export function postStream(
       })
       res.on('end', () => resolve(fullText))
     })
-    signal?.addEventListener('abort', () => req.destroy(), { once: true })
+    signal?.addEventListener('abort', () => {
+      req.removeAllListeners('error')
+      req.destroy()
+      reject(new Error('ABORTED'))
+    }, { once: true })
     req.on('error', reject)
     req.on('timeout', () => { req.destroy(); reject(new Error('请求超时')) })
     req.write(payload)

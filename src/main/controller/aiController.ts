@@ -121,7 +121,7 @@ export function registerAIController(): void {
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e)
       // 如果是用户主动取消，不当作错误
-      if (msg === '请求已取消' || (e instanceof Error && e.name === 'AbortError')) {
+      if (msg === 'ABORTED' || msg === '请求已取消' || (e instanceof Error && e.name === 'AbortError')) {
         abortControllers.delete(sid)
         const stoppedContent = '\n\n---\n⚠️ 用户已手动停止'
         appendMessage(sid, 'assistant', stoppedContent)

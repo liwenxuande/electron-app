@@ -227,9 +227,15 @@ async function handleNewSession() {
 }
 
 async function handleSwitch(sessionId: string) {
+  // 切换前保存当前正在流式输出的文本
+  if (isStreaming.value && streamingText.value) {
+    store.addAssistantMessage(streamingText.value)
+  }
   isStreaming.value = false
   streamingText.value = ''
+  isThinking.value = false
   errorMsg.value = ''
+  sending.value = false
   await store.switchSession(sessionId)
   scrollToBottom()
 }
