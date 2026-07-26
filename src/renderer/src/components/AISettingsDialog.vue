@@ -28,7 +28,7 @@
       </div>
       <div class="ai-dialog-footer">
         <button class="ai-btn ghost" @click="close">取消</button>
-        <button class="ai-btn primary" :disabled="!key.trim()" @click="save">保存</button>
+        <button class="ai-btn primary" :disabled="!key.trim() || !testPassed" @click="save">保存</button>
       </div>
     </div>
   </div>
@@ -49,12 +49,22 @@ const key = ref('')
 const model = ref<AIConfig['model']>('deepseek-v4-flash')
 const loading = ref(false)
 const result = ref<{ ok: boolean; msg: string } | null>(null)
+const testPassed = ref(false)
 
 watch(() => props.visible, v => {
   show.value = v
   if (v) {
-    key.value = props.config.apiKey === '(已保存)' ? '' : props.config.apiKey
+    key.value = props.config.apiKey
     model.value = props.config.model
+    result.value = null
+    testPassed.value = props.config.apiKey === '(已保存)'
+  }
+})
+
+// 修改 Key 后需要重新测试（修改模型不需要）
+watch(key, (newKey, oldKey) => {
+  if (newKey !== oldKey) {
+    testPassed.value = false
     result.value = null
   }
 })
@@ -65,31 +75,27 @@ function close() {
 }
 
 async function test() {
-  // 有已保存 Key 时（输入框为空但显示 "(已保存)"），也允许测试
-  if (!key.value.trim() && props.config.apiKey !== '(已保存)') return
+  if (!key.value.trim()) return
   loading.value = true
   result.value = null
+  testPassed.value = false
   try {
-    // 只有输入了新 Key 才保存
-    if (key.value.trim()) {
-      await window.aiAPI.saveConfig({ key: key.value.trim(), model: model.value })
+    const res = await window.aiAPI.testConnection({ key: key.value.trim(), model: model.value })
+    if (res.code === 0) {
+      result.value = { ok: true, msg: '连接成功' }
+      testPassed.value = true
+    } else {
+      result.value = { ok: false, msg: res.msg }
     }
-    const res = await window.aiAPI.testConnection()
-    result.value = res.code === 0
-      ? { ok: true, msg: '✓ 连接成功' }
-      : { ok: false, msg: '✗ ' + res.msg }
   } catch (e: any) {
-    result.value = { ok: false, msg: '✗ ' + (e.message || '失败') }
+    result.value = { ok: false, msg: e.message || '连接失败' }
   }
   loading.value = false
 }
 
 function save() {
   const k = key.value.trim()
-  // 只有实际输入了新 Key 才传给后端，"(已保存)" 仅用于前端展示
-  window.aiAPI?.saveConfig({ key: k, model: model.value })
-  const displayKey = k || (props.config.apiKey === '(已保存)' ? '(已保存)' : '')
-  emit('save', { apiKey: displayKey, model: model.value })
+  emit('save', { apiKey: k, model: model.value })
   close()
 }
 </script>

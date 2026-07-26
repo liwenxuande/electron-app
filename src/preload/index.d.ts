@@ -139,8 +139,8 @@ type AIModel = 'deepseek-v4-flash' | 'deepseek-v4-pro'
 
 interface AIAPI {
   saveConfig(config: { key: string; model: AIModel }): Promise<ApiResponse<null>>
-  getConfig(): Promise<ApiResponse<{ hasKey: boolean; model: AIModel }>>
-  testConnection(): Promise<ApiResponse<null>>
+  getConfig(): Promise<ApiResponse<{ hasKey: boolean; model: AIModel; apiKey: string }>>
+  testConnection(params?: { key?: string; model?: string }): Promise<ApiResponse<null>>
   chat(params: { messages: Array<{ role: string; content: string | null }>; ledgerId: number; sessionId?: string }): Promise<ApiResponse<{ sessionId: string }>>
   reportMonthly(params: { yearMonth: string; ledgerId: number }): Promise<ApiResponse<null>>
   reportStats(params: { statsData: Record<string, unknown>; ledgerId: number }): Promise<ApiResponse<null>>

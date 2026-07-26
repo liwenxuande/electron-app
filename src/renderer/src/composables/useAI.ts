@@ -2,7 +2,7 @@ import { ref } from 'vue'
 import { AIconfigType } from './types'
 
 export interface AIConfig {
-  apiKey: string
+  apiKey: string | '(已保存)'
   model: 'deepseek-v4-flash' | 'deepseek-v4-pro'
 }
 
@@ -24,7 +24,7 @@ export function useAI(): AIconfigType {
       const res = await window.aiAPI.getConfig()
       if (res.code === 0 && res.data) {
         config.value = {
-          apiKey: res.data.hasKey ? '(已保存)' : '',
+          apiKey: res.data.apiKey || '',
           model: res.data.model || 'deepseek-v4-flash',
         }
       }
@@ -32,9 +32,9 @@ export function useAI(): AIconfigType {
     ready.value = true
   }
 
-  function openSettings() {
+  async function openSettings() {
+    await loadConfig()
     settingsVisible.value = true
-    loadConfig()
   }
 
   function closeSettings() {

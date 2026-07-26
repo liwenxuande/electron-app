@@ -21,8 +21,8 @@ export function registerAIController(): void {
 
   ipcMain.handle('ai:config:save', async (_event, { key, model }: { key: string; model: string }) => {
     try {
-      // 只有传入真实 Key 时才保存，避免 "(已保存)" 占位符覆盖真实 Key
-      if (key) {
+      // 只有传入真实 Key 时才保存，避免 "(已保存)" 等占位符覆盖真实 Key
+      if (key && key !== '(已保存)') {
         aiConfigService.saveApiKey(key)
       }
       aiConfigService.saveModel(model)
@@ -35,13 +35,13 @@ export function registerAIController(): void {
 
   ipcMain.handle('ai:config:get', async () => ({
     code: 0,
-    data: { hasKey: aiConfigService.hasKey(), model: aiConfigService.getModel() },
+    data: { hasKey: aiConfigService.hasKey(), model: aiConfigService.getModel(), apiKey: aiConfigService.hasKey() ? '(已保存)' : '' },
     msg: 'ok',
   }))
 
-  ipcMain.handle('ai:config:test', async () => {
+  ipcMain.handle('ai:config:test', async (_event, params?: { key?: string; model?: string }) => {
     try {
-      const ok = await aiConfigService.testConnection()
+      const ok = await aiConfigService.testConnection(params?.key, params?.model)
       return { code: ok ? 0 : -1, data: null, msg: ok ? '连接成功' : '连接失败，请检查 API Key' }
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e)
@@ -62,6 +62,10 @@ export function registerAIController(): void {
     const { messages, ledgerId, sessionId: inputSid } = params
     const win = BrowserWindow.fromWebContents(event.sender)
     if (!win) return { code: -1, data: null, msg: '窗口未找到' }
+
+    const safeSend = (channel: string, ...args: unknown[]) => {
+      if (!win.isDestroyed()) win.webContents.send(channel, ...args)
+    }
 
     let sid = inputSid || ''
     try {
@@ -94,12 +98,12 @@ export function registerAIController(): void {
       const result = await service.chat(
         recentMsgs,
         (chunk: string) => {
-          win.webContents.send('ai:chat:chunk', { sessionId: sid, chunk })
+          safeSend('ai:chat:chunk', { sessionId: sid, chunk })
         },
         sid,
         controller.signal,
         (toolName, phase) => {
-          win.webContents.send('ai:chat:tool-status', { sessionId: sid, toolName, phase })
+          safeSend('ai:chat:tool-status', { sessionId: sid, toolName, phase })
         },
       )
 
@@ -108,7 +112,7 @@ export function registerAIController(): void {
       if (result.stopped) {
         const stoppedContent = result.text + '\n\n---\n⚠️ 用户已手动停止'
         appendMessage(sid, 'assistant', stoppedContent)
-        win.webContents.send('ai:chat:done', { sessionId: sid, result: stoppedContent })
+        safeSend('ai:chat:done', { sessionId: sid, result: stoppedContent })
         return { code: 0, data: { sessionId: sid }, msg: 'ok' }
       }
 
@@ -116,21 +120,21 @@ export function registerAIController(): void {
         appendMessage(sid, 'assistant', result.text)
       }
 
-      win.webContents.send('ai:chat:done', { sessionId: sid, result: result.text })
+      safeSend('ai:chat:done', { sessionId: sid, result: result.text })
       return { code: 0, data: { sessionId: sid }, msg: 'ok' }
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e)
       // 如果是用户主动取消，不当作错误
-      if (msg === 'ABORTED' || msg === '请求已取消' || (e instanceof Error && e.name === 'AbortError')) {
+      if (msg === 'ABORTED' || msg === '请求已取消') {
         abortControllers.delete(sid)
         const stoppedContent = '\n\n---\n⚠️ 用户已手动停止'
         appendMessage(sid, 'assistant', stoppedContent)
-        win.webContents.send('ai:chat:done', { sessionId: sid, result: stoppedContent })
+        safeSend('ai:chat:done', { sessionId: sid, result: stoppedContent })
         return { code: 0, data: { sessionId: sid }, msg: 'ok' }
       }
       logger.error(`AI 对话失败: ${msg}`)
       abortControllers.delete(sid)
-      win.webContents.send('ai:chat:error', { sessionId: sid, error: msg })
+      safeSend('ai:chat:error', { sessionId: sid, error: msg })
       return { code: -1, data: null, msg }
     }
   })
@@ -171,7 +175,10 @@ export function registerAIController(): void {
     }
   })
 
-  ipcMain.handle('ai:chat:clear', async () => {
+  ipcMain.handle('ai:chat:clear', async (_event, { sessionId }: { sessionId?: string }) => {
+    if (sessionId) {
+      clearSession(sessionId)
+    }
     return { code: 0, data: null, msg: '聊天历史已清空' }
   })
 

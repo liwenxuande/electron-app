@@ -132,14 +132,14 @@ function createWindow(): void {
   const splashStart = Date.now()
   mainWindow.once('ready-to-show', () => {
     const elapsed = Date.now() - splashStart
-    const delay = Math.max(0, 1500 - elapsed)
-    setTimeout(() => {
-      if (splashWindow && !splashWindow.isDestroyed()) {
-        splashWindow.close()
-        splashWindow = null
-      }
+    // const delay = Math.max(0, 1500 - elapsed)
+    // setTimeout(() => {
+    if (splashWindow && !splashWindow.isDestroyed()) {
+      splashWindow.close()
+      splashWindow = null
+    }
       mainWindow?.show()
-    }, delay)
+    // }, delay)
   })
 
   logger.info('主窗口创建完成')

@@ -145,9 +145,10 @@ type AIModel = 'deepseek-v4-flash' | 'deepseek-v4-pro'
 
 interface AIAPI {
   saveConfig(config: { key: string; model: AIModel }): Promise<ApiResponse<null>>
-  getConfig(): Promise<ApiResponse<{ hasKey: boolean; model: AIModel }>>
-  testConnection(): Promise<ApiResponse<null>>
+  getConfig(): Promise<ApiResponse<{ hasKey: boolean; model: AIModel; apiKey: string | '(已保存)' }>>
+  testConnection(params?: { key?: string; model?: string }): Promise<ApiResponse<null>>
   chat(params: { messages: Array<{ role: string; content: string | null }>; ledgerId: number; sessionId?: string }): Promise<ApiResponse<{ sessionId: string }>>
+  cancelChat(sessionId: string): Promise<ApiResponse<null>>
   reportMonthly(params: { yearMonth: string; ledgerId: number }): Promise<ApiResponse<null>>
   reportStats(params: { statsData: Record<string, unknown>; ledgerId: number }): Promise<ApiResponse<null>>
   getHistory(params?: { sessionId?: string }): Promise<ApiResponse<ChatHistoryRecord[]>>
@@ -159,6 +160,7 @@ interface AIAPI {
   onChatChunk(cb: (data: { sessionId: string; chunk: string }) => void): void
   onChatDone(cb: (data: { sessionId: string; result: string }) => void): void
   onChatError(cb: (data: { sessionId: string; error: string }) => void): void
+  onToolStatus(cb: (data: { sessionId: string; toolName: string; phase: 'start' | 'end' }) => void): void
   onReportChunk(cb: (chunk: string) => void): void
   onReportDone(cb: (result: string) => void): void
   onReportError(cb: (err: string) => void): void

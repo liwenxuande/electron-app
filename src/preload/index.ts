@@ -124,8 +124,8 @@ contextBridge.exposeInMainWorld('aiAPI', {
     ipcRenderer.invoke('ai:config:save', config),
   getConfig: () =>
     ipcRenderer.invoke('ai:config:get'),
-  testConnection: () =>
-    ipcRenderer.invoke('ai:config:test'),
+  testConnection: (params?: { key?: string; model?: string }) =>
+    ipcRenderer.invoke('ai:config:test', params ?? {}),
 
   chat: (params: { messages: Array<{ role: string; content: string | null }>; ledgerId: number; sessionId?: string }) =>
     ipcRenderer.invoke('ai:chat', params),

@@ -72,10 +72,11 @@ class AIConfigService {
     return this.getApiKey() !== null
   }
 
-  async testConnection(): Promise<boolean> {
-    const key = this.getApiKey()
-    if (!key) return false
-    const client = new DeepSeekClient(key, this.cachedModel)
+  async testConnection(key?: string, model?: string): Promise<boolean> {
+    const k = key || this.getApiKey()
+    if (!k) return false
+    const m = model || this.cachedModel
+    const client = new DeepSeekClient(k, m)
     return client.validate()
   }
 

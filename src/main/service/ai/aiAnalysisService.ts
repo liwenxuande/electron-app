@@ -86,7 +86,7 @@ ${compare}
         return { text: finalResult, stopped: false }
       }
 
-      messages.push({ role: 'assistant', content: null, tool_calls: res.toolCalls })
+      messages.push({ role: 'assistant', content: res.content, tool_calls: res.toolCalls })
       res.toolCalls.forEach(tc => onToolCall?.(tc.function.name, 'start'))
       const toolResults = toolService.handleToolCalls(res.toolCalls, ctx)
       messages.push(...toolResults)
