@@ -179,6 +179,11 @@ const suggestions = [
 const renderer = new marked.Renderer()
 renderer.html = () => ''
 
+// 用 .ai-table 包装表格，匹配旧 CSS 选择器
+renderer.table = function (header: string, body: string): string {
+  return `<div class="ai-table"><table>${header}${body}</table></div>`
+}
+
 marked.setOptions({
   renderer,
   breaks: true,
