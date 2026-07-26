@@ -9,10 +9,71 @@ export interface SessionItem {
   recordCount: number
 }
 
+export interface ChatMessage {
+  id: string
+  role: 'user' | 'assistant' | 'tool-status'
+  content: string
+  timestamp: number
+  // tool-status 专用
+  toolName?: string
+  toolDone?: boolean
+}
+
 export const useAISessionStore = defineStore('aiSession', () => {
   const sessions = ref<SessionItem[]>([])
   const currentSessionId = ref<string | null>(null)
   const loading = ref(false)
+  const messages = ref<ChatMessage[]>([])
+
+  function genId() {
+    return `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
+  }
+
+  function setMessages(msgs: ChatMessage[]) {
+    messages.value = msgs
+  }
+
+  function addUserMessage(content: string) {
+    const msg: ChatMessage = { id: genId(), role: 'user', content, timestamp: Date.now() }
+    messages.value = [...messages.value, msg]
+    return msg
+  }
+
+  function addAssistantMessage(content: string) {
+    const msg: ChatMessage = { id: genId(), role: 'assistant', content, timestamp: Date.now() }
+    messages.value = [...messages.value, msg]
+    return msg
+  }
+
+  function addToolStatus(toolName: string) {
+    const msg: ChatMessage = {
+      id: genId(),
+      role: 'tool-status',
+      content: '',
+      timestamp: Date.now(),
+      toolName,
+      toolDone: false,
+    }
+    messages.value = [...messages.value, msg]
+    return msg
+  }
+
+  function markToolDone(toolName: string) {
+    const idx = messages.value.findIndex(m => m.role === 'tool-status' && m.toolName === toolName && !m.toolDone)
+    if (idx !== -1) {
+      const updated = [...messages.value]
+      updated[idx] = { ...updated[idx], toolDone: true }
+      messages.value = updated
+    }
+  }
+
+  function clearToolStatuses() {
+    messages.value = messages.value.filter(m => m.role !== 'tool-status')
+  }
+
+  function clearMessages() {
+    messages.value = []
+  }
 
   async function fetchSessions() {
     try {
@@ -28,7 +89,9 @@ export const useAISessionStore = defineStore('aiSession', () => {
       const res = await window.aiAPI.createSession(ledgerId)
       if (res.code === 0) {
         await fetchSessions()
-        return sessions.value[0]?.sessionId || null
+        const sid = res.data?.sessionId || null
+        if (sid) currentSessionId.value = sid
+        return sid
       }
     } catch { /* ignore */ }
     return null
@@ -37,6 +100,16 @@ export const useAISessionStore = defineStore('aiSession', () => {
   async function switchSession(sessionId: string) {
     currentSessionId.value = sessionId
     loading.value = true
+    try {
+      const res = await window.aiAPI.getHistory({ sessionId })
+      if (res.code === 0 && res.data) {
+        messages.value = res.data.map((r: { id: string; role: string; content: string; timestamp: number }) => ({
+          ...r,
+          role: r.role as 'user' | 'assistant',
+        } as ChatMessage))
+      }
+    } catch { /* ignore */ }
+    loading.value = false
   }
 
   async function deleteSession(sessionId: string) {
@@ -45,6 +118,7 @@ export const useAISessionStore = defineStore('aiSession', () => {
       sessions.value = sessions.value.filter(s => s.sessionId !== sessionId)
       if (currentSessionId.value === sessionId) {
         currentSessionId.value = null
+        messages.value = []
       }
     } catch { /* ignore */ }
   }
@@ -52,10 +126,9 @@ export const useAISessionStore = defineStore('aiSession', () => {
   async function init(ledgerId: number) {
     await fetchSessions()
     if (sessions.value.length > 0) {
-      currentSessionId.value = sessions.value[0].sessionId
+      await switchSession(sessions.value[0].sessionId)
     } else {
-      const id = await createSession(ledgerId)
-      currentSessionId.value = id
+      await createSession(ledgerId)
     }
   }
 
@@ -81,6 +154,14 @@ export const useAISessionStore = defineStore('aiSession', () => {
     sessions,
     currentSessionId,
     loading,
+    messages,
+    setMessages,
+    addUserMessage,
+    addAssistantMessage,
+    addToolStatus,
+    markToolDone,
+    clearToolStatuses,
+    clearMessages,
     fetchSessions,
     createSession,
     switchSession,
