@@ -179,11 +179,6 @@ const suggestions = [
 const renderer = new marked.Renderer()
 renderer.html = () => ''
 
-// 用 .ai-table 包装表格，匹配旧 CSS 选择器
-renderer.table = function (header: string, body: string): string {
-  return `<div class="ai-table"><table>${header}${body}</table></div>`
-}
-
 marked.setOptions({
   renderer,
   breaks: true,
@@ -192,7 +187,9 @@ marked.setOptions({
 
 function renderContent(text: string): string {
   if (!text) return ''
-  return marked.parse(text) as string
+  const html = marked.parse(text) as string
+  // marked 输出裸 <table>，用 .ai-table 包装以匹配 CSS
+  return html.replace(/<table>/g, '<div class="ai-table"><table>').replace(/<\/table>/g, '</table></div>')
 }
 
 function scrollToBottom() {
