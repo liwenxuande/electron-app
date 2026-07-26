@@ -529,7 +529,6 @@ onMounted(async () => {
 .ai-stop-btn:hover { background: #DC2626; }
 
 /* 重试按钮 */
-.ai-error { display: flex; align-items: center; gap: 10px; }
 .ai-retry-btn {
   display: flex; align-items: center; gap: 4px;
   padding: 4px 12px; border-radius: 6px; border: 1px solid #EF4444;

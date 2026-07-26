@@ -120,6 +120,14 @@ export function registerAIController(): void {
       return { code: 0, data: { sessionId: sid }, msg: 'ok' }
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e)
+      // 如果是用户主动取消，不当作错误
+      if (msg === '请求已取消' || (e instanceof Error && e.name === 'AbortError')) {
+        abortControllers.delete(sid)
+        const stoppedContent = '\n\n---\n⚠️ 用户已手动停止'
+        appendMessage(sid, 'assistant', stoppedContent)
+        win.webContents.send('ai:chat:done', { sessionId: sid, result: stoppedContent })
+        return { code: 0, data: { sessionId: sid }, msg: 'ok' }
+      }
       logger.error(`AI 对话失败: ${msg}`)
       abortControllers.delete(sid)
       win.webContents.send('ai:chat:error', { sessionId: sid, error: msg })

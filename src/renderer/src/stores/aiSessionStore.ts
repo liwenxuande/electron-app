@@ -90,7 +90,10 @@ export const useAISessionStore = defineStore('aiSession', () => {
       if (res.code === 0) {
         await fetchSessions()
         const sid = res.data?.sessionId || null
-        if (sid) currentSessionId.value = sid
+        if (sid) {
+          currentSessionId.value = sid
+          messages.value = []
+        }
         return sid
       }
     } catch { /* ignore */ }
