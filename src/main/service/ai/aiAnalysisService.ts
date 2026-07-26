@@ -75,9 +75,7 @@ ${compare}
     let round = 0
     while (round < MAX_TOOL_ROUNDS) {
       if (signal?.aborted) {
-        // 被中断，用当前 messages 做最后一次流式输出
-        const partialResult = await c.chatStream([...messages], onChunk, 0.3, { ...baseCtx, round }, signal)
-        return { text: partialResult, stopped: true }
+        return { text: '', stopped: true }
       }
       round++
       const ctx: AILogContext = { ...baseCtx, round }
@@ -89,8 +87,8 @@ ${compare}
       }
 
       messages.push({ role: 'assistant', content: null, tool_calls: res.toolCalls })
-      const toolResults = toolService.handleToolCalls(res.toolCalls, ctx)
       res.toolCalls.forEach(tc => onToolCall?.(tc.function.name, 'start'))
+      const toolResults = toolService.handleToolCalls(res.toolCalls, ctx)
       messages.push(...toolResults)
       res.toolCalls.forEach(tc => onToolCall?.(tc.function.name, 'end'))
     }
