@@ -361,6 +361,8 @@ let listenersRegistered = false
 function ensureListeners() {
   if (listenersRegistered) return
   listenersRegistered = true
+  // 先移除旧监听器，防止模块热重载/重执行导致重复注册
+  window.aiAPI.removeAllListeners()
   window.aiAPI.onChatChunk(onChunk)
   window.aiAPI.onChatDone(onDone)
   window.aiAPI.onChatError(onError)
