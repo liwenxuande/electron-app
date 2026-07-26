@@ -41,7 +41,12 @@ function parseArgsForLog(raw: string): unknown {
   }
 }
 
-function postJSON(path: string, body: Record<string, unknown>, apiKey: string): Promise<unknown> {
+function postJSON(
+  path: string,
+  body: Record<string, unknown>,
+  apiKey: string,
+  signal?: AbortSignal,
+): Promise<unknown> {
   return new Promise((resolve, reject) => {
     const payload = JSON.stringify(body)
     const req = https.request({
@@ -71,6 +76,7 @@ function postJSON(path: string, body: Record<string, unknown>, apiKey: string): 
         }
       })
     })
+    signal?.addEventListener('abort', () => req.destroy())
     req.on('error', reject)
     req.on('timeout', () => { req.destroy(); reject(new Error('请求超时')) })
     req.write(payload)
@@ -83,6 +89,7 @@ export function postStream(
   body: Record<string, unknown>,
   apiKey: string,
   onChunk: (text: string) => void,
+  signal?: AbortSignal,
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const payload = JSON.stringify(body)
@@ -136,6 +143,7 @@ export function postStream(
       })
       res.on('end', () => resolve(fullText))
     })
+    signal?.addEventListener('abort', () => req.destroy())
     req.on('error', reject)
     req.on('timeout', () => { req.destroy(); reject(new Error('请求超时')) })
     req.write(payload)
@@ -152,7 +160,12 @@ export class DeepSeekClient {
     this.model = model
   }
 
-  async chat(messages: ChatMessage[], temperature = 0.3, ctx: AILogContext = { requestId: newRequestId() }): Promise<string> {
+  async chat(
+    messages: ChatMessage[],
+    temperature = 0.3,
+    ctx: AILogContext = { requestId: newRequestId() },
+    signal?: AbortSignal,
+  ): Promise<string> {
     const t0 = Date.now()
     const userMsg = messages[messages.length - 1]
     logger.info(`[AI] 请求开始 | model=${this.model} | 消息数=${messages.length} | 最后消息=${String(userMsg?.content).slice(0, 80)}`)
@@ -162,7 +175,7 @@ export class DeepSeekClient {
         model: this.model,
         messages,
         temperature,
-      }, this.apiKey) as { choices?: Array<{ finish_reason?: string; message?: { content?: string } }>; usage?: { prompt_tokens: number; completion_tokens: number; total_tokens: number } }
+      }, this.apiKey, signal) as { choices?: Array<{ finish_reason?: string; message?: { content?: string } }>; usage?: { prompt_tokens: number; completion_tokens: number; total_tokens: number } }
       const usage = res.usage
       const content = res.choices?.[0]?.message?.content || ''
       logger.info(`[AI] 请求完成 | model=${this.model} | 耗时=${Date.now() - t0}ms | tokens=${usage ? `输入${usage.prompt_tokens}+输出${usage.completion_tokens}=${usage.total_tokens}` : '未知'} | 回复长度=${content.length}字`)
@@ -180,6 +193,7 @@ export class DeepSeekClient {
     onChunk: (text: string) => void,
     temperature = 0.3,
     ctx: AILogContext = { requestId: newRequestId() },
+    signal?: AbortSignal,
   ): Promise<string> {
     const t0 = Date.now()
     const userMsg = messages[messages.length - 1]
@@ -190,7 +204,7 @@ export class DeepSeekClient {
       messages,
       temperature,
       stream: true,
-    }, this.apiKey, onChunk).then((fullText) => {
+    }, this.apiKey, onChunk, signal).then((fullText) => {
       logger.info(`[AI] 流式请求完成 | model=${this.model} | 耗时=${Date.now() - t0}ms | 总字符数=${fullText.length}`)
       aiLog.requestEnd(ctx, { phase: 'stream', durationMs: Date.now() - t0, content: fullText })
       return fullText
@@ -206,6 +220,7 @@ export class DeepSeekClient {
     tools: ToolDef[],
     temperature = 0.3,
     ctx: AILogContext = { requestId: newRequestId() },
+    signal?: AbortSignal,
   ): Promise<{
     finishReason: string
     content: string | null
@@ -221,7 +236,7 @@ export class DeepSeekClient {
         messages,
         tools,
         temperature,
-      }, this.apiKey) as {
+      }, this.apiKey, signal) as {
         choices?: Array<{
           finish_reason?: string
           message?: { content?: string; tool_calls?: ToolCall[] }
