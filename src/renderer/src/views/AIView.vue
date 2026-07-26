@@ -10,17 +10,16 @@
           <span>新对话</span>
         </button>
       </div>
-
       <div class="ai-session-list">
         <div
-          v-for="s in sessions"
+          v-for="s in store.sessions"
           :key="s.sessionId"
-          :class="['ai-session-item', { active: currentSessionId === s.sessionId }]"
+          :class="['ai-session-item', { active: store.currentSessionId === s.sessionId }]"
           @click="handleSwitch(s.sessionId)"
         >
           <div class="ai-session-title">{{ s.title }}</div>
           <div class="ai-session-meta">
-            <span class="ai-session-time">{{ formatTime(s.updatedAt) }}</span>
+            <span class="ai-session-time">{{ store.formatTime(s.updatedAt) }}</span>
           </div>
           <button class="ai-session-del" title="删除" @click.stop="handleDelete(s.sessionId)">
             <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -29,13 +28,13 @@
             </svg>
           </button>
         </div>
-        <div v-if="sessions.length === 0" class="ai-no-sessions">暂无对话记录</div>
+        <div v-if="store.sessions.length === 0" class="ai-no-sessions">暂无对话记录</div>
       </div>
     </aside>
 
     <div class="ai-main">
       <div class="ai-main-body" ref="bodyRef">
-        <div v-if="!currentCache || (currentCache.messages.length === 0 && !currentCache.streaming)" class="ai-welcome">
+        <div v-if="store.messages.length === 0 && !isStreaming && !isThinking" class="ai-welcome">
           <div class="ai-welcome-logo">🤖</div>
           <p class="ai-welcome-text">有什么可以帮你的？</p>
           <p class="ai-welcome-hint">你可以问我收支情况、消费分析、省钱建议</p>
@@ -44,11 +43,21 @@
           </div>
         </div>
 
-        <template v-for="(msg, idx) in currentCache?.messages || []" :key="msg.id">
-          <div v-if="showTimestamp(idx, currentCache!.messages)" class="ai-time-divider">
+        <template v-for="(msg, idx) in store.messages" :key="msg.id">
+          <div v-if="showTimestamp(idx)" class="ai-time-divider">
             <span>{{ formatDateTime(msg.timestamp) }}</span>
           </div>
-          <div :class="['ai-msg', msg.role === 'user' ? 'ai-msg--user' : 'ai-msg--assistant']">
+
+          <!-- tool-status 消息 -->
+          <div v-if="msg.role === 'tool-status'" class="ai-tool-status">
+            <span v-if="!msg.toolDone" class="ai-tool-spinner"></span>
+            <span v-else class="ai-tool-done">&#10003;</span>
+            <span class="ai-tool-label">{{ TOOL_LABELS[msg.toolName || ''] || msg.toolName }}</span>
+            <span class="ai-tool-phase">{{ msg.toolDone ? '完成' : '中...' }}</span>
+          </div>
+
+          <!-- 用户/AI 消息 -->
+          <div v-else :class="['ai-msg', msg.role === 'user' ? 'ai-msg--user' : 'ai-msg--assistant']">
             <div class="ai-msg-avatar">
               <svg v-if="msg.role === 'user'" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
@@ -61,16 +70,42 @@
           </div>
         </template>
 
-        <div v-if="currentCache?.streaming" class="ai-msg ai-msg--assistant">
+        <!-- 流式输出 -->
+        <div v-if="isStreaming" class="ai-msg ai-msg--assistant">
           <div class="ai-msg-avatar">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/>
             </svg>
           </div>
-          <div class="ai-msg-content" v-html="renderContent(currentCache.streamingText || '思考中...')"></div>
+          <div class="ai-msg-content" v-html="renderContent(streamingText || '')"></div>
         </div>
 
-        <div v-if="currentCache?.errorMsg" class="ai-error">{{ currentCache.errorMsg }}</div>
+        <!-- 思考中状态 -->
+        <div v-if="isThinking && !isStreaming" class="ai-msg ai-msg--assistant">
+          <div class="ai-msg-avatar">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/>
+            </svg>
+          </div>
+          <div class="ai-msg-content ai-thinking-msg">
+            <span class="ai-thinking">
+              <span class="ai-thinking-dot"></span>
+              <span>AI 正在思考...</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- 错误 + 重试 -->
+        <div v-if="errorMsg" class="ai-error">
+          <span>&#10060; {{ errorMsg }}</span>
+          <button class="ai-retry-btn" @click="handleRetry">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"/>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+            <span>重试</span>
+          </button>
+        </div>
       </div>
 
       <div class="ai-main-footer">
@@ -79,9 +114,25 @@
           class="ai-input"
           placeholder="输入你的问题..."
           maxlength="500"
+          :disabled="sending"
           @keyup.enter="handleSend"
         />
-        <button class="ai-send-btn" :disabled="!inputText.trim()" @click="handleSend">
+        <button
+          v-if="isStreaming || isThinking"
+          class="ai-stop-btn"
+          title="停止生成"
+          @click="handleStop"
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+            <rect x="6" y="6" width="12" height="12" rx="2"/>
+          </svg>
+        </button>
+        <button
+          v-else
+          class="ai-send-btn"
+          :disabled="!inputText.trim()"
+          @click="handleSend"
+        >
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="22" y1="2" x2="11" y2="13"/>
             <polygon points="22 2 15 22 11 13 2 9 22 2"/>
@@ -93,47 +144,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, nextTick, onMounted } from 'vue'
+import { ref, nextTick, onMounted } from 'vue'
 import { useLedgerStore } from '../stores/ledgerStore'
+import { useAISessionStore } from '../stores/aiSessionStore'
+import { marked } from 'marked'
 
-interface ChatMessage {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  timestamp: number
-}
-
-interface SessionItem {
-  sessionId: string
-  title: string
-  createdAt: number
-  updatedAt: number
-  recordCount: number
-}
-
-interface SessionCache {
-  messages: ChatMessage[]
-  streaming: boolean
-  streamingText: string
-  errorMsg: string
-  loaded: boolean
-  sending: boolean
+const TOOL_LABELS: Record<string, string> = {
+  get_current_time: '获取当前时间',
+  get_monthly_summary: '查询月度收支',
+  get_category_breakdown: '分析分类排行',
+  get_daily_trend: '查看每日走势',
+  get_top_entries: '查看交易明细',
+  compare_months: '对比月度数据',
 }
 
 const ledgerStore = useLedgerStore()
+const store = useAISessionStore()
 const bodyRef = ref<HTMLElement>()
 const inputText = ref('')
-
-const sessions = ref<SessionItem[]>([])
-const currentSessionId = ref<string | null>(null)
-const sessionCacheMap = new Map<string, SessionCache>()
-
-const currentCache = computed(() => {
-  const sid = currentSessionId.value
-  if (!sid) return null
-  const cache = getOrCreateCache(sid)
-  return cache
-})
+const isStreaming = ref(false)
+const streamingText = ref('')
+const isThinking = ref(false)
+const errorMsg = ref('')
+const sending = ref(false)
 
 const suggestions = [
   '这个月花最多的是哪个分类？',
@@ -142,23 +175,19 @@ const suggestions = [
   '上月和这月支出对比有什么变化？',
 ]
 
-function getOrCreateCache(sid: string): SessionCache {
-  if (!sessionCacheMap.has(sid)) {
-    const cache = reactive({
-      messages: [] as ChatMessage[],
-      streaming: false,
-      streamingText: '',
-      errorMsg: '',
-      loaded: false,
-      sending: false,
-    }) as SessionCache
-    sessionCacheMap.set(sid, cache)
-  }
-  return sessionCacheMap.get(sid)!
-}
+// marked 配置
+const renderer = new marked.Renderer()
+renderer.html = () => ''
 
-function genId() {
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
+marked.setOptions({
+  renderer,
+  breaks: true,
+  gfm: true,
+})
+
+function renderContent(text: string): string {
+  if (!text) return ''
+  return marked.parse(text) as string
 }
 
 function scrollToBottom() {
@@ -168,195 +197,12 @@ function scrollToBottom() {
   })
 }
 
-async function fetchSessions() {
-  try {
-    const res = await window.aiAPI.listSessions()
-    if (res.code === 0 && res.data) {
-      sessions.value = res.data
-    }
-  } catch { /* ignore */ }
-}
-
-async function loadSessionHistory(sessionId: string) {
-  const cache = getOrCreateCache(sessionId)
-  if (cache.loaded) return
-  try {
-    const res = await window.aiAPI.getHistory({ sessionId })
-    if (res.code === 0 && res.data) {
-      cache.messages = res.data.map((r: { id: string; role: string; content: string; timestamp: number }) => ({
-        ...r,
-        role: r.role as 'user' | 'assistant',
-      }))
-    }
-  } catch { /* ignore */ }
-  cache.loaded = true
-}
-
-async function switchToSession(sessionId: string) {
-  currentSessionId.value = sessionId
-  const cache = getOrCreateCache(sessionId)
-  if (!cache.loaded) {
-    await loadSessionHistory(sessionId)
-  }
-  scrollToBottom()
-}
-
-async function handleNewSession() {
-  try {
-    const res = await window.aiAPI.createSession(ledgerStore.currentId)
-    if (res.code === 0) {
-      await fetchSessions()
-      const sid = res.data?.sessionId || ''
-      if (sid) {
-        switchToSession(sid)
-      }
-    }
-  } catch { /* ignore */ }
-}
-
-async function handleSwitch(sessionId: string) {
-  switchToSession(sessionId)
-}
-
-async function handleDelete(sessionId: string) {
-  await window.aiAPI.deleteSession(sessionId)
-  sessionCacheMap.delete(sessionId)
-  if (currentSessionId.value === sessionId) {
-    currentSessionId.value = null
-  }
-  await fetchSessions()
-}
-
-function handleSuggest(text: string) {
-  inputText.value = text
-  handleSend()
-}
-
-async function handleSend() {
-  const text = inputText.value.trim()
-  inputText.value = ''
-  if (!text) return
-
-  const sid = currentSessionId.value
-  const cache = sid ? getOrCreateCache(sid) : null
-  if (cache?.sending) return
-
-  const userMsg: ChatMessage = { id: genId(), role: 'user', content: text, timestamp: Date.now() }
-  if (!cache) {
-    const res = await window.aiAPI.createSession(ledgerStore.currentId)
-    const newSid = res.data?.sessionId
-    if (!newSid) return
-    const newCache = getOrCreateCache(newSid)
-    newCache.messages = [userMsg]
-    newCache.sending = true
-    newCache.streaming = true
-    newCache.streamingText = ''
-    newCache.errorMsg = ''
-    currentSessionId.value = newSid
-    await fetchSessions()
-    scrollToBottom()
-    window.aiAPI.chat({
-      messages: [{ role: 'user', content: text }],
-      ledgerId: ledgerStore.currentId,
-      sessionId: newSid,
-    }).catch((e: unknown) => {
-      newCache.errorMsg = e instanceof Error ? e.message : '请求失败'
-      newCache.streaming = false
-      newCache.sending = false
-    })
-    return
-  }
-
-  cache.messages = [...cache.messages, userMsg]
-  cache.sending = true
-  cache.streaming = true
-  cache.streamingText = ''
-  cache.errorMsg = ''
-  scrollToBottom()
-
-  try {
-    await window.aiAPI.chat({
-      messages: [{ role: 'user', content: text }],
-      ledgerId: ledgerStore.currentId,
-      sessionId: sid || undefined,
-    })
-  } catch (e: unknown) {
-    cache.errorMsg = e instanceof Error ? e.message : '请求失败'
-    cache.streaming = false
-    cache.sending = false
-    cache.streamingText = ''
-  }
-}
-
-function showTimestamp(idx: number, msgs: ChatMessage[]): boolean {
+function showTimestamp(idx: number): boolean {
   if (idx === 0) return true
+  const msgs = store.messages
+  if (!msgs[idx] || !msgs[idx - 1]) return false
   const gap = msgs[idx].timestamp - msgs[idx - 1].timestamp
   return gap > 5 * 60 * 1000
-}
-
-function renderContent(text: string): string {
-  const lines = text.split('\n')
-  const html: string[] = []
-  let inTable = false
-  let inList = false
-  const rows: string[] = []
-
-  function closeTable() {
-    if (!inTable || rows.length === 0) return
-    html.push('<div class="ai-table"><table>')
-    for (let i = 0; i < rows.length; i++) {
-      if (/^[\|\s\-:]+$/.test(rows[i])) continue
-      const cells = rows[i].replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim())
-      const tag = i === 0 ? 'th' : 'td'
-      html.push(`<tr>${cells.map(c => `<${tag}>${inline(c)}</${tag}>`).join('')}</tr>`)
-    }
-    html.push('</table></div>')
-    rows.length = 0
-    inTable = false
-  }
-
-  function closeList() {
-    if (inList) { html.push('</ul>'); inList = false }
-  }
-
-  function escapeHtml(s: string): string {
-    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-  }
-
-  function inline(s: string) {
-    return escapeHtml(s)
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      .replace(/`(.+?)`/g, '<code>$1</code>')
-  }
-
-  for (const line of lines) {
-    const t = line.trim()
-    if (!t) { closeTable(); closeList(); continue }
-    const hm = t.match(/^(#{2,3})\s+(.+)/)
-    if (hm) {
-      closeTable(); closeList()
-      html.push(`<${hm[1].length === 2 ? 'h4' : 'h5'}>${inline(hm[2])}</${hm[1].length === 2 ? 'h4' : 'h5'}>`)
-      continue
-    }
-    if (/^-{3,}$/.test(t)) { closeTable(); closeList(); html.push('<hr />'); continue }
-    if (t.startsWith('> ')) { closeTable(); closeList(); html.push(`<blockquote>${inline(t.slice(2))}</blockquote>`); continue }
-    if (/^[-*]\s/.test(t)) { closeTable(); if (!inList) { html.push('<ul>'); inList = true }; html.push(`<li>${inline(t.replace(/^[-*]\s/, ''))}</li>`); continue }
-    if (t.startsWith('|')) { closeList(); inTable = true; rows.push(t); continue }
-    closeTable(); closeList(); html.push(`<p>${inline(t)}</p>`)
-  }
-  closeTable(); closeList()
-  return html.join('')
-}
-
-function formatTime(ts: number): string {
-  const now = Date.now()
-  const diff = now - ts
-  if (diff < 60000) return '刚刚'
-  if (diff < 3600000) return `${Math.floor(diff / 60000)}分钟前`
-  if (diff < 86400000) return `${Math.floor(diff / 3600000)}小时前`
-  const d = new Date(ts)
-  return d.toLocaleDateString().replaceAll('/', '-')
 }
 
 function formatDateTime(ts: number): string {
@@ -368,6 +214,141 @@ function formatDateTime(ts: number): string {
   return `${MM}-${DD} ${hh}:${mm}`
 }
 
+async function handleSuggest(text: string) {
+  inputText.value = text
+  await handleSend()
+}
+
+async function handleNewSession() {
+  const sid = await store.createSession(ledgerStore.currentId)
+  if (sid) {
+    store.clearToolStatuses()
+  }
+}
+
+async function handleSwitch(sessionId: string) {
+  isStreaming.value = false
+  streamingText.value = ''
+  errorMsg.value = ''
+  await store.switchSession(sessionId)
+  scrollToBottom()
+}
+
+async function handleDelete(sessionId: string) {
+  await store.deleteSession(sessionId)
+}
+
+async function handleSend() {
+  const text = inputText.value.trim()
+  inputText.value = ''
+  if (!text || sending.value) return
+
+  let sid = store.currentSessionId
+  if (!sid) {
+    sid = await store.createSession(ledgerStore.currentId)
+    if (!sid) return
+  }
+
+  store.addUserMessage(text)
+  sending.value = true
+  isStreaming.value = false
+  streamingText.value = ''
+  isThinking.value = true
+  errorMsg.value = ''
+  scrollToBottom()
+
+  try {
+    await window.aiAPI.chat({
+      messages: [{ role: 'user', content: text }],
+      ledgerId: ledgerStore.currentId,
+      sessionId: sid,
+    })
+  } catch (e: unknown) {
+    errorMsg.value = e instanceof Error ? e.message : '请求失败'
+    isThinking.value = false
+    isStreaming.value = false
+    sending.value = false
+  }
+}
+
+async function handleStop() {
+  const sid = store.currentSessionId
+  if (!sid) return
+  await window.aiAPI.cancelChat(sid)
+}
+
+async function handleRetry() {
+  if (store.messages.length === 0) return
+  const lastUserMsg = [...store.messages].reverse().find(m => m.role === 'user')
+  if (!lastUserMsg) return
+
+  errorMsg.value = ''
+  sending.value = true
+  isThinking.value = true
+  isStreaming.value = false
+  streamingText.value = ''
+
+  try {
+    await window.aiAPI.chat({
+      messages: [{ role: 'user', content: lastUserMsg.content }],
+      ledgerId: ledgerStore.currentId,
+      sessionId: store.currentSessionId || undefined,
+    })
+  } catch (e: unknown) {
+    errorMsg.value = e instanceof Error ? e.message : '请求失败'
+    isThinking.value = false
+    sending.value = false
+  }
+}
+
+// IPC 事件监听
+function onChunk(data: { sessionId: string; chunk: string }) {
+  if (data.sessionId !== store.currentSessionId) return
+  isThinking.value = false
+  isStreaming.value = true
+  streamingText.value += data.chunk
+  // 第一个 chunk 时清除 tool status
+  if (store.messages.some(m => m.role === 'tool-status')) {
+    store.clearToolStatuses()
+  }
+  scrollToBottom()
+}
+
+function onDone(data: { sessionId: string; result: string }) {
+  if (data.sessionId !== store.currentSessionId) return
+  if (streamingText.value) {
+    store.addAssistantMessage(streamingText.value)
+  }
+  isStreaming.value = false
+  streamingText.value = ''
+  isThinking.value = false
+  sending.value = false
+  errorMsg.value = ''
+  store.clearToolStatuses()
+  store.fetchSessions()
+  scrollToBottom()
+}
+
+function onError(data: { sessionId: string; error: string }) {
+  if (data.sessionId !== store.currentSessionId) return
+  errorMsg.value = data.error
+  isStreaming.value = false
+  streamingText.value = ''
+  isThinking.value = false
+  sending.value = false
+  store.clearToolStatuses()
+}
+
+function onToolStatus(data: { sessionId: string; toolName: string; phase: 'start' | 'end' }) {
+  if (data.sessionId !== store.currentSessionId) return
+  if (data.phase === 'start') {
+    isThinking.value = true
+    store.addToolStatus(data.toolName)
+  } else {
+    store.markToolDone(data.toolName)
+  }
+}
+
 let listenersRegistered = false
 function ensureListeners() {
   if (listenersRegistered) return
@@ -375,43 +356,14 @@ function ensureListeners() {
   window.aiAPI.onChatChunk(onChunk)
   window.aiAPI.onChatDone(onDone)
   window.aiAPI.onChatError(onError)
-}
-
-function onChunk(data: { sessionId: string; chunk: string }) {
-  const cache = getOrCreateCache(data.sessionId)
-  cache.streamingText += data.chunk
-  if (currentSessionId.value === data.sessionId) {
-    scrollToBottom()
-  }
-}
-
-function onDone(data: { sessionId: string; result: string }) {
-  const cache = getOrCreateCache(data.sessionId)
-  cache.messages = [...cache.messages, { id: genId(), role: 'assistant', content: data.result, timestamp: Date.now() }]
-  cache.streamingText = ''
-  cache.streaming = false
-  cache.sending = false
-  if (currentSessionId.value === data.sessionId) {
-    scrollToBottom()
-  }
-  fetchSessions()
-}
-
-function onError(data: { sessionId: string; error: string }) {
-  const cache = getOrCreateCache(data.sessionId)
-  cache.errorMsg = data.error
-  cache.streaming = false
-  cache.streamingText = ''
-  cache.sending = false
+  window.aiAPI.onToolStatus(onToolStatus)
 }
 
 ensureListeners()
 
 onMounted(async () => {
-  await fetchSessions()
-  if (sessions.value.length > 0) {
-    switchToSession(sessions.value[0].sessionId)
-  }
+  await store.init(ledgerStore.currentId)
+  scrollToBottom()
 })
 </script>
 
@@ -511,7 +463,7 @@ onMounted(async () => {
 .ai-msg-content :deep(.ai-table th) { background: rgba(255,140,0,0.06); font-weight: 600; color: #374151; }
 .ai-msg-content :deep(code) { padding: 1px 4px; border-radius: 3px; font-size: 0.75rem; background: rgba(255,140,0,0.06); color: #FF8C00; font-family: monospace; }
 
-.ai-error { padding: 10px 14px; border-radius: 8px; background: rgba(239,68,68,0.08); color: #EF4444; font-size: 0.8125rem; max-width: 720px; width: 100%; margin: 0 auto; }
+.ai-error { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 8px; background: rgba(239,68,68,0.08); color: #EF4444; font-size: 0.8125rem; max-width: 720px; width: 100%; margin: 0 auto; }
 
 .ai-main-footer { padding: 14px 32px; border-top: 1px solid #F0F2F5; display: flex; gap: 10px; align-items: center; }
 .ai-input {
@@ -529,4 +481,61 @@ onMounted(async () => {
 }
 .ai-send-btn:hover { background: #E07800; }
 .ai-send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* 工具调用状态条 */
+.ai-tool-status {
+  display: flex; align-items: center; gap: 6px;
+  width: 100%; max-width: 720px; padding: 0 32px; box-sizing: border-box;
+  font-size: 0.75rem; color: #6B7280;
+}
+
+.ai-tool-spinner {
+  display: inline-block; width: 14px; height: 14px;
+  border: 2px solid #E5E7EB; border-top-color: #FF8C00; border-radius: 50%;
+  animation: ai-spin 0.8s linear infinite;
+}
+
+@keyframes ai-spin { to { transform: rotate(360deg); } }
+
+.ai-tool-done { color: #10B981; font-size: 0.875rem; }
+
+.ai-tool-label { color: #374151; }
+
+.ai-tool-phase { color: #9CA3AF; }
+
+/* 思考动画 */
+.ai-thinking { display: flex; align-items: center; gap: 6px; }
+
+.ai-thinking-dot {
+  display: inline-block; width: 8px; height: 8px;
+  border-radius: 50%; background: #FF8C00;
+  animation: ai-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes ai-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50%      { transform: scale(1.5); opacity: 1; }
+}
+
+.ai-thinking-msg { min-height: 36px; display: flex; align-items: center; }
+
+/* 停止按钮 */
+.ai-stop-btn {
+  width: 42px; height: 42px; border-radius: 12px; border: none;
+  background: #EF4444; color: #fff; cursor: pointer; display: flex;
+  align-items: center; justify-content: center; transition: background-color 0.15s;
+  flex-shrink: 0;
+}
+.ai-stop-btn:hover { background: #DC2626; }
+
+/* 重试按钮 */
+.ai-error { display: flex; align-items: center; gap: 10px; }
+.ai-retry-btn {
+  display: flex; align-items: center; gap: 4px;
+  padding: 4px 12px; border-radius: 6px; border: 1px solid #EF4444;
+  background: transparent; color: #EF4444; font-size: 0.75rem;
+  cursor: pointer; font-family: inherit; transition: all 0.15s;
+  white-space: nowrap;
+}
+.ai-retry-btn:hover { background: rgba(239,68,68,0.08); }
 </style>
