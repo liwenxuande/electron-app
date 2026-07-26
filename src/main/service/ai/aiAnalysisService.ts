@@ -61,6 +61,7 @@ ${compare}
     onChunk: (text: string) => void,
     sessionId?: string,
     signal?: AbortSignal,
+    onToolCall?: (toolName: string, phase: 'start' | 'end') => void,
   ): Promise<ChatResult> {
     const c = this.client()
     if (!c) throw new Error('未配置 API Key')
@@ -89,7 +90,9 @@ ${compare}
 
       messages.push({ role: 'assistant', content: null, tool_calls: res.toolCalls })
       const toolResults = toolService.handleToolCalls(res.toolCalls, ctx)
+      res.toolCalls.forEach(tc => onToolCall?.(tc.function.name, 'start'))
       messages.push(...toolResults)
+      res.toolCalls.forEach(tc => onToolCall?.(tc.function.name, 'end'))
     }
 
     const finalResult = await c.chatStream([...messages], onChunk, 0.3, { ...baseCtx, round }, signal)
