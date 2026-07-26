@@ -129,6 +129,8 @@ contextBridge.exposeInMainWorld('aiAPI', {
 
   chat: (params: { messages: Array<{ role: string; content: string | null }>; ledgerId: number; sessionId?: string }) =>
     ipcRenderer.invoke('ai:chat', params),
+  cancelChat: (sessionId: string) =>
+    ipcRenderer.invoke('ai:chat:cancel', sessionId),
   reportMonthly: (params: { yearMonth: string; ledgerId: number }) =>
     ipcRenderer.invoke('ai:report:monthly', params),
   reportStats: (params: { statsData: Record<string, unknown>; ledgerId: number }) =>
@@ -151,6 +153,9 @@ contextBridge.exposeInMainWorld('aiAPI', {
   onChatError: (cb: (data: { sessionId: string; error: string }) => void) => {
     ipcRenderer.on('ai:chat:error', (_event, data: { sessionId: string; error: string }) => cb(data))
   },
+  onToolStatus: (cb: (data: { sessionId: string; toolName: string; phase: 'start' | 'end' }) => void) => {
+    ipcRenderer.on('ai:chat:tool-status', (_event, data: { sessionId: string; toolName: string; phase: 'start' | 'end' }) => cb(data))
+  },
   onReportChunk: (cb: (chunk: string) => void) => {
     ipcRenderer.on('ai:report:chunk', (_event, chunk: string) => cb(chunk))
   },
@@ -167,5 +172,6 @@ contextBridge.exposeInMainWorld('aiAPI', {
     ipcRenderer.removeAllListeners('ai:report:chunk')
     ipcRenderer.removeAllListeners('ai:report:done')
     ipcRenderer.removeAllListeners('ai:report:error')
+    ipcRenderer.removeAllListeners('ai:chat:tool-status')
   },
 })

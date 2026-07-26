@@ -153,6 +153,8 @@ interface AIAPI {
   onChatChunk(cb: (data: { sessionId: string; chunk: string }) => void): void
   onChatDone(cb: (data: { sessionId: string; result: string }) => void): void
   onChatError(cb: (data: { sessionId: string; error: string }) => void): void
+  cancelChat(sessionId: string): Promise<ApiResponse<null>>
+  onToolStatus(cb: (data: { sessionId: string; toolName: string; phase: 'start' | 'end' }) => void): void
   onReportChunk(cb: (chunk: string) => void): void
   onReportDone(cb: (result: string) => void): void
   onReportError(cb: (err: string) => void): void
