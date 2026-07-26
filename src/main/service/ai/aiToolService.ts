@@ -32,12 +32,24 @@ export class AIToolService {
       {
         type: 'function',
         function: {
+          name: 'get_current_time',
+          description: '获取当前日期和时间，用于确定"今天""本月""上月""今年"等时间概念。在处理任何涉及日期的用户问题前，必须先调用此工具。',
+          parameters: {
+            type: 'object',
+            properties: {},
+            required: [],
+          },
+        },
+      },
+      {
+        type: 'function',
+        function: {
           name: 'get_monthly_summary',
-          description: '获取指定月份的收支汇总数据',
+          description: '获取指定月份的总收入、总支出、交易笔数和结余。适用于：查看月度收支总览、分析收入水平、了解支出规模。',
           parameters: {
             type: 'object',
             properties: {
-              yearMonth: { type: 'string', description: '月份，格式 YYYY-MM，如 2026-07' },
+              yearMonth: { type: 'string', description: '月份，格式 YYYY-MM，如 2026-07。请先用 get_current_time 获取当前时间再确定月份。' },
             },
             required: ['yearMonth'],
           },
@@ -47,12 +59,12 @@ export class AIToolService {
         type: 'function',
         function: {
           name: 'get_category_breakdown',
-          description: '获取指定月份的分类消费/收入排行',
+          description: '获取指定月份的分类排行，包含每个分类的金额、占比和笔数。type=income 查询收入分类排行（如工资、兼职、投资收益），type=expense 查询支出分类排行（如餐饮、交通、购物）。',
           parameters: {
             type: 'object',
             properties: {
-              yearMonth: { type: 'string', description: '月份，格式 YYYY-MM' },
-              type: { type: 'string', enum: ['expense', 'income'], description: '交易类型' },
+              yearMonth: { type: 'string', description: '月份，格式 YYYY-MM。请先用 get_current_time 获取当前时间再确定月份。' },
+              type: { type: 'string', enum: ['expense', 'income'], description: '交易类型：expense=支出，income=收入' },
             },
             required: ['yearMonth', 'type'],
           },
@@ -62,7 +74,7 @@ export class AIToolService {
         type: 'function',
         function: {
           name: 'get_daily_trend',
-          description: '获取指定时间段内的每日收支走势',
+          description: '获取指定时间段内每日的收入和支出走势，返回每天的 income 和 expense 金额。适用于：分析某段时间的收入/支出变化趋势。',
           parameters: {
             type: 'object',
             properties: {
@@ -77,12 +89,12 @@ export class AIToolService {
         type: 'function',
         function: {
           name: 'get_top_entries',
-          description: '获取指定月份金额最大的N条交易记录',
+          description: '获取指定月份金额最大的N条交易记录，包含日期、分类、金额和备注。type=income 查询最大笔收入（如大额工资、奖金），type=expense 查询最大笔支出（如房租、大额购物）。',
           parameters: {
             type: 'object',
             properties: {
               yearMonth: { type: 'string', description: '月份，格式 YYYY-MM' },
-              type: { type: 'string', enum: ['expense', 'income'], description: '交易类型' },
+              type: { type: 'string', enum: ['expense', 'income'], description: '交易类型：expense=支出，income=收入' },
               limit: { type: 'integer', description: '返回条数，默认10' },
             },
             required: ['yearMonth', 'type'],
@@ -93,7 +105,7 @@ export class AIToolService {
         type: 'function',
         function: {
           name: 'compare_months',
-          description: '对比两个月份的收支数据，输出变化率',
+          description: '对比两个月份的总收入、总支出、交易笔数，输出变化百分比。适用于：分析收入/支出环比变化。',
           parameters: {
             type: 'object',
             properties: {
@@ -109,6 +121,7 @@ export class AIToolService {
 
   executeTool(name: string, args: Record<string, unknown>): string {
     switch (name) {
+      case 'get_current_time':       return JSON.stringify(this.getCurrentTime())
       case 'get_monthly_summary':   return JSON.stringify(this.monthlySummary(args.yearMonth as string))
       case 'get_category_breakdown': return JSON.stringify(this.categoryBreakdown(args.yearMonth as string, args.type as string))
       case 'get_daily_trend':        return JSON.stringify(this.dailyTrend(args.startDate as string, args.endDate as string))
@@ -133,6 +146,23 @@ export class AIToolService {
       aiLog.toolResult(ctx, { toolCallId: tc.id, name: tc.function.name, durationMs, result: parseResultForLog(result) })
       return { tool_call_id: tc.id, role: 'tool' as const, content: result }
     })
+  }
+
+  private getCurrentTime() {
+    const now = new Date()
+    const pad = (n: number) => String(n).padStart(2, '0')
+    return {
+      currentTime: now.toISOString(),
+      date: `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`,
+      yearMonth: `${now.getFullYear()}-${pad(now.getMonth() + 1)}`,
+      year: now.getFullYear(),
+      month: now.getMonth() + 1,
+      day: now.getDate(),
+      weekday: ['日', '一', '二', '三', '四', '五', '六'][now.getDay()],
+      lastMonth: now.getMonth() === 0
+        ? `${now.getFullYear() - 1}-12`
+        : `${now.getFullYear()}-${pad(now.getMonth())}`,
+    }
   }
 
   /**
