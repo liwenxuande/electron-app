@@ -128,7 +128,7 @@ export const useAISessionStore = defineStore('aiSession', () => {
     loading.value = false
   }
 
-  /** 从数据库刷新指定会话的缓存（用于后台会话完成时更新） */
+  /** 从数据库刷新指定会话的缓存和当前视图 */
   async function refreshCache(sessionId: string) {
     try {
       const res = await window.aiAPI.getHistory({ sessionId })
@@ -138,6 +138,10 @@ export const useAISessionStore = defineStore('aiSession', () => {
           role: r.role as 'user' | 'assistant',
         } as ChatMessage))
         messageCache.set(sessionId, msgs)
+        // 如果是当前会话，同步更新视图
+        if (currentSessionId.value === sessionId) {
+          messages.value = msgs
+        }
       }
     } catch { /* ignore */ }
   }

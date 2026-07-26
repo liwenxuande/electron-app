@@ -330,13 +330,11 @@ function onChunk(data: { sessionId: string; chunk: string }) {
 
 function onDone(data: { sessionId: string; result: string }) {
   if (data.sessionId !== store.currentSessionId) {
-    // 后台会话完成，刷新其缓存，切回去时能看到完整内容
+    // 后台会话完成，刷新其缓存
     store.refreshCache(data.sessionId)
     return
   }
-  if (streamingText.value) {
-    store.addAssistantMessage(streamingText.value)
-  }
+  // 当前会话完成：从 DB 刷新缓存，确保消息完整（处理切换回来时 streamingText 已清空的情况）
   isStreaming.value = false
   streamingText.value = ''
   isThinking.value = false
@@ -344,7 +342,10 @@ function onDone(data: { sessionId: string; result: string }) {
   errorMsg.value = ''
   store.clearToolStatuses()
   store.fetchSessions()
-  scrollToBottom()
+  // 重新从 DB 加载当前会话的完整消息并更新缓存
+  store.refreshCache(store.currentSessionId).then(() => {
+    scrollToBottom()
+  })
 }
 
 function onError(data: { sessionId: string; error: string }) {
