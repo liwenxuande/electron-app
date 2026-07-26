@@ -24,6 +24,8 @@ export const useAISessionStore = defineStore('aiSession', () => {
   const currentSessionId = ref<string | null>(null)
   const loading = ref(false)
   const messages = ref<ChatMessage[]>([])
+  // 按 sessionId 缓存消息列表，切换会话时不用每次从数据库加载
+  const messageCache = new Map<string, ChatMessage[]>()
 
   function genId() {
     return `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
@@ -101,7 +103,17 @@ export const useAISessionStore = defineStore('aiSession', () => {
   }
 
   async function switchSession(sessionId: string) {
+    // 切走前，把当前会话的消息存到缓存
+    if (currentSessionId.value && messages.value.length > 0) {
+      messageCache.set(currentSessionId.value, [...messages.value])
+    }
     currentSessionId.value = sessionId
+    // 优先从缓存加载
+    const cached = messageCache.get(sessionId)
+    if (cached) {
+      messages.value = cached
+      return
+    }
     loading.value = true
     try {
       const res = await window.aiAPI.getHistory({ sessionId })
@@ -110,15 +122,31 @@ export const useAISessionStore = defineStore('aiSession', () => {
           ...r,
           role: r.role as 'user' | 'assistant',
         } as ChatMessage))
+        messageCache.set(sessionId, [...messages.value])
       }
     } catch { /* ignore */ }
     loading.value = false
+  }
+
+  /** 从数据库刷新指定会话的缓存（用于后台会话完成时更新） */
+  async function refreshCache(sessionId: string) {
+    try {
+      const res = await window.aiAPI.getHistory({ sessionId })
+      if (res.code === 0 && res.data) {
+        const msgs = res.data.map((r: { id: string; role: string; content: string; timestamp: number }) => ({
+          ...r,
+          role: r.role as 'user' | 'assistant',
+        } as ChatMessage))
+        messageCache.set(sessionId, msgs)
+      }
+    } catch { /* ignore */ }
   }
 
   async function deleteSession(sessionId: string) {
     try {
       await window.aiAPI.deleteSession(sessionId)
       sessions.value = sessions.value.filter(s => s.sessionId !== sessionId)
+      messageCache.delete(sessionId)
       if (currentSessionId.value === sessionId) {
         currentSessionId.value = null
         messages.value = []
@@ -168,6 +196,7 @@ export const useAISessionStore = defineStore('aiSession', () => {
     fetchSessions,
     createSession,
     switchSession,
+    refreshCache,
     deleteSession,
     init,
     formatTime,

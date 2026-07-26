@@ -329,7 +329,11 @@ function onChunk(data: { sessionId: string; chunk: string }) {
 }
 
 function onDone(data: { sessionId: string; result: string }) {
-  if (data.sessionId !== store.currentSessionId) return
+  if (data.sessionId !== store.currentSessionId) {
+    // 后台会话完成，刷新其缓存，切回去时能看到完整内容
+    store.refreshCache(data.sessionId)
+    return
+  }
   if (streamingText.value) {
     store.addAssistantMessage(streamingText.value)
   }
