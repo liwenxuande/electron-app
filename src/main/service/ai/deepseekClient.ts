@@ -48,6 +48,7 @@ function postJSON(
   signal?: AbortSignal,
 ): Promise<unknown> {
   return new Promise((resolve, reject) => {
+    if (signal?.aborted) { reject(new Error('请求已取消')); return }
     const payload = JSON.stringify(body)
     const req = https.request({
       hostname: BASE_URL,
@@ -76,7 +77,7 @@ function postJSON(
         }
       })
     })
-    signal?.addEventListener('abort', () => req.destroy())
+    signal?.addEventListener('abort', () => req.destroy(), { once: true })
     req.on('error', reject)
     req.on('timeout', () => { req.destroy(); reject(new Error('请求超时')) })
     req.write(payload)
@@ -92,6 +93,7 @@ export function postStream(
   signal?: AbortSignal,
 ): Promise<string> {
   return new Promise((resolve, reject) => {
+    if (signal?.aborted) { reject(new Error('请求已取消')); return }
     const payload = JSON.stringify(body)
     const req = https.request({
       hostname: BASE_URL,
@@ -143,7 +145,7 @@ export function postStream(
       })
       res.on('end', () => resolve(fullText))
     })
-    signal?.addEventListener('abort', () => req.destroy())
+    signal?.addEventListener('abort', () => req.destroy(), { once: true })
     req.on('error', reject)
     req.on('timeout', () => { req.destroy(); reject(new Error('请求超时')) })
     req.write(payload)
