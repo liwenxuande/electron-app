@@ -19,7 +19,10 @@ import type { ChatMessage } from '../service/ai/deepseekClient'
 export function registerAIController(): void {
   ipcMain.handle('ai:config:save', async (_event, { key, model }: { key: string; model: string }) => {
     try {
-      aiConfigService.saveApiKey(key)
+      // 只有传入真实 Key 时才保存，避免 "(已保存)" 占位符覆盖真实 Key
+      if (key) {
+        aiConfigService.saveApiKey(key)
+      }
       aiConfigService.saveModel(model)
       return { code: 0, data: null, msg: '保存成功' }
     } catch (e: unknown) {

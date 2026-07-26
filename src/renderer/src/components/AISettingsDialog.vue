@@ -65,11 +65,15 @@ function close() {
 }
 
 async function test() {
-  if (!key.value.trim()) return
+  // 有已保存 Key 时（输入框为空但显示 "(已保存)"），也允许测试
+  if (!key.value.trim() && props.config.apiKey !== '(已保存)') return
   loading.value = true
   result.value = null
   try {
-    await window.aiAPI.saveConfig({ key: key.value.trim(), model: model.value })
+    // 只有输入了新 Key 才保存
+    if (key.value.trim()) {
+      await window.aiAPI.saveConfig({ key: key.value.trim(), model: model.value })
+    }
     const res = await window.aiAPI.testConnection()
     result.value = res.code === 0
       ? { ok: true, msg: '✓ 连接成功' }
@@ -81,10 +85,11 @@ async function test() {
 }
 
 function save() {
-  const k = key.value.trim() || (props.config.apiKey === '(已保存)' ? '(已保存)' : '')
-  if (!k && props.config.apiKey !== '(已保存)') return
+  const k = key.value.trim()
+  // 只有实际输入了新 Key 才传给后端，"(已保存)" 仅用于前端展示
   window.aiAPI?.saveConfig({ key: k, model: model.value })
-  emit('save', { apiKey: k, model: model.value })
+  const displayKey = k || (props.config.apiKey === '(已保存)' ? '(已保存)' : '')
+  emit('save', { apiKey: displayKey, model: model.value })
   close()
 }
 </script>

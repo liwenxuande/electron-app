@@ -135,18 +135,26 @@ export class AIToolService {
     })
   }
 
-  private baseCondition(extra = ''): string {
-    return `WHERE t.ledger_id = ${this.ledgerId}${extra}`
+  /**
+   * 构建参数化 WHERE 条件：ledger_id = ? + 额外条件
+   * @returns { sql, params } — ledgerId 始终作为第一个参数
+   */
+  private baseCondition(extraSql = '', extraParams: unknown[] = []): { sql: string; params: unknown[] } {
+    return {
+      sql: `WHERE t.ledger_id = ?${extraSql}`,
+      params: [this.ledgerId, ...extraParams],
+    }
   }
 
   private monthlySummary(yearMonth: string) {
+    const cond = this.baseCondition(' AND t.trans_date LIKE ?', [`${yearMonth}%`])
     const row = this.db.get<{ income: number; expense: number; count: number }>(
       `SELECT
         COALESCE(SUM(CASE WHEN t.type='income' THEN t.amount ELSE 0 END), 0) as income,
         COALESCE(SUM(CASE WHEN t.type='expense' THEN t.amount ELSE 0 END), 0) as expense,
         COUNT(*) as count
-      FROM transactions t ${this.baseCondition(' AND t.trans_date LIKE ?')}`,
-      [`${yearMonth}%`]
+      FROM transactions t ${cond.sql}`,
+      cond.params
     )
     return {
       totalIncome: +(row?.income ?? 0).toFixed(2),
@@ -157,13 +165,14 @@ export class AIToolService {
   }
 
   private categoryBreakdown(yearMonth: string, type: string) {
+    const cond = this.baseCondition(' AND t.trans_date LIKE ? AND t.type = ?', [`${yearMonth}%`, type])
     const rows = this.db.all<{ name: string; amount: number; count: number }>(
       `SELECT c.name, SUM(t.amount) as amount, COUNT(*) as count
       FROM transactions t
       LEFT JOIN category c ON t.category_id = c.id
-      ${this.baseCondition(' AND t.trans_date LIKE ? AND t.type = ?')}
+      ${cond.sql}
       GROUP BY c.name ORDER BY amount DESC`,
-      [`${yearMonth}%`, type]
+      cond.params
     )
     const total = rows.reduce((s, r) => s + r.amount, 0)
     return rows.map(r => ({
@@ -175,24 +184,26 @@ export class AIToolService {
   }
 
   private dailyTrend(startDate: string, endDate: string) {
+    const cond = this.baseCondition(' AND t.trans_date >= ? AND t.trans_date <= ?', [startDate, endDate])
     return this.db.all<{ date: string; income: number; expense: number }>(
       `SELECT t.trans_date as date,
         COALESCE(SUM(CASE WHEN t.type='income' THEN t.amount ELSE 0 END), 0) as income,
         COALESCE(SUM(CASE WHEN t.type='expense' THEN t.amount ELSE 0 END), 0) as expense
       FROM transactions t
-      ${this.baseCondition(' AND t.trans_date >= ? AND t.trans_date <= ?')}
+      ${cond.sql}
       GROUP BY t.trans_date ORDER BY t.trans_date ASC`,
-      [startDate, endDate]
+      cond.params
     )
   }
 
   private topEntries(yearMonth: string, type: string, limit: number) {
+    const cond = this.baseCondition(' AND t.trans_date LIKE ? AND t.type = ?', [`${yearMonth}%`, type])
     return this.db.all<{ date: string; category: string; amount: number; desc: string }>(
       `SELECT t.trans_date as date, c.name as category, t.amount, t.description as desc
       FROM transactions t LEFT JOIN category c ON t.category_id = c.id
-      ${this.baseCondition(' AND t.trans_date LIKE ? AND t.type = ?')}
+      ${cond.sql}
       ORDER BY t.amount DESC LIMIT ?`,
-      [`${yearMonth}%`, type, limit]
+      [...cond.params, limit]
     )
   }
 
