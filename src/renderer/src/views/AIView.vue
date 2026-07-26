@@ -222,6 +222,12 @@ async function handleSuggest(text: string) {
 }
 
 async function handleNewSession() {
+  // 如果已有空对话，直接切过去
+  const emptySession = store.sessions.find(s => s.recordCount === 0)
+  if (emptySession) {
+    await handleSwitch(emptySession.sessionId)
+    return
+  }
   const sid = await store.createSession(ledgerStore.currentId)
   if (sid) {
     store.clearToolStatuses()
