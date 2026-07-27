@@ -509,9 +509,8 @@ const rankList = computed(() => {
 onMounted(() => {
   validateGrain()
   fetchStats()
-  fetchTopTransactions()
 })
-watch(() => ledgerStore.currentId, () => { fetchStats(); fetchTopTransactions() })
+watch(() => ledgerStore.currentId, () => { fetchStats() })
 watch(period, () => {
   validateGrain()
   fetchStats()
@@ -938,17 +937,6 @@ function formatAmount(v: number): string {
   flex-shrink: 0;
   width: 36px;
   text-align: right;
-}
-
-.stats-rank-row-area {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-bottom: 28px;
-}
-
-.stats-rank-row {
-  cursor: pointer;
 }
 
 .stats-single-list {
