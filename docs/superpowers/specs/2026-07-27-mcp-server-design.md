@@ -67,6 +67,13 @@ src/main/mcp/
 
 resources/
   mcp-agent.cjs       # 独立脚本：MCP stdio 协议层，HTTP 桥接到 Electron
+
+plugin/               # TraeWork 插件包（独立目录，非源码）
+  .trae-plugin/
+    plugin.json
+  .mcp.json
+  assets/
+    icon.svg
 ```
 
 ### 4.1 各文件职责
@@ -82,7 +89,7 @@ resources/
 | 文件 | 改动 |
 |---|---|
 | `src/main/index.ts` | `app.whenReady()` 末尾新增：`startMCPServer()` 启动 HTTP 服务 |
-| `electron-builder.yml` | 将 `resources/mcp-agent.cjs` 纳入 `extraResources` |
+| `electron-builder.yml` | 添加 `extraResources` 配置，将 `resources/mcp-agent.cjs` 打包到安装目录 |
 
 ## 五、详细设计
 
@@ -317,20 +324,101 @@ async function handleToolsCall(msg) {
 }
 ```
 
-### 5.5 外部 AI 连接配置
+### 5.5 发现与安装（TraeWork 插件 + 通用配置）
 
-外部 AI（TraeWork 等）的 `mcp.json` 配置：
+#### A. TraeWork 插件
+
+参考 Gitee 插件的结构，创建一个 TraeWork 插件包：
+
+```
+personal-finance-mcp/
+  .trae-plugin/
+    plugin.json          # 插件元数据
+  .mcp.json              # MCP 服务定义
+  assets/
+    icon.svg             # 插件图标
+```
+
+**`.mcp.json`**（stdio 模式，指向 mcp-agent.cjs）：
+
+```json
+{
+  "mcpServers": {
+    "personal-finance": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["%APPDATA%/personal-finance/resources/mcp-agent.cjs"]
+    }
+  }
+}
+```
+
+> 路径 `%APPDATA%/personal-finance` 是 `electron-builder` 的默认安装目录，`mcp-agent.cjs` 通过 `extraResources` 打包到该路径下。
+
+**`.trae-plugin/plugin.json`**：
+
+```json
+{
+  "name": "personal-finance-mcp",
+  "version": "1.0.0",
+  "description": "通过 MCP 协议查询和管理个人记账应用的账单数据",
+  "author": { "name": "个人记账" },
+  "mcp": ".mcp.json",
+  "interface": {
+    "displayName": "个人记账",
+    "shortDescription": "查询和新增个人账单记录",
+    "longDescription": "连接本地个人记账应用，支持通过 AI 助手查询账本、分类和交易记录，以及新增、编辑、删除账单。",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "defaultPrompt": [
+      "帮我看一下这个月的支出情况",
+      "记一笔餐饮支出",
+      "列出我的所有账本"
+    ],
+    "brandColor": "#E07800",
+    "logo": "./assets/icon.svg"
+  }
+}
+```
+
+**安装方式**：用户在 TraeWork 插件市场搜索"个人记账"一键安装，或手动加载插件目录。
+
+**不需要 connector.json**：本方案通过 stdio + 本地 HTTP 桥接，无需鉴权。
+
+#### B. 通用配置（Claude Code / Cursor / Codex / Continue.dev 等）
+
+所有支持 MCP stdio 的 AI 工具，只需在对应的配置文件中添加：
 
 ```json
 {
   "mcpServers": {
     "个人记账": {
       "command": "node",
-      "args": ["{应用安装目录}/resources/mcp-agent.cjs"]
+      "args": ["{mcp-agent.cjs 的绝对路径}"]
     }
   }
 }
 ```
+
+各工具配置文件位置：
+
+| 工具 | 配置文件 | 示例路径 |
+|---|---|---|
+| TraeWork | 插件 `.mcp.json` | 见上节 |
+| **Claude Code** | 项目 `.mcp.json` 或全局 `claude_desktop_config.json` | `~/.claude/claude_desktop_config.json` |
+| **Cursor** | 项目 `.cursor/mcp.json` | 项目根目录 |
+| **VS Code Copilot** | 项目 `.vscode/mcp.json` | 项目根目录 |
+| **Codex (OpenAI)** | Agent 配置 → MCP Server → Add | GUI 配置 |
+| **Continue.dev** | `~/.continue/config.json` | 用户目录 |
+
+#### C. 应用内路径生成
+
+为了解决"用户不知道 mcp-agent.cjs 在哪"的问题，`mcp-agent.cjs` 打包到 `extraResources` 后，固定位于：
+
+- **Windows**: `%LOCALAPPDATA%/personal-finance/resources/mcp-agent.cjs`
+- **macOS**: `~/Library/Application Support/personal-finance/resources/mcp-agent.cjs`
+
+Electron 主进程在启动时可将此路径写入日志，供用户查阅。后续可在应用设置页提供"复制 MCP 配置"按钮。
 
 ## 六、生命周期
 
