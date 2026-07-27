@@ -101,6 +101,17 @@
           <p class="stats-kpi-label">储蓄率</p>
           <p class="stats-kpi-value rate">{{ kpiData.savingsRate }}%</p>
         </div>
+
+        <div class="stats-kpi-card">
+          <div class="stats-kpi-icon stats-kpi-icon--count">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+            </svg>
+          </div>
+          <p class="stats-kpi-label">记账笔数</p>
+          <p class="stats-kpi-value count">{{ kpiData.transactionCount }}</p>
+        </div>
       </div>
 
       <div class="stats-charts-row">
@@ -142,36 +153,70 @@
         </div>
       </div>
 
-      <div class="stats-rank-card">
-        <div class="stats-rank-header">
-          <h2 class="stats-chart-title">分类消费排行</h2>
-          <span class="stats-rank-period">{{ periodLabel }}</span>
-        </div>
-        <div class="stats-rank-list">
-          <div
-            v-for="(item, idx) in rankList"
-            :key="idx"
-            class="stats-rank-row"
-          >
-            <div class="stats-rank-num" :class="{ 'rank-top': idx < 3 }">{{ idx + 1 }}</div>
-            <div class="stats-rank-icon" :style="{ background: item.iconBg }">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" :stroke="item.iconColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M12 6v6l4 2"/>
-              </svg>
-            </div>
-            <div class="stats-rank-body">
-              <div class="stats-rank-info">
-                <span class="stats-rank-name">{{ item.name }}</span>
-                <span class="stats-rank-amount" :style="{ color: item.iconColor }">¥{{ formatAmount(item.total) }}</span>
-              </div>
-              <div class="stats-rank-bar-bg">
-                <div class="stats-rank-bar-fill" :style="{ width: item.pct + '%', background: item.iconColor }"></div>
-              </div>
-            </div>
-            <span class="stats-rank-pct">{{ item.pct }}%</span>
+      <div class="stats-rank-row-area">
+        <div class="stats-rank-card">
+          <div class="stats-rank-header">
+            <h2 class="stats-chart-title">分类消费排行</h2>
+            <span class="stats-rank-period">{{ periodLabel }}</span>
           </div>
-          <el-empty v-if="rankList.length === 0" description="暂无数据" :image-size="60" />
+          <div class="stats-rank-list">
+            <div
+              v-for="(item, idx) in rankList"
+              :key="idx"
+              class="stats-rank-row"
+              @click="showCategoryDetail(item)"
+            >
+              <div class="stats-rank-num" :class="{ 'rank-top': idx < 3 }">{{ idx + 1 }}</div>
+              <div class="stats-rank-icon" :style="{ background: item.iconBg }">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" :stroke="item.iconColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M12 6v6l4 2"/>
+                </svg>
+              </div>
+              <div class="stats-rank-body">
+                <div class="stats-rank-info">
+                  <span class="stats-rank-name">{{ item.name }}</span>
+                  <span class="stats-rank-right">
+                    <span class="stats-rank-amount" :style="{ color: item.iconColor }">¥{{ formatAmount(item.total) }}</span>
+                    <span class="stats-rank-count">{{ item.count }}笔</span>
+                  </span>
+                </div>
+                <div class="stats-rank-bar-bg">
+                  <div class="stats-rank-bar-fill" :style="{ width: item.pct + '%', background: item.iconColor }"></div>
+                </div>
+              </div>
+              <span class="stats-rank-pct">{{ item.pct }}%</span>
+            </div>
+            <el-empty v-if="rankList.length === 0" description="暂无数据" :image-size="60" />
+          </div>
+        </div>
+
+        <div class="stats-rank-card">
+          <div class="stats-single-list">
+            <h3 class="stats-single-title">单笔支出排行</h3>
+            <div v-if="topExpenseList.length > 0">
+              <div v-for="(item, idx) in topExpenseList" :key="'e'+idx" class="stats-single-row">
+                <span class="stats-single-num">{{ idx + 1 }}</span>
+                <span class="stats-single-amount expense">¥{{ item.amount.toFixed(2) }}</span>
+                <span class="stats-single-cat">{{ item.category_name }}</span>
+                <span class="stats-single-date">{{ item.trans_date }}</span>
+              </div>
+            </div>
+            <el-empty v-else description="暂无支出数据" :image-size="40" />
+          </div>
+          <div class="stats-single-divider"></div>
+          <div class="stats-single-list">
+            <h3 class="stats-single-title">单笔收入排行</h3>
+            <div v-if="topIncomeList.length > 0">
+              <div v-for="(item, idx) in topIncomeList" :key="'i'+idx" class="stats-single-row">
+                <span class="stats-single-num">{{ idx + 1 }}</span>
+                <span class="stats-single-amount income">¥{{ item.amount.toFixed(2) }}</span>
+                <span class="stats-single-cat">{{ item.category_name }}</span>
+                <span class="stats-single-date">{{ item.trans_date }}</span>
+              </div>
+            </div>
+            <el-empty v-else description="暂无收入数据" :image-size="40" />
+          </div>
         </div>
       </div>
     </div>
@@ -274,12 +319,15 @@ const periodLabel = computed(() => {
 
 const dailyStats = ref<any[]>([])
 const expenseCategoryStats = ref<any[]>([])
+const topExpenseList = ref<any[]>([])
+const topIncomeList = ref<any[]>([])
 
 const kpiData = reactive({
   avgExpense: 0,
   avgIncome: 0,
   avgDaily: 0,
-  savingsRate: 0
+  savingsRate: 0,
+  transactionCount: 0
 })
 
 const pieChartOption = computed(() => {
@@ -436,6 +484,7 @@ const rankList = computed(() => {
     .map((c: any, i: number) => ({
       name: c.category_name,
       total: c.total,
+      count: c.count || 0,
       pct: total > 0 ? Math.round((c.total / total) * 100) : 0,
       iconBg: RANK_ICONS[i % RANK_ICONS.length].bg,
       iconColor: RANK_ICONS[i % RANK_ICONS.length].color
@@ -445,8 +494,9 @@ const rankList = computed(() => {
 onMounted(() => {
   validateGrain()
   fetchStats()
+  fetchTopTransactions()
 })
-watch(() => ledgerStore.currentId, () => { fetchStats() })
+watch(() => ledgerStore.currentId, () => { fetchStats(); fetchTopTransactions() })
 watch(period, () => {
   validateGrain()
   fetchStats()
@@ -506,8 +556,23 @@ async function fetchStats() {
       kpiData.avgIncome = range.months > 0 ? totalIncome / range.months : totalIncome
       kpiData.avgDaily = range.months > 0 ? totalExpense / (range.months * 30) : 0
       kpiData.savingsRate = totalIncome > 0 ? Math.round(((totalIncome - totalExpense) / totalIncome) * 1000) / 10 : 0
+      kpiData.transactionCount = res.data.transactionCount || 0
     }
+    fetchTopTransactions()
   } catch (error: unknown) { console.error('获取统计数据失败:', error) }
+}
+
+async function fetchTopTransactions() {
+  const range = getDateRange()
+  try {
+    const res = await window.transactionAPI.getTopTransactions(range.start, range.end, ledgerStore.currentId)
+    if (res.code === 0) {
+      topExpenseList.value = res.data.expenseTop || []
+      topIncomeList.value = res.data.incomeTop || []
+    }
+  } catch (error: unknown) {
+    console.error('获取单笔排行失败:', error)
+  }
 }
 
 function formatAmount(v: number): string {
@@ -598,7 +663,7 @@ function formatAmount(v: number): string {
 
 .stats-kpi-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 16px;
   margin-bottom: 28px;
 }
@@ -633,6 +698,7 @@ function formatAmount(v: number): string {
 .stats-kpi-icon--income { background: rgba(16,185,129,0.08); color: #10B981; }
 .stats-kpi-icon--daily { background: rgba(59,130,246,0.08); color: #3B82F6; }
 .stats-kpi-icon--rate { background: rgba(245,158,11,0.08); color: #F59E0B; }
+.stats-kpi-icon--count { background: rgba(139,92,246,0.08); color: #8B5CF6; }
 
 .stats-kpi-label {
   font-size: 0.8125rem;
@@ -651,6 +717,7 @@ function formatAmount(v: number): string {
 .stats-kpi-value.income { color: #10B981; }
 .stats-kpi-value.daily { color: #3B82F6; }
 .stats-kpi-value.rate { color: #1A1A2E; }
+.stats-kpi-value.count { color: #8B5CF6; }
 
 .stats-charts-row {
   display: grid;
@@ -751,6 +818,13 @@ function formatAmount(v: number): string {
   padding: 0 24px 16px;
 }
 
+.stats-rank-row-area {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
 .stats-rank-row {
   display: flex;
   align-items: center;
@@ -762,6 +836,7 @@ function formatAmount(v: number): string {
 
 .stats-rank-row:hover {
   background: #FAFBFC;
+  cursor: pointer;
 }
 
 .stats-rank-num {
