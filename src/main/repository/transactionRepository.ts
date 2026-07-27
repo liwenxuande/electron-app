@@ -256,4 +256,27 @@ export class TransactionRepository {
     )
     return row ? row.count : 0
   }
+
+  getTopTransactions(filter: StatsFilter, type: 'income' | 'expense', limit: number = 10): TransactionRow[] {
+    const conditions: string[] = ['t.trans_date >= ?', 't.trans_date <= ?', 't.type = ?']
+    const params: any[] = [filter.startDate, filter.endDate, type]
+
+    if (filter.ledgerId) {
+      conditions.push('t.ledger_id = ?')
+      params.push(filter.ledgerId)
+    }
+
+    const whereClause = 'WHERE ' + conditions.join(' AND ')
+
+    return this.dbManager.all<TransactionRow>(
+      `SELECT t.*, c.name as category_name, l.name as ledger_name
+       FROM transactions t
+       LEFT JOIN category c ON t.category_id = c.id
+       LEFT JOIN ledger l ON t.ledger_id = l.id
+       ${whereClause}
+       ORDER BY t.amount DESC
+       LIMIT ?`,
+      [...params, limit]
+    )
+  }
 }

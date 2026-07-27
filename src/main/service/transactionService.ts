@@ -196,6 +196,22 @@ export class TransactionService {
     }
   }
 
+  getTopTransactions(startDate: string, endDate: string, ledgerId?: number): ApiResponse {
+    try {
+      if (!startDate || !endDate) {
+        return this.fail('请选择起止日期')
+      }
+      const filter = { startDate, endDate, ledgerId }
+      const expenseTop = this.repository.getTopTransactions(filter, 'expense', 10)
+      const incomeTop = this.repository.getTopTransactions(filter, 'income', 10)
+      return this.success({ expenseTop, incomeTop }, '查询成功')
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : String(error)
+      logger.error(`查询单笔排行失败: ${errMsg}`)
+      return this.fail(`查询失败: ${errMsg}`)
+    }
+  }
+
   async importCsv(csvText: string, ledgerId: number = 1): Promise<ApiResponse<CsvImportResult>> {
     const result: CsvImportResult = { successCount: 0, failCount: 0, skipCount: 0, errors: [] }
     const lines = csvText.trim().split(/\r?\n/)
