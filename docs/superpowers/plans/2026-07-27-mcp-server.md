@@ -136,7 +136,7 @@ npx tsc --noEmit 2>&1 | Select-String "mcp-tools"
 
 ```bash
 git add src/main/mcp/mcp-tools.ts
-git commit -m "feat: add MCP tool definitions — 7 tools for ledger, category, transaction CRUD"
+git commit -m "feat: 新增 MCP Tool 定义 — 7 个工具覆盖账本、分类、账单 CRUD"
 ```
 
 ---
@@ -270,7 +270,7 @@ npx tsc --noEmit 2>&1 | Select-String "error"
 
 ```bash
 git add src/main/mcp/mcp-server.ts
-git commit -m "feat: add MCP HTTP server with dispatch logic on localhost:19527"
+git commit -m "feat: 新增 MCP HTTP Server — localhost:19527 内嵌服务 + dispatchTool 分发"
 ```
 
 ---
@@ -334,7 +334,7 @@ MCP HTTP 服务已启动: http://127.0.0.1:19527
 
 ```bash
 git add src/main/index.ts
-git commit -m "feat: integrate MCP HTTP server into app lifecycle"
+git commit -m "feat: MCP HTTP Server 集成到应用生命周期 — 启动/关闭"
 ```
 
 ---
@@ -600,7 +600,7 @@ echo '{"jsonrpc":"2.0","id":"2","method":"tools/call","params":{"name":"list_led
 
 ```bash
 git add resources/mcp-agent.cjs
-git commit -m "feat: add mcp-agent.cjs — MCP stdio protocol bridge to Electron HTTP server"
+git commit -m "feat: 新增 mcp-agent.cjs — MCP Stdio 协议桥接，HTTP POST 到 Electron"
 ```
 
 ---
@@ -652,7 +652,7 @@ npx electron-builder --help
 
 ```bash
 git add electron-builder.yml
-git commit -m "chore: add mcp-agent.cjs to extraResources for packaging"
+git commit -m "chore: extraResources 追加 mcp-agent.cjs 打包配置"
 ```
 
 ---
@@ -740,7 +740,7 @@ mkdir -p plugin/.trae-plugin plugin/assets
 
 ```bash
 git add plugin/
-git commit -m "feat: add TraeWork plugin package for MCP integration"
+git commit -m "feat: 新增 TraeWork 插件包 — MCP 集成一键安装"
 ```
 
 ---
