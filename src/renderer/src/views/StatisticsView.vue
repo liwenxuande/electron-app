@@ -220,6 +220,14 @@
         </div>
       </div>
     </div>
+
+    <CategoryDetailDialog
+      v-model:visible="detailVisible"
+      :category-name="detailCategoryName"
+      :category-id="detailCategoryId"
+      :start-date="detailDateRange.start"
+      :end-date="detailDateRange.end"
+    />
   </div>
 </template>
 
@@ -229,6 +237,7 @@ import dayjs from 'dayjs'
 import { useLedgerStore } from '../stores/ledgerStore'
 import BookSwitcher from '../components/BookSwitcher.vue'
 import QuarterPicker from '../components/QuarterPicker.vue'
+import CategoryDetailDialog from '../components/CategoryDetailDialog.vue'
 
 const PIE_COLORS = ['#FF8C00', '#8B5CF6', '#3B82F6', '#F59E0B', '#EF4444', '#10B981', '#EC4899', '#6B7280']
 const RANK_ICONS = [
@@ -321,6 +330,12 @@ const dailyStats = ref<any[]>([])
 const expenseCategoryStats = ref<any[]>([])
 const topExpenseList = ref<any[]>([])
 const topIncomeList = ref<any[]>([])
+
+// 明细弹框状态
+const detailVisible = ref(false)
+const detailCategoryName = ref('')
+const detailCategoryId = ref(0)
+const detailDateRange = computed(() => getDateRange())
 
 const kpiData = reactive({
   avgExpense: 0,
@@ -576,7 +591,13 @@ async function fetchTopTransactions() {
 }
 
 function showCategoryDetail(item: { name: string; total: number; count: number }) {
-  // 占位函数，任务 8 将实现完整逻辑
+  // 从 expenseCategoryStats 中找回完整的 category_id
+  const cat = expenseCategoryStats.value.find((c: any) => c.category_name === item.name)
+  if (cat) {
+    detailCategoryName.value = item.name
+    detailCategoryId.value = cat.category_id
+    detailVisible.value = true
+  }
 }
 
 function formatAmount(v: number): string {
