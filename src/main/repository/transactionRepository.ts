@@ -46,6 +46,7 @@ export interface CategoryStat {
   category_name: string
   type: string
   total: number
+  count: number
 }
 
 export interface StatsFilter {
@@ -219,7 +220,9 @@ export class TransactionRepository {
     const whereClause = 'WHERE ' + conditions.join(' AND ')
 
     return this.dbManager.all<CategoryStat>(
-      `SELECT t.category_id, c.name as category_name, t.type, SUM(t.amount) as total
+      `SELECT t.category_id, c.name as category_name, t.type,
+              SUM(t.amount) as total,
+              COUNT(*) as count
        FROM transactions t
        LEFT JOIN category c ON t.category_id = c.id
        ${whereClause}
@@ -227,5 +230,30 @@ export class TransactionRepository {
        ORDER BY total DESC`,
       params
     )
+  }
+
+  getTransactionCount(filter: StatsFilter): number {
+    const conditions: string[] = ['trans_date >= ?', 'trans_date <= ?']
+    const params: any[] = [filter.startDate, filter.endDate]
+
+    if (filter.categoryId) {
+      conditions.push('category_id = ?')
+      params.push(filter.categoryId)
+    }
+    if (filter.ledgerId) {
+      conditions.push('ledger_id = ?')
+      params.push(filter.ledgerId)
+    }
+    if (filter.keyword) {
+      conditions.push('description LIKE ?')
+      params.push(`%${filter.keyword}%`)
+    }
+
+    const whereClause = 'WHERE ' + conditions.join(' AND ')
+    const row = this.dbManager.get<{ count: number }>(
+      `SELECT COUNT(*) as count FROM transactions ${whereClause}`,
+      params
+    )
+    return row ? row.count : 0
   }
 }

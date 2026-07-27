@@ -187,7 +187,8 @@ export class TransactionService {
       const dailyStats = this.repository.getDailyStats(filter)
       const expenseCategoryStats = this.repository.getCategoryStats(filter, 'expense')
       const incomeCategoryStats = this.repository.getCategoryStats(filter, 'income')
-      return this.success({ dailyStats, expenseCategoryStats, incomeCategoryStats }, '查询成功')
+      const transactionCount = this.repository.getTransactionCount(filter)
+      return this.success({ dailyStats, expenseCategoryStats, incomeCategoryStats, transactionCount }, '查询成功')
     } catch (error: unknown) {
       const errMsg = error instanceof Error ? error.message : String(error)
       logger.error(`查询统计数据失败: ${errMsg}`)
