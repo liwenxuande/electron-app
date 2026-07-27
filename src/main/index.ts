@@ -5,6 +5,7 @@ import { registerTransactionController } from './controller/transactionControlle
 import { registerCategoryController } from './controller/categoryController'
 import { registerLedgerController } from './controller/ledgerController'
 import { registerAIController } from './controller/aiController'
+import { startMCPServer, stopMCPServer } from './mcp/mcp-server'
 import DbManager from './db/database'
 import { logger, initFileTransport } from './utils/logger'
 import { initAILogTransport } from './utils/aiLogger'
@@ -175,7 +176,10 @@ app.whenReady().then(() => {
   registerTransactionController()
   registerAIController()
 
-  // ③½ 注册系统通知 IPC（测试用）
+  // ④ 启动 MCP HTTP 服务（外部 AI 通过 mcp-agent.cjs → localhost:19527 访问）
+  startMCPServer()
+
+  // ⑤ 注册系统通知 IPC（测试用）
   ipcMain.handle('notification:show', (_event, title: string, body: string) => {
     try {
       const notif = new Notification({ title, body })
@@ -222,5 +226,6 @@ app.on('window-all-closed', () => {
 
 // 退出前清理
 app.on('before-quit', () => {
+  stopMCPServer()
   logger.info('应用即将退出')
 })
