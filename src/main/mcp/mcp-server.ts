@@ -1,6 +1,6 @@
 import http from 'http'
 import { logger } from '../utils/logger'
-import { TransactionService } from '../service/transactionService'
+import { TransactionService, TransactionInput, ListParams } from '../service/transactionService'
 import { TransactionRepository } from '../repository/transactionRepository'
 import { CategoryRepository } from '../repository/categoryRepository'
 import { CategoryService } from '../service/categoryService'
@@ -24,13 +24,13 @@ function dispatchTool(
 ): Promise<ApiResponse<unknown>> | ApiResponse<unknown> {
   switch (tool) {
     case 'list_transactions':
-      return txService.getList(args as Record<string, unknown>)
+      return txService.getList(args as unknown as ListParams)
     case 'get_transaction':
       return txService.getById(args.id as number)
     case 'create_transaction':
-      return txService.create(args as Parameters<TransactionService['create']>[0])
+      return txService.create(args as unknown as TransactionInput)
     case 'update_transaction':
-      return txService.update(args.id as number, args as Parameters<TransactionService['create']>[0])
+      return txService.update(args.id as number, args as unknown as TransactionInput)
     case 'delete_transaction':
       return txService.delete(args.id as number)
     case 'list_ledgers':
@@ -85,6 +85,13 @@ export function startMCPServer(): void {
 
   httpServer.listen(19527, '127.0.0.1', () => {
     logger.info('MCP HTTP 服务已启动: http://127.0.0.1:19527')
+  })
+  httpServer.on('error', (err: NodeJS.ErrnoException) => {
+    if (err.code === 'EADDRINUSE') {
+      logger.error('MCP HTTP 服务启动失败：端口 19527 已被占用')
+    } else {
+      logger.error(`MCP HTTP 服务启动失败: ${err.message}`)
+    }
   })
 }
 
