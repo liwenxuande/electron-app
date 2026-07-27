@@ -104,7 +104,7 @@ def function(input):
 
 ```bash
 git add tests/path/test.py src/path/file.py
-git commit -m "feat: add specific feature"
+git commit -m "feat: 功能描述（语言和格式必须匹配项目现有 commit 风格）"
 ```
 ````
 
@@ -123,6 +123,7 @@ git commit -m "feat: add specific feature"
 - 每个步骤都包含完整代码——如果步骤涉及代码变更，就展示代码
 - 精确的命令和预期输出
 - DRY、YAGNI、TDD、频繁 commit
+- **Commit 信息语言：** 生成 git commit 命令前，先运行 `git log --oneline -10` 查看项目的 commit 风格，确保 commit message 的语言（中文/英文）和格式（如 `feat: 中文描述`）与项目现有约定一致。中文项目使用中文描述。参见 superpowers:chinese-commit-conventions 了解中文 commit 规范。
 
 ## 自检
 
@@ -133,6 +134,8 @@ git commit -m "feat: add specific feature"
 **2. 占位符扫描：** 搜索计划中的红旗——上方"禁止占位符"章节中的任何模式。修复它们。
 
 **3. 类型一致性：** 后续任务中使用的类型、方法签名和属性名是否与前面任务中定义的一致？任务 3 中叫 `clearLayers()` 但任务 7 中叫 `clearFullLayers()` 就是 bug。
+
+**4. Commit 语言：** 计划中所有 `git commit -m` 的 message 语言是否与项目现有 commit 风格一致？如果是中文项目但 commit 信息是英文，需要修正。
 
 如果发现问题，直接内联修复。无需重新审查——修好继续推进。如果发现规格中的需求没有对应任务，就添加任务。
 
