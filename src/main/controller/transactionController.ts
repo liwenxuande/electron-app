@@ -92,5 +92,15 @@ export function registerTransactionController(): void {
     }
   })
 
+  ipcMain.handle('transaction:topTransactions', async (_event, startDate: string, endDate: string, ledgerId?: number) => {
+    try {
+      logger.info(`[IPC] transaction:topTransactions 收到请求: ${startDate} ~ ${endDate}, ledgerId=${ledgerId}`)
+      return service.getTopTransactions(startDate, endDate, ledgerId)
+    } catch (error: any) {
+      logger.error(`[IPC] transaction:topTransactions 异常: ${error.message}`)
+      return { code: -1, data: null, msg: `系统异常: ${error.message}` }
+    }
+  })
+
   logger.info('Transaction IPC控制器注册完成')
 }

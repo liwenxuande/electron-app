@@ -94,6 +94,11 @@ contextBridge.exposeInMainWorld('transactionAPI', {
   /** CSV导入 */
   importCsv: (csvText: string, ledgerId?: number) => {
     return ipcRenderer.invoke('transaction:importCsv', csvText, ledgerId)
+  },
+
+  /** 查询单笔排行（收入/支出各 top 10） */
+  getTopTransactions: (startDate: string, endDate: string, ledgerId?: number) => {
+    return ipcRenderer.invoke('transaction:topTransactions', startDate, endDate, ledgerId)
   }
 })
 

@@ -101,12 +101,19 @@ interface CategoryStat {
   category_name: string
   type: string
   total: number
+  count: number
+}
+
+interface TopTransactionData {
+  expenseTop: TransactionRow2[]
+  incomeTop: TransactionRow2[]
 }
 
 interface StatsData {
   dailyStats: DailyStat[]
   expenseCategoryStats: CategoryStat[]
   incomeCategoryStats: CategoryStat[]
+  transactionCount: number
 }
 
 interface TransactionAPI {
@@ -118,6 +125,7 @@ interface TransactionAPI {
   getMonthlyStats(yearMonth: string): Promise<ApiResponse<MonthlyStats>>
   getStats(startDate: string, endDate: string, categoryId?: number, ledgerId?: number, keyword?: string): Promise<ApiResponse<StatsData>>
   importCsv(csvText: string, ledgerId?: number): Promise<ApiResponse<CsvImportResult>>
+  getTopTransactions(startDate: string, endDate: string, ledgerId?: number): Promise<ApiResponse<TopTransactionData>>
 }
 
 interface ChatHistoryRecord {
