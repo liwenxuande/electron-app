@@ -902,7 +902,6 @@ function rankClass(idx: number): string {
 }
 
 .stats-period-picker {
-  width: 120px;
 }
 
 .stats-rank-icon {

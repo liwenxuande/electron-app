@@ -135,7 +135,7 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
 .qp-panel {
   position: absolute;
   top: calc(100% + 4px);
-  left: 0;
+  right: 0;
   z-index: 100;
   background: #fff;
   border-radius: 12px;
