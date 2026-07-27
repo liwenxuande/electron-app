@@ -22,6 +22,7 @@
           placeholder="选择月份"
           format="YYYY-MM"
           value-format="YYYY-MM"
+          :clearable="false"
           class="stats-period-picker"
           @change="fetchStats"
         />
@@ -32,6 +33,7 @@
           placeholder="选择年份"
           format="YYYY"
           value-format="YYYY"
+          :clearable="false"
           class="stats-period-picker"
           @change="fetchStats"
         />
@@ -49,8 +51,9 @@
           end-placeholder="结束"
           format="YYYY-MM-DD"
           value-format="YYYY-MM-DD"
-          class="stats-period-picker"
-          @change="onCustomRangeChange"
+          :clearable="false"
+          class="stats-period-picker stats-period-range"
+           @change="onCustomRangeChange"
         />
       </div>
     </div>
@@ -901,7 +904,19 @@ function rankClass(idx: number): string {
   font-weight: 700;
 }
 
-.stats-period-picker {
+.stats-header-right :deep(.el-date-editor) {
+  width: 130px;
+  flex-shrink: 0;
+}
+
+.stats-header-right :deep(.el-range-editor) {
+  width: 230px;
+  flex-shrink: 0;
+}
+
+.stats-header-right :deep(.el-input__wrapper) {
+  padding-left: 6px;
+  padding-right: 0;
 }
 
 .stats-rank-icon {
