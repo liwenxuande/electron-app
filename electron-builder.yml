@@ -11,6 +11,8 @@ extraResources:
     to: icon.ico
   - from: src/renderer/splash.html
     to: splash.html
+  - from: resources/mcp-agent.cjs
+    to: resources/mcp-agent.cjs
 win:
   target:
     - target: nsis

@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "personal-finance": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["%LOCALAPPDATA%/personal-finance/resources/mcp-agent.cjs"]
+    }
+  }
+}

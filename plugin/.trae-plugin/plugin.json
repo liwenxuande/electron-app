@@ -1,0 +1,36 @@
+{
+  "name": "personal-finance-mcp",
+  "version": "1.0.0",
+  "description": "通过 MCP 协议查询和管理个人记账应用的账单数据",
+  "i18n": {
+    "display_name": {
+      "zh-cn": "个人记账",
+      "en": "Personal Finance"
+    },
+    "description": {
+      "zh-cn": "连接本地个人记账应用，支持通过 AI 助手查询账本、分类和交易记录，以及新增、编辑、删除账单。",
+      "en": "Connect to local Personal Finance app to query ledgers, categories, and transactions, as well as create, edit, and delete records via AI assistant."
+    }
+  },
+  "author": {
+    "name": "个人记账"
+  },
+  "license": "MIT",
+  "keywords": ["finance", "accounting", "ledger", "transactions"],
+  "mcp": ".mcp.json",
+  "interface": {
+    "displayName": "个人记账",
+    "shortDescription": "查询和新增个人账单记录",
+    "longDescription": "连接本地个人记账应用，支持通过 AI 助手查询账本、分类和交易记录，以及新增、编辑、删除账单。",
+    "developerName": "个人记账",
+    "category": "Productivity",
+    "capabilities": ["Read", "Write"],
+    "defaultPrompt": [
+      "帮我看一下这个月的支出情况",
+      "记一笔餐饮支出 35 元",
+      "列出我的所有账本"
+    ],
+    "brandColor": "#E07800",
+    "logo": "./assets/icon.svg"
+  }
+}
