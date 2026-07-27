@@ -15,33 +15,34 @@
             @click="setPeriod(p.key)"
           >{{ p.label }}</button>
         </div>
-        <el-select
-          v-if="period === 'year'"
-          v-model="selectedYear"
-          class="stats-period-select"
-          size="small"
-          @change="fetchStats"
-        >
-          <el-option v-for="y in yearOptions" :key="y" :label="y + '年'" :value="y" />
-        </el-select>
-        <el-select
+        <el-date-picker
           v-if="period === 'month'"
           v-model="selectedMonth"
-          class="stats-period-select"
+          type="month"
+          placeholder="选择月份"
+          format="YYYY-MM"
+          value-format="YYYY-MM"
           size="small"
+          class="stats-period-select"
           @change="fetchStats"
-        >
-          <el-option v-for="m in monthOptions" :key="m.value" :label="m.label" :value="m.value" />
-        </el-select>
-        <el-select
+        />
+        <el-date-picker
+          v-if="period === 'year'"
+          v-model="selectedYear"
+          type="year"
+          placeholder="选择年份"
+          format="YYYY"
+          value-format="YYYY"
+          size="small"
+          class="stats-period-select"
+          @change="fetchStats"
+        />
+        <QuarterPicker
           v-if="period === 'quarter'"
           v-model="selectedQuarter"
           class="stats-period-select"
-          size="small"
           @change="fetchStats"
-        >
-          <el-option v-for="q in quarterOptions" :key="q.value" :label="q.label" :value="q.value" />
-        </el-select>
+        />
         <el-date-picker
           v-if="period === 'custom'"
           v-model="customRange"
@@ -108,7 +109,7 @@
             <h2 class="stats-chart-title">收支趋势</h2>
             <div class="stats-gran-toggle">
               <button
-                v-for="g in grainOptions"
+                v-for="g in visibleGrainOptions"
                 :key="g.key"
                 class="stats-gran-btn"
                 :class="{ active: grain === g.key }"
@@ -182,6 +183,7 @@ import { ref, reactive, computed, watch, onMounted } from 'vue'
 import dayjs from 'dayjs'
 import { useLedgerStore } from '../stores/ledgerStore'
 import BookSwitcher from '../components/BookSwitcher.vue'
+import QuarterPicker from '../components/QuarterPicker.vue'
 
 const PIE_COLORS = ['#FF8C00', '#8B5CF6', '#3B82F6', '#F59E0B', '#EF4444', '#10B981', '#EC4899', '#6B7280']
 const RANK_ICONS = [
@@ -197,7 +199,7 @@ const RANK_ICONS = [
 
 const ledgerStore = useLedgerStore()
 
-const period = ref<'all' | 'month' | 'quarter' | 'year' | 'custom'>('quarter')
+const period = ref<'all' | 'month' | 'quarter' | 'year' | 'custom'>('month')
 const periods = [
   { key: 'all' as const, label: '全部' },
   { key: 'month' as const, label: '月' },
@@ -215,38 +217,35 @@ const grainOptions = [
   { key: 'quarter' as const, label: '季' },
 ]
 
-const defaultGrainMap: Record<string, Grain> = {
-  all: 'month',
-  month: 'day',
-  quarter: 'month',
-  year: 'month',
-  custom: 'day',
+const availableGrains = computed<Grain[]>(() => {
+  if (period.value === 'month') return ['day']
+  if (period.value === 'quarter') return ['day', 'month']
+  if (period.value === 'all') return ['day', 'month', 'quarter']
+  if (period.value === 'custom' && customRange.value) {
+    const days = dayjs(customRange.value[1]).diff(dayjs(customRange.value[0]), 'day') + 1
+    if (days <= 31) return ['day']
+    if (days <= 366) return ['day', 'month']
+    return ['day', 'month', 'quarter']
+  }
+  return ['day', 'month', 'quarter']
+})
+
+const visibleGrainOptions = computed(() => {
+  return grainOptions.filter(g => availableGrains.value.includes(g.key))
+})
+
+function validateGrain() {
+  if (!availableGrains.value.includes(grain.value)) {
+    grain.value = availableGrains.value[0]
+  }
 }
 
 const now = dayjs()
 const currentYear = now.year()
-const selectedYear = ref(currentYear)
+const selectedYear = ref<number | null>(currentYear)
 const selectedMonth = ref(now.format('YYYY-MM'))
 const selectedQuarter = ref(`${currentYear}-Q${Math.ceil((now.month() + 1) / 3)}`)
 const customRange = ref<[string, string] | null>(null)
-
-const yearOptions = Array.from({ length: 10 }, (_, i) => currentYear - 5 + i)
-const monthOptions = computed(() => {
-  const y = selectedYear.value
-  return Array.from({ length: 12 }, (_, i) => ({
-    label: `${y}年${i + 1}月`,
-    value: `${y}-${String(i + 1).padStart(2, '0')}`
-  }))
-})
-const quarterOptions = computed(() => {
-  const y = selectedYear.value
-  return [
-    { label: `${y}年Q1`, value: `${y}-Q1` },
-    { label: `${y}年Q2`, value: `${y}-Q2` },
-    { label: `${y}年Q3`, value: `${y}-Q3` },
-    { label: `${y}年Q4`, value: `${y}-Q4` },
-  ]
-})
 
 const kpiExpenseLabel = computed(() => {
   if (period.value === 'all') return '总支出'
@@ -444,15 +443,14 @@ const rankList = computed(() => {
 })
 
 onMounted(() => {
-  grain.value = defaultGrainMap[period.value]
+  validateGrain()
   fetchStats()
 })
 watch(() => ledgerStore.currentId, () => { fetchStats() })
 watch(period, () => {
-  grain.value = defaultGrainMap[period.value]
+  validateGrain()
   fetchStats()
 })
-watch(selectedYear, () => { fetchStats() })
 
 function setPeriod(key: 'all' | 'month' | 'quarter' | 'year' | 'custom') {
   period.value = key
@@ -464,6 +462,7 @@ function setGrain(g: Grain) {
 
 function onCustomRangeChange() {
   if (customRange.value && customRange.value.length === 2) {
+    validateGrain()
     fetchStats()
   }
 }
@@ -478,7 +477,7 @@ function getDateRange() {
     return { start: '2000-01-01', end: dayjs().format('YYYY-MM-DD'), months: 120 }
   }
   if (period.value === 'month') {
-    const m = dayjs(selectedMonth.value + '-01')
+    const m = dayjs(selectedMonth.value)
     return { start: m.startOf('month').format('YYYY-MM-DD'), end: m.endOf('month').format('YYYY-MM-DD'), months: 1 }
   }
   if (period.value === 'quarter') {
@@ -486,7 +485,8 @@ function getDateRange() {
     const qStart = dayjs(`${y}-${String((parseInt(q) - 1) * 3 + 1).padStart(2, '0')}-01`)
     return { start: qStart.startOf('month').format('YYYY-MM-DD'), end: qStart.add(2, 'month').endOf('month').format('YYYY-MM-DD'), months: 3 }
   }
-  const start = dayjs(`${selectedYear.value}-01-01`)
+  const y = selectedYear.value || currentYear
+  const start = dayjs(`${y}-01-01`)
   return { start: start.format('YYYY-MM-DD'), end: start.endOf('year').format('YYYY-MM-DD'), months: 12 }
 }
 
