@@ -22,8 +22,7 @@
           placeholder="选择月份"
           format="YYYY-MM"
           value-format="YYYY-MM"
-          size="small"
-          class="stats-period-select"
+          class="stats-period-picker"
           @change="fetchStats"
         />
         <el-date-picker
@@ -33,14 +32,12 @@
           placeholder="选择年份"
           format="YYYY"
           value-format="YYYY"
-          size="small"
-          class="stats-period-select"
+          class="stats-period-picker"
           @change="fetchStats"
         />
         <QuarterPicker
           v-if="period === 'quarter'"
           v-model="selectedQuarter"
-          class="stats-period-select"
           @change="fetchStats"
         />
         <el-date-picker
@@ -52,8 +49,7 @@
           end-placeholder="结束"
           format="YYYY-MM-DD"
           value-format="YYYY-MM-DD"
-          size="small"
-          class="stats-period-select"
+          class="stats-period-picker"
           @change="onCustomRangeChange"
         />
       </div>
@@ -118,7 +114,7 @@
         <div class="stats-chart-card stats-chart-card--main">
           <div class="stats-chart-header">
             <h2 class="stats-chart-title">收支趋势</h2>
-            <div class="stats-gran-toggle">
+            <div class="stats-gran-toggle" v-if="visibleGrainOptions.length > 1">
               <button
                 v-for="g in visibleGrainOptions"
                 :key="g.key"
@@ -166,7 +162,7 @@
               class="stats-rank-row"
               @click="showCategoryDetail(item)"
             >
-              <div class="stats-rank-num" :class="{ 'rank-top': idx < 3 }">{{ idx + 1 }}</div>
+              <div class="stats-rank-num" :class="rankClass(idx)">{{ idx + 1 }}</div>
               <div class="stats-rank-icon" :style="{ background: item.iconBg }">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" :stroke="item.iconColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="12" cy="12" r="10"/>
@@ -302,18 +298,23 @@ const selectedQuarter = ref(`${currentYear}-Q${Math.ceil((now.month() + 1) / 3)}
 const customRange = ref<[string, string] | null>(null)
 
 const kpiExpenseLabel = computed(() => {
-  if (period.value === 'all') return '总支出'
   if (period.value === 'month') return '本月支出'
   if (period.value === 'quarter') return '本季支出'
-  return '年均支出'
+  if (period.value === 'year') return '本年支出'
+  if (period.value === 'all') return '总支出'
+  return '支出'
 })
 const kpiIncomeLabel = computed(() => {
-  if (period.value === 'all') return '总收入'
   if (period.value === 'month') return '本月收入'
   if (period.value === 'quarter') return '本季收入'
-  return '年均收入'
+  if (period.value === 'year') return '本年收入'
+  if (period.value === 'all') return '总收入'
+  return '收入'
 })
 const kpiDailyLabel = computed(() => {
+  if (period.value === 'month') return '日均消费'
+  if (period.value === 'quarter') return '日均消费'
+  if (period.value === 'year') return '日均消费'
   return '日均消费'
 })
 
@@ -534,24 +535,28 @@ function onCustomRangeChange() {
 function getDateRange() {
   if (period.value === 'custom' && customRange.value) {
     const days = dayjs(customRange.value[1]).diff(dayjs(customRange.value[0]), 'day') + 1
-    const months = Math.max(days / 30, 1)
-    return { start: customRange.value[0], end: customRange.value[1], months }
+    return { start: customRange.value[0], end: customRange.value[1], months: Math.max(days / 30, 1), days }
   }
   if (period.value === 'all') {
-    return { start: '2000-01-01', end: dayjs().format('YYYY-MM-DD'), months: 120 }
+    return { start: '2000-01-01', end: dayjs().format('YYYY-MM-DD'), months: 120, days: 36500 }
   }
   if (period.value === 'month') {
     const m = dayjs(selectedMonth.value)
-    return { start: m.startOf('month').format('YYYY-MM-DD'), end: m.endOf('month').format('YYYY-MM-DD'), months: 1 }
+    const days = m.daysInMonth()
+    return { start: m.startOf('month').format('YYYY-MM-DD'), end: m.endOf('month').format('YYYY-MM-DD'), months: 1, days }
   }
   if (period.value === 'quarter') {
     const [y, q] = selectedQuarter.value.split('-Q')
     const qStart = dayjs(`${y}-${String((parseInt(q) - 1) * 3 + 1).padStart(2, '0')}-01`)
-    return { start: qStart.startOf('month').format('YYYY-MM-DD'), end: qStart.add(2, 'month').endOf('month').format('YYYY-MM-DD'), months: 3 }
+    const qEnd = qStart.add(2, 'month').endOf('month')
+    const days = qEnd.diff(qStart.startOf('month'), 'day') + 1
+    return { start: qStart.startOf('month').format('YYYY-MM-DD'), end: qEnd.format('YYYY-MM-DD'), months: 3, days }
   }
   const y = selectedYear.value || currentYear
   const start = dayjs(`${y}-01-01`)
-  return { start: start.format('YYYY-MM-DD'), end: start.endOf('year').format('YYYY-MM-DD'), months: 12 }
+  const end = start.endOf('year')
+  const days = end.diff(start, 'day') + 1
+  return { start: start.format('YYYY-MM-DD'), end: end.format('YYYY-MM-DD'), months: 12, days }
 }
 
 async function fetchStats() {
@@ -566,9 +571,9 @@ async function fetchStats() {
       const totalExpense = expenseCategoryStats.value.reduce((s, c) => s + c.total, 0)
       const totalIncome = incomeStats.reduce((s, c) => s + c.total, 0)
 
-      kpiData.avgExpense = range.months > 0 ? totalExpense / range.months : totalExpense
-      kpiData.avgIncome = range.months > 0 ? totalIncome / range.months : totalIncome
-      kpiData.avgDaily = range.months > 0 ? totalExpense / (range.months * 30) : 0
+      kpiData.avgExpense = totalExpense
+      kpiData.avgIncome = totalIncome
+      kpiData.avgDaily = range.days ? totalExpense / range.days : 0
       kpiData.savingsRate = totalIncome > 0 ? Math.round(((totalIncome - totalExpense) / totalIncome) * 1000) / 10 : 0
       kpiData.transactionCount = res.data.transactionCount || 0
     }
@@ -601,6 +606,13 @@ function showCategoryDetail(item: { name: string; total: number; count: number }
 
 function formatAmount(v: number): string {
   return v.toFixed(2)
+}
+
+function rankClass(idx: number): string {
+  if (idx === 0) return 'rank-gold'
+  if (idx === 1) return 'rank-silver'
+  if (idx === 2) return 'rank-bronze'
+  return ''
 }
 </script>
 
@@ -673,10 +685,6 @@ function formatAmount(v: number): string {
 .stats-period-btn.active {
   background: #FF8C00;
   color: #fff;
-}
-
-.stats-period-select {
-  width: 150px;
 }
 
 .stats-body {
@@ -877,9 +885,24 @@ function formatAmount(v: number): string {
   flex-shrink: 0;
 }
 
-.stats-rank-num.rank-top {
-  background: #FFF5E6;
+.stats-rank-num.rank-gold {
+  background: rgba(255,140,0,0.12);
   color: #FF8C00;
+  font-weight: 800;
+}
+.stats-rank-num.rank-silver {
+  background: rgba(156,163,175,0.12);
+  color: #6B7280;
+  font-weight: 700;
+}
+.stats-rank-num.rank-bronze {
+  background: rgba(217,119,6,0.1);
+  color: #D97706;
+  font-weight: 700;
+}
+
+.stats-period-picker {
+  width: 120px;
 }
 
 .stats-rank-icon {
