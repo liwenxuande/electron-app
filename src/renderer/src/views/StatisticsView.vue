@@ -195,7 +195,7 @@
           <div class="stats-single-list">
             <h3 class="stats-single-title">单笔支出排行</h3>
             <div v-if="topExpenseList.length > 0">
-              <div v-for="(item, idx) in topExpenseList" :key="'e'+idx" class="stats-single-row">
+              <div v-for="(item, idx) in topExpenseList.slice(0, 10)" :key="'e'+idx" class="stats-single-row">
                 <span class="stats-single-num">{{ idx + 1 }}</span>
                 <span class="stats-single-amount expense">¥{{ item.amount.toFixed(2) }}</span>
                 <span class="stats-single-cat">{{ item.category_name }}</span>
@@ -208,7 +208,7 @@
           <div class="stats-single-list">
             <h3 class="stats-single-title">单笔收入排行</h3>
             <div v-if="topIncomeList.length > 0">
-              <div v-for="(item, idx) in topIncomeList" :key="'i'+idx" class="stats-single-row">
+              <div v-for="(item, idx) in topIncomeList.slice(0, 10)" :key="'i'+idx" class="stats-single-row">
                 <span class="stats-single-num">{{ idx + 1 }}</span>
                 <span class="stats-single-amount income">¥{{ item.amount.toFixed(2) }}</span>
                 <span class="stats-single-cat">{{ item.category_name }}</span>
@@ -575,6 +575,10 @@ async function fetchTopTransactions() {
   }
 }
 
+function showCategoryDetail(item: { name: string; total: number; count: number }) {
+  // 占位函数，任务 8 将实现完整逻辑
+}
+
 function formatAmount(v: number): string {
   return v.toFixed(2)
 }
@@ -913,5 +917,77 @@ function formatAmount(v: number): string {
   flex-shrink: 0;
   width: 36px;
   text-align: right;
+}
+
+.stats-rank-row-area {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.stats-rank-row {
+  cursor: pointer;
+}
+
+.stats-single-list {
+  padding: 20px 24px 8px;
+}
+
+.stats-single-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1A1A2E;
+  margin-bottom: 12px;
+}
+
+.stats-single-row {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  gap: 12px;
+  border-bottom: 1px solid #F5F7FA;
+}
+
+.stats-single-row:last-child { border-bottom: none; }
+
+.stats-single-num {
+  width: 20px; height: 20px;
+  border-radius: 4px; background: #F5F7FA;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.6875rem; font-weight: 700; color: #6B7280;
+  flex-shrink: 0;
+}
+
+.stats-single-amount {
+  font-size: 0.8125rem; font-weight: 600;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+  min-width: 80px;
+}
+
+.stats-single-amount.expense { color: #FF8C00; }
+.stats-single-amount.income { color: #10B981; }
+
+.stats-single-cat {
+  font-size: 0.8125rem; color: #6B7280;
+  flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.stats-single-date {
+  font-size: 0.75rem; color: #9CA3AF;
+  white-space: nowrap; flex-shrink: 0;
+}
+
+.stats-single-divider {
+  height: 1px; background: #F0F2F5; margin: 0 24px;
+}
+
+.stats-rank-right {
+  display: flex; align-items: center; gap: 8px;
+}
+
+.stats-rank-count {
+  font-size: 0.75rem; color: #9CA3AF;
+  white-space: nowrap;
 }
 </style>
