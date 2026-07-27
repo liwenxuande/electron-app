@@ -13,7 +13,7 @@
             </button>
           </div>
 
-          <div class="modal-body" :class="{ 'cdd-scroll': list.length > 15 }">
+          <div class="modal-body" v-loading="loading" :class="{ 'cdd-scroll': list.length > 15 }">
             <table class="cdd-table" v-if="list.length > 0">
               <thead>
                 <tr>
@@ -47,6 +47,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { ElMessage } from 'element-plus'
 
 interface DetailItem {
   id: number
@@ -89,7 +90,11 @@ async function fetchDetail() {
     })
     if (res.code === 0) {
       list.value = res.data.list
+    } else {
+      ElMessage.error(res.msg || '加载失败')
     }
+  } catch {
+    ElMessage.error('加载失败')
   } finally {
     loading.value = false
   }
