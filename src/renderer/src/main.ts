@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import ElementPlus from 'element-plus'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import 'element-plus/dist/index.css'
+import ElementPlusX from 'vue-element-plus-x'
 import { createPinia } from 'pinia'
 import ECharts from 'vue-echarts'
 import { use } from 'echarts/core'
@@ -15,6 +16,7 @@ use([CanvasRenderer, LineChart, PieChart, GridComponent, TooltipComponent, Legen
 const app = createApp(App)
 app.component('v-chart', ECharts)
 app.use(ElementPlus, { locale: zhCn })
+app.use(ElementPlusX)
 app.use(createPinia())
 app.mount('#app')
 

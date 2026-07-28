@@ -18,9 +18,11 @@
     "@element-plus/icons-vue": "^2.3.2",
     "better-sqlite3": "^12.11.1",
     "dayjs": "^1.11.13",
-    "marked": "^18.0.7",
+    "mermaid": "^11.16.0",
     "p-queue": "^8.1.0",
-    "winston": "^3.17.0"
+    "vue-element-plus-x": "^2.0.3",
+    "winston": "^3.17.0",
+    "x-markdown-vue": "^0.0.201"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.12",
