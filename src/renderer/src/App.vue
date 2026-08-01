@@ -55,12 +55,12 @@ import { ref, onMounted } from 'vue'
 import { useLedgerStore } from './stores/ledgerStore'
 import { useAI } from './composables/useAI'
 import TitleBar from './components/TitleBar.vue'
-import DashboardView from './views/DashboardView.vue'
-import TransactionList from './views/TransactionList.vue'
-import StatisticsView from './views/StatisticsView.vue'
-import LedgerManager from './views/LedgerManager.vue'
+import DashboardView from './views/DashboardView/index.vue'
+import TransactionList from './views/TransactionList/index.vue'
+import StatisticsView from './views/StatisticsView/index.vue'
+import LedgerManager from './views/LedgerManager/index.vue'
 import AISettingsDialog from './components/AISettingsDialog.vue'
-import AIView from './views/AIView.vue'
+import AIView from './views/AIView/index.vue'
 
 const activeNav = ref('dashboard')
 const transactionListRef = ref<InstanceType<typeof TransactionList> | null>(null)

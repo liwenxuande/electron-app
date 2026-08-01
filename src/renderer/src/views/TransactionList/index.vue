@@ -23,11 +23,11 @@
       <div class="txn-summary-bar">
         <div class="txn-summary-item">
           <span class="txn-summary-label">支出</span>
-          <span class="txn-summary-value">¥{{ formatAmount(transactionStore.monthlyStats.totalExpense) }}</span>
+          <span class="txn-summary-value">¥{{ formatAmount(Math.abs(transactionStore.monthlyStats.totalExpense)) }}</span>
         </div>
         <div class="txn-summary-item">
           <span class="txn-summary-label">收入</span>
-          <span class="txn-summary-value income">¥{{ formatAmount(transactionStore.monthlyStats.totalIncome) }}</span>
+          <span class="txn-summary-value income">¥{{ formatAmount(Math.abs(transactionStore.monthlyStats.totalIncome)) }}</span>
         </div>
         <div class="txn-summary-item">
           <span class="txn-summary-label">笔数</span>
@@ -74,69 +74,19 @@
         </div>
       </div>
 
-      <!-- Table -->
-      <div class="txn-table-card">
-        <el-table
-          ref="tableRef"
-          :data="transactionStore.list"
-          v-loading="transactionStore.loading"
-          style="width: 100%"
-          class="txn-table"
-          empty-text="暂无数据"
-          row-key="id"
-        >
-          <el-table-column prop="trans_date" label="日期" width="100" sortable>
-            <template #default="{ row }">
-              <span class="txn-cell-date">{{ formatDate(row.trans_date) }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="分类" width="140">
-            <template #default="{ row }">
-              <span class="txn-cat-tag" :style="{ background: getCatBg(row.category_name), color: getCatColor(row.category_name) }">
-                <span class="txn-cat-dot" :style="{ background: getCatColor(row.category_name) }"></span>
-                {{ row.category_name }}
-              </span>
-            </template>
-          </el-table-column>
-          <el-table-column prop="description" label="描述" min-width="120" show-overflow-tooltip>
-            <template #default="{ row }">
-              {{ row.description || '-' }}
-            </template>
-          </el-table-column>
-          <el-table-column label="金额" width="130" align="right">
-            <template #default="{ row }">
-              <span :class="row.type === 'income' ? 'txn-amount-income' : 'txn-amount-expense'">
-                {{ row.type === 'income' ? '+' : '-' }}¥{{ Math.abs(row.amount).toFixed(2) }}
-              </span>
-            </template>
-          </el-table-column>
-          <el-table-column label="操作" width="110" align="center" fixed="right">
-            <template #default="{ row }">
-              <div class="txn-action-btns">
-                <button class="txn-action-btn txn-action-edit" @click="handleEdit(row)" title="编辑">
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                </button>
-                <button class="txn-action-btn txn-action-delete" @click="handleDelete(row)" title="删除">
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                </button>
-              </div>
-            </template>
-          </el-table-column>
-        </el-table>
-
-        <div class="txn-pagination" v-if="transactionStore.total > 0">
-          <span class="txn-pagination-info">共 {{ transactionStore.total }} 条记录，第 {{ transactionStore.currentPage }}/{{ totalPages }} 页</span>
-          <div class="txn-pagination-btns">
-            <button class="txn-page-btn" :disabled="transactionStore.currentPage <= 1" @click="goPage(transactionStore.currentPage - 1)">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-            </button>
-            <button v-for="p in pageNumbers" :key="p" class="txn-page-btn" :class="{ active: p === transactionStore.currentPage }" @click="goPage(p)">{{ p }}</button>
-            <button class="txn-page-btn" :disabled="transactionStore.currentPage >= totalPages" @click="goPage(transactionStore.currentPage + 1)">
-              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-            </button>
-          </div>
-        </div>
-      </div>
+      <TransactionTable
+        :list="transactionStore.list"
+        :loading="transactionStore.loading"
+        :total="transactionStore.total"
+        :current-page="transactionStore.currentPage"
+        :total-pages="totalPages"
+        :page-numbers="pageNumbers"
+        :get-cat-color="getCatColor"
+        :get-cat-bg="getCatBg"
+        @edit="handleEdit"
+        @delete="handleDelete"
+        @go-page="goPage"
+      />
     </div>
 
     <TransactionDialog v-model:visible="dialogVisible" :mode="dialogMode" :editData="currentEditData" @success="handleDialogSuccess" />
@@ -148,29 +98,28 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { ElMessageBox } from 'element-plus'
-import type { TableInstance } from 'element-plus'
-import { useTransactionStore } from '../stores/transactionStore'
-import { useCategoryStore } from '../stores/categoryStore'
-import { useLedgerStore } from '../stores/ledgerStore'
-import TransactionDialog from '../components/TransactionDialog.vue'
-import CsvImportDialog from '../components/CsvImportDialog.vue'
-import CategoryManagerDialog from '../components/CategoryManagerDialog.vue'
-import BookSwitcher from '../components/BookSwitcher.vue'
+import { useTransactionStore } from '@/stores/transactionStore'
+import { useCategoryStore } from '@/stores/categoryStore'
+import { useLedgerStore } from '@/stores/ledgerStore'
+import TransactionDialog from '@/components/TransactionDialog.vue'
+import CsvImportDialog from '@/components/CsvImportDialog.vue'
+import CategoryManagerDialog from '@/components/CategoryManagerDialog.vue'
+import BookSwitcher from '@/components/BookSwitcher.vue'
+import { formatAmount } from '@/utils/format'
+import { useCategoryColors } from './composables/useCategoryColors'
+import { useTransactionPaginator } from './composables/useTransactionPaginator'
+import TransactionTable from './components/TransactionTable.vue'
 
-const CAT_COLORS = ['#FF8C00', '#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444', '#10B981', '#EC4899', '#6B7280', '#6366F1', '#14B8A6', '#F97316', '#06B6D4']
+// ---- Composables ----
+const { getCatColor, getCatBg, cache: catColorCache } = useCategoryColors()
+const { totalPages, pageNumbers, goPage } = useTransactionPaginator()
 
-function hexToRgba(hex: string, alpha: number): string {
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
-  return `rgba(${r},${g},${b},${alpha})`
-}
-
+// ---- Stores ----
 const transactionStore = useTransactionStore()
 const categoryStore = useCategoryStore()
 const ledgerStore = useLedgerStore()
 
-const tableRef = ref<TableInstance>()
+// ---- Local state ----
 const dialogVisible = ref(false)
 const dialogMode = ref<'create' | 'edit'>('create')
 const currentEditData = ref<Record<string, unknown> | null>(null)
@@ -178,59 +127,23 @@ const csvImportVisible = ref(false)
 const categoryDialogVisible = ref(false)
 
 let keywordTimer: ReturnType<typeof setTimeout> | null = null
-let catIdx = 0
-const catColorCache = new Map<string, { bg: string; color: string }>()
 
-const PAGE_WINDOW = 3
-const totalPages = computed(() => Math.max(1, Math.ceil(transactionStore.total / transactionStore.pageSize)))
-const pageNumbers = computed(() => {
-  const pages: number[] = []
-  const start = Math.max(1, transactionStore.currentPage - PAGE_WINDOW)
-  const end = Math.min(totalPages.value, transactionStore.currentPage + PAGE_WINDOW)
-  for (let i = start; i <= end; i++) pages.push(i)
-  return pages
-})
-
-// Filtered categories based on type filter
+// ---- Computed ----
+/** 按类型过滤的分类列表（为每个分类预分配颜色） */
 const filteredCategories = computed(() => {
   const all = [...categoryStore.expenseCategories, ...categoryStore.incomeCategories]
   let list = all
   if (transactionStore.filter.type === 'expense') list = all.filter(c => c.type === 'expense')
   else if (transactionStore.filter.type === 'income') list = all.filter(c => c.type === 'income')
 
-  // Assign stable colors per category name
-  const seen = new Map<string, string>()
-  return list.map(cat => {
-    const name = cat.name || ''
-    if (!seen.has(name)) {
-      // Reuse existing or assign new
-      if (!catColorCache.has(name)) {
-        catColorCache.set(name, { bg: hexToRgba(CAT_COLORS[catIdx % CAT_COLORS.length], 0.08), color: CAT_COLORS[catIdx % CAT_COLORS.length] })
-        catIdx++
-      }
-      seen.set(name, name)
-    }
-    const c = catColorCache.get(name)!
-    return { ...cat, _color: c.color, _bg: c.bg }
-  })
+  return list.map(cat => ({
+    ...cat,
+    _color: getCatColor(cat.name || ''),
+    _bg: getCatBg(cat.name || ''),
+  }))
 })
 
-function getCatColor(name: string): string {
-  if (!catColorCache.has(name)) {
-    catColorCache.set(name, { bg: hexToRgba(CAT_COLORS[catIdx % CAT_COLORS.length], 0.08), color: CAT_COLORS[catIdx % CAT_COLORS.length] })
-    catIdx++
-  }
-  return catColorCache.get(name)!.color
-}
-
-function getCatBg(name: string): string {
-  if (!catColorCache.has(name)) getCatColor(name)
-  return catColorCache.get(name)!.bg
-}
-
-function formatAmount(val: number): string { return Math.abs(val).toFixed(2) }
-function formatDate(d: string): string { return d ? d.substring(5) : '' }
-
+// ---- Event handlers ----
 function onCatScroll(e: WheelEvent) {
   const el = e.currentTarget as HTMLElement
   el.scrollLeft += e.deltaY
@@ -270,13 +183,13 @@ function handleDelete(row: { id: number; amount: number }) {
     confirmButtonText: '确定删除', cancelButtonText: '取消', type: 'warning'
   }).then(() => transactionStore.deleteTransaction(row.id)).catch(() => {})
 }
-function goPage(p: number) { transactionStore.currentPage = p; void transactionStore.fetchList() }
 function handleDialogSuccess() { dialogVisible.value = false }
 function handleImportCsv() { csvImportVisible.value = true }
 function handleCsvImportSuccess() { csvImportVisible.value = false }
 function handleManageCategories() { categoryDialogVisible.value = true }
 async function fetchCategoryData() { await categoryStore.fetchAllCategories() }
 
+// ---- Lifecycle ----
 onMounted(() => {
   fetchCategoryData()
   ledgerStore.fetchList().then(() => transactionStore.setLedgerId(ledgerStore.currentId))
@@ -291,7 +204,6 @@ defineExpose({
 </script>
 
 <style scoped>
-/* ===== Page Layout ===== */
 .txn-page { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
 .txn-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 40px; flex-shrink: 0; }
@@ -301,7 +213,6 @@ defineExpose({
 
 .txn-body { flex: 1; display: flex; flex-direction: column; padding: 0 40px 20px; gap: 14px; min-height: 0; }
 
-/* ===== Header Buttons ===== */
 .txn-outline-btn {
   display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
   background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
@@ -319,7 +230,6 @@ defineExpose({
 }
 .txn-primary-btn:hover { background: #E07800; box-shadow: 0 4px 12px rgba(255,140,0,0.35); }
 
-/* ===== Summary Bar ===== */
 .txn-summary-bar {
   display: flex; gap: 28px;
   background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
@@ -332,7 +242,6 @@ defineExpose({
 .txn-summary-value { font-size: 1rem; font-weight: 700; color: #1A1A2E; }
 .txn-summary-value.income { color: #10B981; }
 
-/* ===== Filter Bar ===== */
 .txn-filter-bar {
   background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
   border: 1px solid rgba(235,238,242,0.7); border-radius: 12px;
@@ -382,132 +291,4 @@ defineExpose({
 .txn-pill.active { border-color: #FF8C00; background: #FFF5E6; color: #FF8C00; }
 .txn-pill-dot { width: 6px; height: 6px; border-radius: 50%; }
 
-/* ===== Table Card ===== */
-.txn-table-card {
-  background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
-  border: 1px solid rgba(235,238,242,0.7); border-radius: 12px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04); overflow: hidden;
-  flex: 1; display: flex; flex-direction: column; min-height: 0;
-}
-
-/* ===== el-table style overrides ===== */
-.txn-table {
-  --el-table-border-color: transparent;
-  --el-table-header-bg-color: transparent;
-  --el-table-header-text-color: #9CA3AF;
-  --el-table-text-color: #1A1A2E;
-  --el-table-row-hover-bg-color: rgba(0,0,0,0.015);
-  --el-table-current-row-bg-color: transparent;
-  background: transparent;
-  flex: 1;
-}
-
-.txn-table :deep(.el-table__header th) {
-  padding: 12px 0 !important;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: #9CA3AF !important;
-  background: rgba(255,255,255,0.95) !important;
-  border-bottom: 1px solid rgba(235,238,242,0.7) !important;
-}
-
-.txn-table :deep(.el-table__header-wrapper) {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-}
-
-.txn-table :deep(.el-table__body td) {
-  padding: 13px 0 !important;
-  border-bottom: 1px solid rgba(235,238,242,0.4) !important;
-}
-
-.txn-table :deep(.el-table__body tr:last-child td) {
-  border-bottom: none !important;
-}
-
-.txn-table :deep(.el-table__empty-block) {
-  min-height: 200px;
-}
-
-.txn-table :deep(.el-table--border::after),
-.txn-table :deep(.el-table--border::before),
-.txn-table :deep(.el-table__inner-wrapper::before),
-.txn-table :deep(.el-table__border-left-patch) {
-  display: none !important;
-}
-
-.txn-table :deep(.el-table--border .el-table__cell) {
-  border-right: none !important;
-}
-
-.txn-table :deep(.el-table__fixed-right),
-.txn-table :deep(.el-table__fixed-right-patch) {
-  background: transparent;
-}
-
-.txn-table :deep(.el-table__fixed-right::before) {
-  display: none;
-}
-
-.txn-table :deep(.el-table .sort-caret) {
-  display: none;
-}
-
-.txn-table :deep(.el-table .ascending .sort-caret),
-.txn-table :deep(.el-table .descending .sort-caret) {
-  display: none;
-}
-
-.txn-table :deep(.el-table .cell) {
-  font-size: 0.8125rem;
-}
-
-.txn-table :deep(.el-table__empty-text) {
-  color: #9CA3AF;
-}
-
-/* ===== Cell Styles ===== */
-.txn-cell-date { color: #6B7280; font-size: 0.8125rem; }
-
-.txn-cat-tag {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 3px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 500; white-space: nowrap;
-}
-.txn-cat-dot { width: 6px; height: 6px; border-radius: 50%; }
-
-.txn-amount-income { color: #10B981; font-weight: 600; font-variant-numeric: tabular-nums; }
-.txn-amount-expense { color: #1A1A2E; font-weight: 600; font-variant-numeric: tabular-nums; }
-
-.txn-action-btns { display: inline-flex; gap: 2px; justify-content: center; }
-
-.txn-action-btn {
-  width: 28px; height: 28px; border-radius: 6px; display: inline-flex;
-  align-items: center; justify-content: center; border: none; background: transparent;
-  cursor: pointer; color: #9CA3AF; transition: all 0.15s;
-}
-.txn-action-edit:hover { color: #FF8C00; background: #FFF5E6; }
-.txn-action-delete:hover { color: #EF4444; background: #FEF2F2; }
-
-/* ===== Pagination ===== */
-.txn-pagination {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 16px; border-top: 1px solid rgba(235,238,242,0.7);
-  flex-shrink: 0;
-}
-.txn-pagination-info { font-size: 0.75rem; color: #9CA3AF; }
-.txn-pagination-btns { display: flex; gap: 4px; }
-
-.txn-page-btn {
-  min-width: 30px; height: 30px; border-radius: 6px; display: inline-flex;
-  align-items: center; justify-content: center;
-  border: 1px solid rgba(235,238,242,0.7); background: transparent;
-  color: #6B7280; font-size: 0.75rem; cursor: pointer;
-  transition: all 0.12s; font-family: inherit; padding: 0 6px;
-}
-.txn-page-btn:hover { border-color: #FFAD42; color: #FF8C00; }
-.txn-page-btn.active { background: #FF8C00; border-color: #FF8C00; color: #fff; }
-.txn-page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 </style>

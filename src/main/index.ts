@@ -26,7 +26,7 @@ if (process.platform === 'win32' && app.isPackaged) {
 
 /**
  * Electron 主进程入口
- * 启动顺序：初始化数据库 → 注册IPC控制器 → 创建渲染窗口
+ * 启动顺序：显示启动动画 → 初始化日志 → 初始化数据库 → 注册IPC → 创建主窗口（后台加载）→ ready-to-show 后关闭动画显示主窗口
  */
 
 // 单实例锁：只允许运行一个应用实例
@@ -129,18 +129,13 @@ function createWindow(): void {
     mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
 
-  // 主窗口就绪后关闭启动动画（至少展示 1 秒）
-  const splashStart = Date.now()
+  // 主窗口就绪后关闭启动动画
   mainWindow.once('ready-to-show', () => {
-    const elapsed = Date.now() - splashStart
-    // const delay = Math.max(0, 1500 - elapsed)
-    // setTimeout(() => {
     if (splashWindow && !splashWindow.isDestroyed()) {
       splashWindow.close()
       splashWindow = null
     }
-      mainWindow?.show()
-    // }, delay)
+    mainWindow?.show()
   })
 
   logger.info('主窗口创建完成')
@@ -149,11 +144,14 @@ function createWindow(): void {
 // ========== 应用生命周期 ==========
 
 app.whenReady().then(() => {
-  // ① 初始化文件日志（延迟，因 app.getPath 需 ready 后调用）
+  // ① 第一时间显示启动动画（避免白屏，必须在所有耗时操作之前）
+  createSplashWindow()
+
+  // ② 初始化文件日志（延迟，因 app.getPath 需 ready 后调用）
   initFileTransport()
   initAILogTransport()
 
-  // ② 初始化数据库（统一放 userData，升级不丢数据）
+  // ③ 初始化数据库（统一放 userData，升级不丢数据）
   const dbFile = app.isPackaged ? 'data.db' : 'data.dev.db'
   const dbDir = app.getPath('userData')
   fs.mkdirSync(dbDir, { recursive: true })
@@ -170,16 +168,16 @@ app.whenReady().then(() => {
 
   DbManager.getInstance().init(dbPath)
 
-  // ③ 注册 IPC 通信控制器
+  // ④ 注册 IPC 通信控制器
   registerCategoryController()
   registerLedgerController()
   registerTransactionController()
   registerAIController()
 
-  // ④ 启动 MCP HTTP 服务（外部 AI 通过 mcp-agent.cjs → localhost:19527 访问）
+  // ⑤ 启动 MCP HTTP 服务（外部 AI 通过 mcp-agent.cjs → localhost:19527 访问）
   startMCPServer()
 
-  // ⑤ 注册系统通知 IPC（测试用）
+  // ⑥ 注册系统通知 IPC（测试用）
   ipcMain.handle('notification:show', (_event, title: string, body: string) => {
     try {
       const notif = new Notification({ title, body })
@@ -193,10 +191,7 @@ app.whenReady().then(() => {
     }
   })
 
-  // ④ 显示启动动画
-  createSplashWindow()
-
-  // ⑤ 创建渲染窗口（后台加载）
+  // ⑦ 创建渲染窗口（后台加载）
   createWindow()
 
   // macOS：点击 dock 图标重新创建窗口

@@ -231,124 +231,40 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import dayjs from 'dayjs'
-import { useLedgerStore } from '../stores/ledgerStore'
-import BookSwitcher from '../components/BookSwitcher.vue'
-import QuarterPicker from '../components/QuarterPicker.vue'
-import CategoryDetailDialog from '../components/CategoryDetailDialog.vue'
+import { useLedgerStore } from '@/stores/ledgerStore'
+import BookSwitcher from '@/components/BookSwitcher.vue'
+import QuarterPicker from '@/components/QuarterPicker.vue'
+import CategoryDetailDialog from '@/components/CategoryDetailDialog.vue'
+import { formatAmount } from '@/utils/format'
+import { makeIconColors } from '@/const'
+import { useStatsPeriod, PERIODS, type Grain } from './composables/useStatsPeriod'
+import { useStatsData } from './composables/useStatsData'
 
+// ---- Constants ----
 const PIE_COLORS = ['#FF8C00', '#8B5CF6', '#3B82F6', '#F59E0B', '#EF4444', '#10B981', '#EC4899', '#6B7280']
-const RANK_ICONS = [
-  { bg: 'rgba(255,140,0,0.08)', color: '#FF8C00' },
-  { bg: 'rgba(139,92,246,0.08)', color: '#8B5CF6' },
-  { bg: 'rgba(59,130,246,0.08)', color: '#3B82F6' },
-  { bg: 'rgba(245,158,11,0.08)', color: '#F59E0B' },
-  { bg: 'rgba(239,68,68,0.08)', color: '#EF4444' },
-  { bg: 'rgba(16,185,129,0.08)', color: '#10B981' },
-  { bg: 'rgba(236,72,153,0.08)', color: '#EC4899' },
-  { bg: 'rgba(107,114,128,0.08)', color: '#6B7280' },
-]
+const RANK_ICONS = makeIconColors(PIE_COLORS, 0.08)
 
-const ledgerStore = useLedgerStore()
+// ---- Composables ----
+const periodCtx = useStatsPeriod()
+const dataCtx = useStatsData()
 
-const period = ref<'all' | 'month' | 'quarter' | 'year' | 'custom'>('month')
-const periods = [
-  { key: 'all' as const, label: '全部' },
-  { key: 'month' as const, label: '月' },
-  { key: 'quarter' as const, label: '季' },
-  { key: 'year' as const, label: '年' },
-  { key: 'custom' as const, label: '自定义' },
-]
+const { period, grain, selectedMonth, selectedYear, selectedQuarter, customRange,
+  visibleGrainOptions, kpiExpenseLabel, kpiIncomeLabel, periodLabel,
+  validateGrain, getDateRange } = periodCtx
+const { dailyStats, expenseCategoryStats, topExpenseList, topIncomeList, kpiData } = dataCtx
 
-type Grain = 'day' | 'month' | 'quarter'
-const grain = ref<Grain>('month')
+const periods = PERIODS
+const kpiDailyLabel = computed(() => '日均消费')
 
-const grainOptions = [
-  { key: 'day' as const, label: '日' },
-  { key: 'month' as const, label: '月' },
-  { key: 'quarter' as const, label: '季' },
-]
-
-const availableGrains = computed<Grain[]>(() => {
-  if (period.value === 'month') return ['day']
-  if (period.value === 'quarter') return ['day', 'month']
-  if (period.value === 'all') return ['day', 'month', 'quarter']
-  if (period.value === 'custom' && customRange.value) {
-    const days = dayjs(customRange.value[1]).diff(dayjs(customRange.value[0]), 'day') + 1
-    if (days <= 31) return ['day']
-    if (days <= 366) return ['day', 'month']
-    return ['day', 'month', 'quarter']
-  }
-  return ['day', 'month', 'quarter']
-})
-
-const visibleGrainOptions = computed(() => {
-  return grainOptions.filter(g => availableGrains.value.includes(g.key))
-})
-
-function validateGrain() {
-  if (!availableGrains.value.includes(grain.value)) {
-    grain.value = availableGrains.value[0]
-  }
-}
-
-const now = dayjs()
-const currentYear = now.year()
-const selectedYear = ref<number | null>(currentYear)
-const selectedMonth = ref(now.format('YYYY-MM'))
-const selectedQuarter = ref(`${currentYear}-Q${Math.ceil((now.month() + 1) / 3)}`)
-const customRange = ref<[string, string] | null>(null)
-
-const kpiExpenseLabel = computed(() => {
-  if (period.value === 'month') return '本月支出'
-  if (period.value === 'quarter') return '本季支出'
-  if (period.value === 'year') return '本年支出'
-  if (period.value === 'all') return '总支出'
-  return '支出'
-})
-const kpiIncomeLabel = computed(() => {
-  if (period.value === 'month') return '本月收入'
-  if (period.value === 'quarter') return '本季收入'
-  if (period.value === 'year') return '本年收入'
-  if (period.value === 'all') return '总收入'
-  return '收入'
-})
-const kpiDailyLabel = computed(() => {
-  if (period.value === 'month') return '日均消费'
-  if (period.value === 'quarter') return '日均消费'
-  if (period.value === 'year') return '日均消费'
-  return '日均消费'
-})
-
-const periodLabel = computed(() => {
-  if (period.value === 'all') return '全部时间'
-  if (period.value === 'month') return selectedMonth.value
-  if (period.value === 'quarter') return selectedQuarter.value
-  if (period.value === 'year') return `${selectedYear.value}年`
-  if (customRange.value) return `${customRange.value[0]} ~ ${customRange.value[1]}`
-  return ''
-})
-
-const dailyStats = ref<any[]>([])
-const expenseCategoryStats = ref<any[]>([])
-const topExpenseList = ref<any[]>([])
-const topIncomeList = ref<any[]>([])
-
-// 明细弹框状态
+// ---- Detail dialog ----
 const detailVisible = ref(false)
 const detailCategoryName = ref('')
 const detailCategoryId = ref(0)
 const detailDateRange = computed(() => getDateRange())
 
-const kpiData = reactive({
-  avgExpense: 0,
-  avgIncome: 0,
-  avgDaily: 0,
-  savingsRate: 0,
-  transactionCount: 0
-})
-
+// ---- Chart computed ----
 const pieChartOption = computed(() => {
   const data = expenseCategoryStats.value.slice(0, 8)
   if (!data.length) return null
@@ -510,18 +426,11 @@ const rankList = computed(() => {
     }))
 })
 
-onMounted(() => {
-  validateGrain()
-  fetchStats()
-})
-watch(() => ledgerStore.currentId, () => { fetchStats() })
-watch(period, () => {
-  validateGrain()
-  fetchStats()
-})
-
-function setPeriod(key: 'all' | 'month' | 'quarter' | 'year' | 'custom') {
+// ---- Actions ----
+function setPeriod(key: typeof period.value) {
   period.value = key
+  validateGrain()
+  fetchStats()
 }
 
 function setGrain(g: Grain) {
@@ -535,70 +444,11 @@ function onCustomRangeChange() {
   }
 }
 
-function getDateRange() {
-  if (period.value === 'custom' && customRange.value) {
-    const days = dayjs(customRange.value[1]).diff(dayjs(customRange.value[0]), 'day') + 1
-    return { start: customRange.value[0], end: customRange.value[1], months: Math.max(days / 30, 1), days }
-  }
-  if (period.value === 'all') {
-    return { start: '2000-01-01', end: dayjs().format('YYYY-MM-DD'), months: 120, days: 36500 }
-  }
-  if (period.value === 'month') {
-    const m = dayjs(selectedMonth.value)
-    const days = m.daysInMonth()
-    return { start: m.startOf('month').format('YYYY-MM-DD'), end: m.endOf('month').format('YYYY-MM-DD'), months: 1, days }
-  }
-  if (period.value === 'quarter') {
-    const [y, q] = selectedQuarter.value.split('-Q')
-    const qStart = dayjs(`${y}-${String((parseInt(q) - 1) * 3 + 1).padStart(2, '0')}-01`)
-    const qEnd = qStart.add(2, 'month').endOf('month')
-    const days = qEnd.diff(qStart.startOf('month'), 'day') + 1
-    return { start: qStart.startOf('month').format('YYYY-MM-DD'), end: qEnd.format('YYYY-MM-DD'), months: 3, days }
-  }
-  const y = selectedYear.value || currentYear
-  const start = dayjs(`${y}-01-01`)
-  const end = start.endOf('year')
-  const days = end.diff(start, 'day') + 1
-  return { start: start.format('YYYY-MM-DD'), end: end.format('YYYY-MM-DD'), months: 12, days }
-}
-
 async function fetchStats() {
-  const range = getDateRange()
-  try {
-    const res = await window.transactionAPI.getStats(range.start, range.end, undefined, ledgerStore.currentId)
-    if (res.code === 0) {
-      dailyStats.value = res.data.dailyStats || []
-      expenseCategoryStats.value = res.data.expenseCategoryStats || []
-      const incomeStats = res.data.incomeCategoryStats || []
-
-      const totalExpense = expenseCategoryStats.value.reduce((s, c) => s + c.total, 0)
-      const totalIncome = incomeStats.reduce((s, c) => s + c.total, 0)
-
-      kpiData.avgExpense = totalExpense
-      kpiData.avgIncome = totalIncome
-      kpiData.avgDaily = range.days ? totalExpense / range.days : 0
-      kpiData.savingsRate = totalIncome > 0 ? Math.round(((totalIncome - totalExpense) / totalIncome) * 1000) / 10 : 0
-      kpiData.transactionCount = res.data.transactionCount || 0
-    }
-    fetchTopTransactions()
-  } catch (error: unknown) { console.error('获取统计数据失败:', error) }
+  await dataCtx.fetchAll(getDateRange())
 }
 
-async function fetchTopTransactions() {
-  const range = getDateRange()
-  try {
-    const res = await window.transactionAPI.getTopTransactions(range.start, range.end, ledgerStore.currentId)
-    if (res.code === 0) {
-      topExpenseList.value = res.data.expenseTop || []
-      topIncomeList.value = res.data.incomeTop || []
-    }
-  } catch (error: unknown) {
-    console.error('获取单笔排行失败:', error)
-  }
-}
-
-function showCategoryDetail(item: { name: string; total: number; count: number }) {
-  // 从 expenseCategoryStats 中找回完整的 category_id
+function showCategoryDetail(item: { name: string }) {
   const cat = expenseCategoryStats.value.find((c: any) => c.category_name === item.name)
   if (cat) {
     detailCategoryName.value = item.name
@@ -607,16 +457,17 @@ function showCategoryDetail(item: { name: string; total: number; count: number }
   }
 }
 
-function formatAmount(v: number): string {
-  return v.toFixed(2)
-}
-
 function rankClass(idx: number): string {
   if (idx === 0) return 'rank-gold'
   if (idx === 1) return 'rank-silver'
   if (idx === 2) return 'rank-bronze'
   return ''
 }
+
+// ---- Lifecycle ----
+const ledgerStore = useLedgerStore()
+onMounted(() => { validateGrain(); fetchStats() })
+watch(() => ledgerStore.currentId, () => { fetchStats() })
 </script>
 
 <style scoped>

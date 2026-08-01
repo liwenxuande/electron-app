@@ -102,9 +102,9 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted, watch } from 'vue'
 import { useCategoryStore } from '../stores/categoryStore'
+import { CHART_COLORS } from '@/const'
 
-const CAT_COLORS = ['#FF8C00', '#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444', '#10B981', '#EC4899', '#6B7280', '#6366F1', '#14B8A6', '#F97316']
-
+const CAT_COLORS = CHART_COLORS
 
 const props = defineProps<{ visible: boolean }>()
 const emit = defineEmits<{ (e: 'update:visible', v: boolean): void; (e: 'close'): void }>()

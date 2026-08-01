@@ -174,11 +174,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
-import { useTransactionStore } from '../stores/transactionStore'
-import { useLedgerStore } from '../stores/ledgerStore'
-import BookSwitcher from '../components/BookSwitcher.vue'
-import dayjs from 'dayjs'
+import { useDashboardData } from './composables/useDashboardData'
+import BookSwitcher from '@/components/BookSwitcher.vue'
+import { formatAmount, formatAmountInt } from '@/utils/format'
 
 defineEmits<{
   addRecord: []
@@ -187,108 +185,10 @@ defineEmits<{
   goTo: [nav: string]
 }>()
 
-const PIE_COLORS = ['#FF8C00', '#3B82F6', '#8B5CF6', '#EC4899', '#0EA5E9', '#F59E0B', '#10B981', '#6B7280']
-
-const TXN_ICONS: Record<string, { bg: string; color: string }> = {}
-const ICON_COLORS = [
-  { bg: 'rgba(255,140,0,0.08)', color: '#FF8C00' },
-  { bg: 'rgba(59,130,246,0.08)', color: '#3B82F6' },
-  { bg: 'rgba(139,92,246,0.08)', color: '#8B5CF6' },
-  { bg: 'rgba(236,72,153,0.08)', color: '#EC4899' },
-  { bg: 'rgba(14,165,233,0.08)', color: '#0EA5E9' },
-  { bg: 'rgba(16,185,129,0.08)', color: '#10B981' },
-]
-
-const transactionStore = useTransactionStore()
-const ledgerStore = useLedgerStore()
-
-const monthlyStats = ref({ totalIncome: 0, totalExpense: 0 })
-const recentTransactions = ref<TransactionRow2[]>([])
-const expensePieData = ref<{ category_name: string; total: number }[]>([])
-
-const currentMonth = computed(() => dayjs().format('YYYY年M月'))
-
-const balance = computed(() => monthlyStats.value.totalIncome - monthlyStats.value.totalExpense)
-const balanceClass = computed(() => balance.value >= 0 ? 'income' : 'expense')
-const balanceTrendText = computed(() => balance.value >= 0 ? '+0.0%' : '-0.0%')
-const balanceTrendClass = computed(() => balance.value >= 0 ? 'trend-up' : 'trend-down')
-
-const savingsRate = computed(() => {
-  const inc = monthlyStats.value.totalIncome
-  if (inc <= 0) return '0.0'
-  return ((balance.value / inc) * 100).toFixed(1)
-})
-
-const expenseTrend = computed(() => {
-  return '0.0'
-})
-
-const expensePieDonut = computed(() => {
-  const total = expensePieData.value.reduce((s, i) => s + i.total, 0)
-  if (total <= 0) return []
-  const circumference = Math.PI * 100
-  let offset = 0
-  return expensePieData.value.map((item, i) => {
-    const pct = item.total / total
-    const dash = Math.round(pct * circumference)
-    const slice = { color: PIE_COLORS[i % PIE_COLORS.length], dash: `${dash} ${circumference - dash}`, offset }
-    offset -= dash
-    return slice
-  })
-})
-
-const expensePieLegend = computed(() => {
-  const total = expensePieData.value.reduce((s, i) => s + i.total, 0)
-  return expensePieData.value.map((item, i) => ({
-    name: item.category_name,
-    color: PIE_COLORS[i % PIE_COLORS.length],
-    pct: total > 0 ? Math.round((item.total / total) * 100) : 0
-  }))
-})
-
-function getTxnIconBg(item: { category_name?: string }) {
-  const key = item.category_name || ''
-  if (!TXN_ICONS[key]) {
-    const idx = Object.keys(TXN_ICONS).length
-    TXN_ICONS[key] = ICON_COLORS[idx % ICON_COLORS.length]
-  }
-  return TXN_ICONS[key].bg
-}
-
-function getTxnIconColor(item: { category_name?: string }) {
-  const key = item.category_name || ''
-  if (!TXN_ICONS[key]) {
-    const idx = Object.keys(TXN_ICONS).length
-    TXN_ICONS[key] = ICON_COLORS[idx % ICON_COLORS.length]
-  }
-  return TXN_ICONS[key].color
-}
-
-onMounted(() => { fetchData() })
-watch(() => ledgerStore.currentId, () => { fetchData() })
-
-async function fetchData() {
-  transactionStore.fetchMonthlyStats()
-  monthlyStats.value = transactionStore.monthlyStats
-
-  const res = await window.transactionAPI.getTransactionList({
-    page: 1, pageSize: 6, ledgerId: ledgerStore.currentId
-  })
-  if (res.code === 0) {
-    recentTransactions.value = res.data.list
-  }
-
-  const yearMonth = dayjs().format('YYYY-MM')
-  const statsRes = await window.transactionAPI.getStats(
-    `${yearMonth}-01`, dayjs().endOf('month').format('YYYY-MM-DD'), undefined, ledgerStore.currentId
-  )
-  if (statsRes.code === 0) {
-    expensePieData.value = (statsRes.data.expenseCategoryStats || []).slice(0, 5)
-  }
-}
-
-function formatAmount(val: number): string { return val.toFixed(2) }
-function formatAmountInt(val: number): string { return Math.round(val).toLocaleString() }
+const { monthlyStats, recentTransactions, expensePieData,
+  getTxnIconBg, getTxnIconColor,
+  currentMonth, balanceClass, balanceTrendText, balanceTrendClass,
+  savingsRate, expenseTrend, expensePieDonut, expensePieLegend } = useDashboardData()
 </script>
 
 <style scoped>

@@ -109,8 +109,9 @@ import { useTransactionStore } from '../stores/transactionStore'
 import { useCategoryStore } from '../stores/categoryStore'
 import { useLedgerStore } from '../stores/ledgerStore'
 import dayjs from 'dayjs'
+import { CHART_COLORS } from '@/const'
 
-const CAT_COLORS = ['#FF8C00', '#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444', '#10B981', '#EC4899', '#6B7280', '#6366F1', '#14B8A6', '#F97316', '#06B6D4']
+const CAT_COLORS = CHART_COLORS
 
 const props = defineProps<{ visible: boolean; mode: 'create' | 'edit'; editData: Record<string, unknown> | null }>()
 const emit = defineEmits<{ (e: 'update:visible', v: boolean): void; (e: 'success'): void }>()
