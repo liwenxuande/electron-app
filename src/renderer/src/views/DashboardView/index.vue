@@ -191,7 +191,7 @@ const { monthlyStats, recentTransactions, expensePieData,
   savingsRate, expenseTrend, expensePieDonut, expensePieLegend } = useDashboardData()
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .dashboard-container {
   flex: 1;
   display: flex;
@@ -217,17 +217,17 @@ const { monthlyStats, recentTransactions, expensePieData,
 }
 
 .dashboard-title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1A1A2E;
+  font-size: $font-4xl;
+  font-weight: $font-bold;
+  color: $color-text-primary;
   letter-spacing: -0.02em;
   line-height: 1.3;
   margin-bottom: 4px;
 }
 
 .dashboard-subtitle {
-  font-size: 0.8125rem;
-  color: #6B7280;
+  font-size: $font-base;
+  color: $color-text-secondary;
 }
 
 .dashboard-body {
@@ -246,19 +246,19 @@ const { monthlyStats, recentTransactions, expensePieData,
 }
 
 .dashboard-kpi-card {
-  background: rgba(255,255,255,0.85);
+  background: rgba($color-bg-white, 0.85);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(235,238,242,0.7);
-  border-radius: 12px;
+  border: 1px solid rgba($color-border-light,0.7);
+  border-radius: $radius-xl;
   padding: 20px 24px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  box-shadow: $shadow-sm;
   transition: transform 0.2s, box-shadow 0.2s;
   cursor: default;
 }
 
 .dashboard-kpi-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  box-shadow: $shadow-md;
 }
 
 .dashboard-kpi-head {
@@ -271,42 +271,42 @@ const { monthlyStats, recentTransactions, expensePieData,
 .dashboard-kpi-icon {
   width: 36px;
   height: 36px;
-  border-radius: 8px;
+  border-radius: $radius-lg;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.dashboard-kpi-icon--expense { background: rgba(255,140,0,0.1); }
-.dashboard-kpi-icon--income { background: rgba(16,185,129,0.1); }
-.dashboard-kpi-icon--balance { background: rgba(59,130,246,0.1); }
+.dashboard-kpi-icon--expense { background: rgba($color-primary,0.1); }
+.dashboard-kpi-icon--income { background: rgba($color-success,0.1); }
+.dashboard-kpi-icon--balance { background: rgba($color-info,0.1); }
 .dashboard-kpi-icon--rate { background: rgba(245,158,11,0.1); }
 
 .dashboard-kpi-label {
-  font-size: 0.8125rem;
-  color: #6B7280;
+  font-size: $font-base;
+  color: $color-text-secondary;
 }
 
 .dashboard-kpi-value {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: $font-3xl;
+  font-weight: $font-bold;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
-.dashboard-kpi-value.income { color: #10B981; }
-.dashboard-kpi-value.expense { color: #FF8C00; }
-.dashboard-kpi-value.rate { color: #F59E0B; }
+.dashboard-kpi-value.income { color: $color-success; }
+.dashboard-kpi-value.expense { color: $color-primary; }
+.dashboard-kpi-value.rate { color: $color-warning; }
 
 .dashboard-kpi-trend {
-  font-size: 0.75rem;
-  color: #9CA3AF;
+  font-size: $font-sm;
+  color: $color-text-muted;
   margin-top: 6px;
 }
 
-.trend-up { color: #EF4444; }
-.trend-down { color: #EF4444; }
-.trend-flat { color: #10B981; }
+.trend-up { color: $color-danger; }
+.trend-down { color: $color-danger; }
+.trend-flat { color: $color-success; }
 
 .dashboard-main-grid {
   display: grid;
@@ -315,11 +315,11 @@ const { monthlyStats, recentTransactions, expensePieData,
 }
 
 .dashboard-card {
-  background: rgba(255,255,255,0.85);
+  background: rgba($color-bg-white, 0.85);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(235,238,242,0.7);
-  border-radius: 12px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  border: 1px solid rgba($color-border-light,0.7);
+  border-radius: $radius-xl;
+  box-shadow: $shadow-sm;
 }
 
 .dashboard-card-header {
@@ -331,15 +331,15 @@ const { monthlyStats, recentTransactions, expensePieData,
 }
 
 .dashboard-card-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #1A1A2E;
+  font-size: $font-xl;
+  font-weight: $font-semibold;
+  color: $color-text-primary;
 }
 
 .dashboard-card-link {
-  font-size: 0.8125rem;
-  color: #FF8C00;
-  font-weight: 500;
+  font-size: $font-base;
+  color: $color-primary;
+  font-weight: $font-medium;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -354,7 +354,7 @@ const { monthlyStats, recentTransactions, expensePieData,
   display: flex;
   align-items: center;
   padding: 12px 0;
-  border-bottom: 1px solid rgba(235,238,242,0.7);
+  border-bottom: 1px solid rgba($color-border-light,0.7);
   gap: 12px;
   transition: background 0.15s;
 }
@@ -363,13 +363,13 @@ const { monthlyStats, recentTransactions, expensePieData,
   background: rgba(0,0,0,0.015);
   margin: 0 -16px;
   padding: 12px 16px;
-  border-radius: 8px;
+  border-radius: $radius-lg;
 }
 
 .dashboard-txn-icon {
   width: 40px;
   height: 40px;
-  border-radius: 8px;
+  border-radius: $radius-lg;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -382,28 +382,28 @@ const { monthlyStats, recentTransactions, expensePieData,
 }
 
 .dashboard-txn-desc {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: #1A1A2E;
+  font-size: $font-base;
+  font-weight: $font-medium;
+  color: $color-text-primary;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .dashboard-txn-meta {
-  font-size: 0.75rem;
-  color: #9CA3AF;
+  font-size: $font-sm;
+  color: $color-text-muted;
   margin-top: 2px;
 }
 
 .dashboard-txn-amount {
-  font-size: 0.8125rem;
-  font-weight: 600;
+  font-size: $font-base;
+  font-weight: $font-semibold;
   flex-shrink: 0;
   white-space: nowrap;
 }
-.dashboard-txn-amount.income { color: #10B981; }
-.dashboard-txn-amount.expense { color: #EF4444; }
+.dashboard-txn-amount.income { color: $color-success; }
+.dashboard-txn-amount.expense { color: $color-danger; }
 
 .dashboard-side-col {
   display: flex;
@@ -414,7 +414,7 @@ const { monthlyStats, recentTransactions, expensePieData,
 .dashboard-illustration {
   padding: 0;
   overflow: hidden;
-  border-radius: 12px;
+  border-radius: $radius-xl;
   max-height: 160px;
   flex-shrink: 0;
 }
@@ -477,8 +477,8 @@ const { monthlyStats, recentTransactions, expensePieData,
 }
 
 .dashboard-pie-name {
-  font-size: 0.8125rem;
-  color: #6B7280;
+  font-size: $font-base;
+  color: $color-text-secondary;
   flex: 1;
   white-space: nowrap;
   overflow: hidden;
@@ -486,9 +486,9 @@ const { monthlyStats, recentTransactions, expensePieData,
 }
 
 .dashboard-pie-pct {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: #1A1A2E;
+  font-size: $font-base;
+  font-weight: $font-medium;
+  color: $color-text-primary;
   white-space: nowrap;
 }
 
@@ -499,38 +499,38 @@ const { monthlyStats, recentTransactions, expensePieData,
 }
 
 .dashboard-quick-btn {
-  background: rgba(255,255,255,0.85);
+  background: rgba($color-bg-white, 0.85);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(235,238,242,0.7);
-  border-radius: 12px;
+  border: 1px solid rgba($color-border-light,0.7);
+  border-radius: $radius-xl;
   padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
   cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  transition: $transition-slow;
+  box-shadow: $shadow-sm;
 }
 
 .dashboard-quick-btn:hover {
-  border-color: #FFAD42;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  border-color: $color-primary-border;
+  box-shadow: $shadow-md;
   transform: translateY(-2px);
 }
 
 .dashboard-quick-btn-icon {
   width: 48px;
   height: 48px;
-  border-radius: 999px;
+  border-radius: $radius-full;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .dashboard-quick-label {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: #1A1A2E;
+  font-size: $font-base;
+  font-weight: $font-medium;
+  color: $color-text-primary;
 }
 </style>

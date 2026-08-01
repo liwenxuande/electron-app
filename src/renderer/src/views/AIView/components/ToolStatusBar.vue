@@ -16,24 +16,24 @@ defineProps<{
 }>()
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .ai-tool-status {
   display: flex; align-items: center; gap: 6px;
   width: 100%; max-width: 720px; padding: 0 32px; box-sizing: border-box;
-  font-size: 0.75rem; color: #6B7280;
+  font-size: $font-sm; color: $color-text-secondary;
 }
 
 .ai-tool-spinner {
   display: inline-block; width: 14px; height: 14px;
-  border: 2px solid #E5E7EB; border-top-color: #FF8C00; border-radius: 50%;
+  border: 2px solid #E5E7EB; border-top-color: $color-primary; border-radius: 50%;
   animation: ai-spin 0.8s linear infinite;
 }
 
 @keyframes ai-spin { to { transform: rotate(360deg); } }
 
-.ai-tool-done { color: #10B981; font-size: 0.875rem; }
+.ai-tool-done { color: $color-success; font-size: $font-md; }
 
-.ai-tool-label { color: #374151; }
+.ai-tool-label { color: $color-text-heading; }
 
-.ai-tool-phase { color: #9CA3AF; }
+.ai-tool-phase { color: $color-text-muted; }
 </style>

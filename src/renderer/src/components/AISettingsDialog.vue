@@ -100,56 +100,56 @@ function save() {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .ai-dialog-mask {
   position: fixed; inset: 0; z-index: 2000;
   display: flex; align-items: center; justify-content: center;
   background: rgba(0,0,0,0.45);
 }
 .ai-dialog {
-  width: 440px; max-width: 90vw; background: #fff; border-radius: 14px;
+  width: 440px; max-width: 90vw; background: $color-bg-white; border-radius: 14px;
   box-shadow: 0 20px 50px rgba(0,0,0,0.18);
 }
 .ai-dialog-header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 18px 24px 14px; border-bottom: 1px solid #f0f2f5;
 }
-.ai-dialog-header h3 { font-size: 1rem; font-weight: 600; margin: 0; }
+.ai-dialog-header h3 { font-size: $font-xl; font-weight: $font-semibold; margin: 0; }
 .ai-dialog-close {
   width: 28px; height: 28px; border: none; background: none;
-  font-size: 1rem; color: #999; cursor: pointer; border-radius: 6px;
+  font-size: $font-xl; color: #999; cursor: pointer; border-radius: $radius-md;
 }
 .ai-dialog-close:hover { background: #f5f5f5; color: #333; }
 .ai-dialog-body { padding: 20px 24px; }
 .ai-field { margin-bottom: 16px; }
 .ai-field:last-child { margin-bottom: 0; }
-.ai-field > label:first-child { display: block; font-size: 0.8125rem; font-weight: 500; color: #888; margin-bottom: 6px; }
+.ai-field > label:first-child { display: block; font-size: $font-base; font-weight: $font-medium; color: #888; margin-bottom: 6px; }
 .ai-field > input {
-  width: 100%; padding: 9px 12px; border: 1px solid #e0e0e0; border-radius: 8px;
-  font-size: 0.8125rem; font-family: monospace; outline: none; box-sizing: border-box;
+  width: 100%; padding: 9px 12px; border: 1px solid #e0e0e0; border-radius: $radius-lg;
+  font-size: $font-base; font-family: monospace; outline: none; box-sizing: border-box;
 }
-.ai-field > input:focus { border-color: #FF8C00; }
+.ai-field > input:focus { border-color: $color-primary; }
 .ai-radio {
   display: flex; align-items: center; gap: 8px; padding: 10px 12px;
-  border: 1px solid #e0e0e0; border-radius: 8px; cursor: pointer;
-  font-size: 0.8125rem; color: #333; margin-bottom: 6px; transition: all 0.15s;
+  border: 1px solid #e0e0e0; border-radius: $radius-lg; cursor: pointer;
+  font-size: $font-base; color: #333; margin-bottom: 6px; transition: $transition-base;
 }
-.ai-radio.on { border-color: #FF8C00; background: rgba(255,140,0,0.04); }
+.ai-radio.on { border-color: $color-primary; background: rgba($color-primary,0.04); }
 .ai-radio input { display: none; }
 .ai-dialog-footer {
   display: flex; justify-content: flex-end; gap: 8px;
   padding: 14px 24px 18px; border-top: 1px solid #f0f2f5;
 }
 .ai-btn {
-  padding: 7px 20px; border-radius: 8px; font-size: 0.8125rem; font-weight: 500;
-  cursor: pointer; font-family: inherit; border: none; transition: all 0.15s;
+  padding: 7px 20px; border-radius: $radius-lg; font-size: $font-base; font-weight: $font-medium;
+  cursor: pointer; font-family: inherit; border: none; transition: $transition-base;
 }
-.ai-btn.ghost { border: 1px solid #e0e0e0; background: #fff; color: #666; }
-.ai-btn.ghost:hover:not(:disabled) { border-color: #FF8C00; color: #FF8C00; }
+.ai-btn.ghost { border: 1px solid #e0e0e0; background: $color-bg-white; color: #666; }
+.ai-btn.ghost:hover:not(:disabled) { border-color: $color-primary; color: $color-primary; }
 .ai-btn.ghost:disabled { opacity: 0.4; cursor: not-allowed; }
-.ai-btn.primary { background: #FF8C00; color: #fff; font-weight: 600; }
-.ai-btn.primary:hover:not(:disabled) { background: #E07800; }
+.ai-btn.primary { background: $color-primary; color: #fff; font-weight: $font-semibold; }
+.ai-btn.primary:hover:not(:disabled) { background: $color-primary-hover; }
 .ai-btn.primary:disabled { opacity: 0.4; cursor: not-allowed; }
-.ai-ok { font-size: 0.8125rem; font-weight: 500; color: #10B981; margin-left: 8px; }
-.ai-fail { font-size: 0.8125rem; font-weight: 500; color: #EF4444; margin-left: 8px; }
+.ai-ok { font-size: $font-base; font-weight: $font-medium; color: $color-success; margin-left: 8px; }
+.ai-fail { font-size: $font-base; font-weight: $font-medium; color: $color-danger; margin-left: 8px; }
 </style>

@@ -90,7 +90,7 @@ onMounted(() => document.addEventListener('click', onClickOutside))
 onUnmounted(() => document.removeEventListener('click', onClickOutside))
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .quarter-picker {
   position: relative;
   display: inline-block;
@@ -102,20 +102,20 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
   gap: 6px;
   height: 32px;
   padding: 0 12px;
-  background: rgba(255,255,255,0.85);
+  background: rgba($color-bg-white, 0.85);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(235,238,242,0.7);
-  border-radius: 8px;
+  border: 1px solid rgba($color-border-light,0.7);
+  border-radius: $radius-lg;
   cursor: pointer;
-  font-size: 0.8125rem;
-  color: #1A1A2E;
+  font-size: $font-base;
+  color: $color-text-primary;
   font-family: inherit;
   transition: border-color 0.15s;
   box-sizing: border-box;
 }
 
 .qp-trigger:hover {
-  border-color: #FF8C00;
+  border-color: $color-primary;
 }
 
 .qp-trigger-text {
@@ -123,7 +123,7 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
 }
 
 .qp-trigger-arrow {
-  color: #9CA3AF;
+  color: $color-text-muted;
   transition: transform 0.2s;
   flex-shrink: 0;
 }
@@ -137,8 +137,8 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
   top: calc(100% + 4px);
   right: 0;
   z-index: 100;
-  background: #fff;
-  border-radius: 12px;
+  background: $color-bg-white;
+  border-radius: $radius-xl;
   box-shadow: 0 4px 16px rgba(0,0,0,0.1);
   padding: 12px 16px 16px;
   min-width: 180px;
@@ -152,28 +152,28 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
 }
 
 .qp-panel-year {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #1A1A2E;
+  font-size: $font-md;
+  font-weight: $font-semibold;
+  color: $color-text-primary;
 }
 
 .qp-nav-btn {
   width: 28px;
   height: 28px;
-  border-radius: 6px;
+  border-radius: $radius-md;
   border: none;
   background: transparent;
   cursor: pointer;
-  color: #9CA3AF;
+  color: $color-text-muted;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s;
+  transition: $transition-base;
 }
 
 .qp-nav-btn:hover {
-  background: #FFF5E6;
-  color: #FF8C00;
+  background: $color-primary-light;
+  color: $color-primary;
 }
 
 .qp-grid {
@@ -184,27 +184,27 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
 
 .qp-cell {
   padding: 12px 8px;
-  border-radius: 8px;
+  border-radius: $radius-lg;
   border: 1px solid transparent;
-  background: #F5F7FA;
+  background: $color-bg-hover;
   cursor: pointer;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: #6B7280;
+  font-size: $font-base;
+  font-weight: $font-medium;
+  color: $color-text-secondary;
   font-family: inherit;
   text-align: center;
-  transition: all 0.15s;
+  transition: $transition-base;
 }
 
 .qp-cell:hover {
-  background: #FFF5E6;
-  color: #FF8C00;
+  background: $color-primary-light;
+  color: $color-primary;
 }
 
 .qp-cell.active {
-  background: #FF8C00;
+  background: $color-primary;
   color: #fff;
-  border-color: #FF8C00;
+  border-color: $color-primary;
 }
 
 .qp-drop-enter-active {

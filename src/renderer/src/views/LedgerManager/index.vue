@@ -166,7 +166,7 @@ async function fetchLedgers() {
 onMounted(() => { fetchLedgers() })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .ledger-page {
   flex: 1; display: flex; flex-direction: column; overflow: hidden;
 }
@@ -179,32 +179,32 @@ onMounted(() => { fetchLedgers() })
   display: flex; align-items: center; gap: 12px; flex-shrink: 0;
 }
 .ledger-title {
-  font-size: 2rem; font-weight: 700; color: #1A1A2E;
+  font-size: $font-4xl; font-weight: $font-bold; color: $color-text-primary;
   letter-spacing: -0.02em; line-height: 1.3; margin-bottom: 4px;
 }
-.ledger-subtitle { font-size: 0.8125rem; color: #6B7280; }
+.ledger-subtitle { font-size: $font-base; color: $color-text-secondary; }
 
 .ledger-body { flex: 1; overflow-y: auto; padding: 0 40px 32px; }
 .ledger-content { position: relative; z-index: 1; }
 
 .ledger-create-btn {
   display: inline-flex; align-items: center; gap: 6px;
-  padding: 10px 20px; background: #FF8C00; color: #fff;
-  border: none; border-radius: 8px; font-size: 0.8125rem;
-  font-weight: 600; font-family: inherit; cursor: pointer;
-  transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(255, 140, 0, 0.3);
+  padding: 10px 20px; background: $color-primary; color: #fff;
+  border: none; border-radius: $radius-lg; font-size: $font-base;
+  font-weight: $font-semibold; font-family: inherit; cursor: pointer;
+  transition: $transition-slow; box-shadow: 0 2px 8px rgba(255, 140, 0, 0.3);
   white-space: nowrap;
 }
 .ledger-create-btn:hover {
-  background: #E07800; box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
+  background: $color-primary-hover; box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
 }
 
 .ledger-section-header {
   display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 16px;
 }
-.ledger-section-title { font-size: 1rem; font-weight: 600; color: #1A1A2E; }
-.ledger-section-count { font-size: 0.75rem; color: #9CA3AF; }
+.ledger-section-title { font-size: $font-xl; font-weight: $font-semibold; color: $color-text-primary; }
+.ledger-section-count { font-size: $font-sm; color: $color-text-muted; }
 
 .ledger-grid {
   display: grid; grid-template-columns: repeat(2, 1fr);
@@ -212,29 +212,29 @@ onMounted(() => { fetchLedgers() })
 }
 
 .ledger-card--create {
-  background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
-  border: 2px dashed rgba(235,238,242,0.7); border-radius: 12px;
+  background: rgba($color-bg-white, 0.85); backdrop-filter: blur(8px);
+  border: 2px dashed rgba($color-border-light,0.7); border-radius: $radius-xl;
   padding: 32px 24px; display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 10px;
-  min-height: 180px; cursor: pointer; transition: all 0.2s ease;
+  min-height: 180px; cursor: pointer; transition: $transition-slow;
 }
 .ledger-card--create:hover {
-  border-color: #FFAD42; background: #FFF5E6; transform: translateY(-2px);
+  border-color: $color-primary-border; background: $color-primary-light; transform: translateY(-2px);
 }
 
 .ledger-create-icon {
-  width: 44px; height: 44px; border-radius: 8px;
-  background: #F5F7FA; border: 1px dashed #EBEEF2;
+  width: 44px; height: 44px; border-radius: $radius-lg;
+  background: $color-bg-hover; border: 1px dashed #EBEEF2;
   display: flex; align-items: center; justify-content: center;
-  transition: all 0.2s ease;
+  transition: $transition-slow;
 }
 .ledger-card--create:hover .ledger-create-icon {
-  background: #FF8C00; border-color: #FF8C00;
+  background: $color-primary; border-color: $color-primary;
 }
 .ledger-card--create:hover .ledger-create-icon svg { stroke: #fff; }
 
-.ledger-create-label { font-size: 0.8125rem; font-weight: 500; color: #6B7280; }
-.ledger-create-hint { font-size: 0.75rem; color: #9CA3AF; }
+.ledger-create-label { font-size: $font-base; font-weight: $font-medium; color: $color-text-secondary; }
+.ledger-create-hint { font-size: $font-sm; color: $color-text-muted; }
 
 /* TransitionGroup */
 .ledger-card-enter-active {

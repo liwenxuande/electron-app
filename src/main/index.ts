@@ -136,6 +136,10 @@ function createWindow(): void {
       splashWindow = null
     }
     mainWindow?.show()
+    // 开发模式自动打开 DevTools
+    if (!app.isPackaged) {
+      mainWindow?.webContents.openDevTools()
+    }
   })
 
   logger.info('主窗口创建完成')

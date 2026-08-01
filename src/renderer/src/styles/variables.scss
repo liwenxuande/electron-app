@@ -1,0 +1,92 @@
+// ============================================================
+//  Design Tokens — 全局 SCSS 变量
+//  所有 .vue 文件通过 vite css.preprocessorOptions 自动注入，无需手动 @import
+// ============================================================
+
+// ---- 品牌色 ----
+$color-primary:       #FF8C00;
+$color-primary-hover: #E07800;
+$color-primary-light: #FFF5E6;
+$color-primary-border:#FFAD42;
+
+// ---- 文字色 ----
+$color-text-primary:   #1A1A2E;
+$color-text-secondary: #6B7280;
+$color-text-muted:     #9CA3AF;
+$color-text-heading:   #374151;
+
+// ---- 功能色 ----
+$color-success: #10B981;
+$color-danger:  #EF4444;
+$color-info:    #3B82F6;
+$color-warning: #F59E0B;
+$color-purple: #8B5CF6;
+$color-pink:   #EC4899;
+$color-teal:   #0EA5E9;
+
+// ---- 背景色 ----
+$color-bg-page:    #F0F2F5;
+$color-bg-hover:   #F5F7FA;
+$color-bg-card:    #F9FAFB;
+$color-bg-white:   #FFFFFF;
+
+// ---- 边框色 ----
+$color-border:       #E5E7EB;
+$color-border-light: #EBEEF2;
+$color-border-hover: #D1D5DB;
+
+// ---- 字体尺寸 (1rem = 16px 基准) ----
+$font-xs:   0.6875rem; // 11px
+$font-sm:   0.75rem;   // 12px
+$font-base: 0.8125rem; // 13px
+$font-md:   0.875rem;  // 14px
+$font-lg:   0.9375rem; // 15px
+$font-xl:   1rem;      // 16px
+$font-2xl:  1.125rem;  // 18px
+$font-3xl:  1.5rem;    // 24px
+$font-4xl:  2rem;      // 32px
+$font-5xl:  2.5rem;    // 40px
+
+// ---- 字重 ----
+$font-normal:  400;
+$font-medium:  500;
+$font-semibold:600;
+$font-bold:    700;
+
+// ---- 圆角 ----
+$radius-sm:   4px;
+$radius-md:   6px;
+$radius-lg:   8px;
+$radius-xl:   12px;
+$radius-2xl:  16px;
+$radius-full: 999px;
+
+// ---- 阴影 ----
+$shadow-sm:  0 1px 4px rgba(0, 0, 0, 0.04);
+$shadow-md:  0 2px 6px rgba(0, 0, 0, 0.05);
+$shadow-lg:  0 4px 16px rgba(0, 0, 0, 0.08);
+$shadow-xl:  0 20px 60px rgba(0, 0, 0, 0.15);
+$shadow-primary: 0 2px 8px rgba(255, 140, 0, 0.25);
+
+// ---- 过渡 ----
+$transition-fast: all 0.12s ease;
+$transition-base: all 0.15s ease;
+$transition-slow: all 0.2s ease;
+
+// ---- 间距（常用） ----
+$space-xs:  4px;
+$space-sm:  8px;
+$space-md:  12px;
+$space-lg:  16px;
+$space-xl:  20px;
+$space-2xl: 24px;
+$space-3xl: 28px;
+$space-4xl: 32px;
+$space-5xl: 40px;
+
+// ---- 玻璃拟态 ----
+@mixin glass-surface {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba($color-border-light, 0.7);
+}

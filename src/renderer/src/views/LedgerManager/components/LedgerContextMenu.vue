@@ -38,16 +38,16 @@ defineEmits<{
 }>()
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .ledger-menu-overlay {
   position: fixed; inset: 0; z-index: 3000;
 }
 .ledger-menu-pop {
   position: fixed;
-  background: rgba(255,255,255,0.95);
-  border: 1px solid rgba(235,238,242,0.7);
-  border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  background: rgba($color-bg-white, 0.95);
+  border: 1px solid rgba($color-border-light,0.7);
+  border-radius: $radius-lg;
+  box-shadow: $shadow-lg;
   backdrop-filter: blur(12px);
   padding: 4px; min-width: 120px;
   display: flex; flex-direction: column; gap: 2px;
@@ -55,11 +55,11 @@ defineEmits<{
 .ledger-menu-item {
   display: flex; align-items: center; gap: 8px;
   padding: 8px 12px; border: none; background: transparent;
-  border-radius: 6px; font-size: 0.8125rem; color: #1A1A2E;
+  border-radius: $radius-md; font-size: $font-base; color: $color-text-primary;
   cursor: pointer; transition: background 0.12s ease; font-family: inherit;
 }
-.ledger-menu-item:hover { background: #F5F7FA; }
-.ledger-menu-item--danger { color: #EF4444; }
+.ledger-menu-item:hover { background: $color-bg-hover; }
+.ledger-menu-item--danger { color: $color-danger; }
 .ledger-menu-item--danger:hover { background: #FEF2F2; }
 
 .dialog-fade-enter-active { transition: opacity 0.2s ease; }

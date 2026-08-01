@@ -160,49 +160,49 @@ onMounted(async () => {
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .ai-layout { flex: 1; display: flex; overflow: hidden; background: transparent; }
 
-.ai-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #fff; }
+.ai-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: $color-bg-white; }
 .ai-main-body { flex: 1; overflow-y: auto; padding: 20px 0; display: flex; flex-direction: column; gap: 14px; align-items: center; }
 
 .ai-welcome { text-align: center; padding-top: 100px; }
-.ai-welcome-logo { font-size: 2.5rem; margin-bottom: 12px; }
-.ai-welcome-text { font-size: 1.125rem; font-weight: 600; color: #1A1A2E; margin-bottom: 6px; }
-.ai-welcome-hint { font-size: 0.8125rem; color: #9CA3AF; margin-bottom: 24px; }
+.ai-welcome-logo { font-size: $font-5xl; margin-bottom: 12px; }
+.ai-welcome-text { font-size: $font-2xl; font-weight: $font-semibold; color: $color-text-primary; margin-bottom: 6px; }
+.ai-welcome-hint { font-size: $font-base; color: $color-text-muted; margin-bottom: 24px; }
 .ai-suggestions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 520px; }
 .ai-suggestion-btn {
-  padding: 8px 18px; border-radius: 999px; font-size: 0.8125rem; font-weight: 500;
-  cursor: pointer; font-family: inherit; border: 1px solid #E5E7EB; background: #fff;
-  color: #6B7280; transition: all 0.15s; white-space: nowrap;
+  padding: 8px 18px; border-radius: $radius-full; font-size: $font-base; font-weight: $font-medium;
+  cursor: pointer; font-family: inherit; border: 1px solid $color-border; background: $color-bg-white;
+  color: $color-text-secondary; transition: $transition-base; white-space: nowrap;
 }
-.ai-suggestion-btn:hover { border-color: #FF8C00; color: #FF8C00; background: rgba(255,140,0,0.04); }
+.ai-suggestion-btn:hover { border-color: $color-primary; color: $color-primary; background: rgba($color-primary,0.04); }
 
 .ai-time-divider {
   width: 100%; max-width: 720px; text-align: center; padding: 4px 0; margin: 8px 0;
 }
 .ai-time-divider span {
-  font-size: 0.6875rem; color: #9CA3AF; background: #fff; padding: 2px 12px;
-  border-radius: 999px; border: 1px solid #F0F2F5;
+  font-size: $font-xs; color: $color-text-muted; background: $color-bg-white; padding: 2px 12px;
+  border-radius: $radius-full; border: 1px solid #F0F2F5;
 }
 
-.ai-error { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 8px; background: rgba(239,68,68,0.08); color: #EF4444; font-size: 0.8125rem; max-width: 720px; width: 100%; margin: 0 auto; }
+.ai-error { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: $radius-lg; background: rgba($color-danger,0.08); color: $color-danger; font-size: $font-base; max-width: 720px; width: 100%; margin: 0 auto; }
 
-.ai-main-footer { padding: 14px 32px; border-top: 1px solid #F0F2F5; display: flex; gap: 10px; align-items: center; }
+.ai-main-footer { padding: 14px 32px; border-top: 1px solid $color-bg-page; display: flex; gap: 10px; align-items: center; }
 .ai-input {
-  flex: 1; padding: 11px 16px; border-radius: 12px; border: 1px solid #E5E7EB;
-  font-size: 0.875rem; color: #1A1A2E; outline: none; font-family: inherit; background: #F9FAFB;
+  flex: 1; padding: 11px 16px; border-radius: $radius-xl; border: 1px solid $color-border;
+  font-size: $font-md; color: $color-text-primary; outline: none; font-family: inherit; background: $color-bg-card;
 }
-.ai-input:focus { border-color: #FF8C00; background: #fff; }
-.ai-input::placeholder { color: #9CA3AF; }
+.ai-input:focus { border-color: $color-primary; background: $color-bg-white; }
+.ai-input::placeholder { color: $color-text-muted; }
 .ai-input:disabled { opacity: 0.6; }
 .ai-send-btn {
-  width: 42px; height: 42px; border-radius: 12px; border: none;
-  background: #FF8C00; color: #fff; cursor: pointer; display: flex;
+  width: 42px; height: 42px; border-radius: $radius-xl; border: none;
+  background: $color-primary; color: #fff; cursor: pointer; display: flex;
   align-items: center; justify-content: center; transition: background-color 0.15s;
   flex-shrink: 0;
 }
-.ai-send-btn:hover { background: #E07800; }
+.ai-send-btn:hover { background: $color-primary-hover; }
 .ai-send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
 /* 思考动画（内容由本文件通过 slot 传给 MessageBubble，样式作用域也归属本文件） */
@@ -210,7 +210,7 @@ onMounted(async () => {
 
 .ai-thinking-dot {
   display: inline-block; width: 8px; height: 8px;
-  border-radius: 50%; background: #FF8C00;
+  border-radius: 50%; background: $color-primary;
   animation: ai-pulse 1.2s ease-in-out infinite;
 }
 
@@ -221,8 +221,8 @@ onMounted(async () => {
 
 /* 停止按钮 */
 .ai-stop-btn {
-  width: 42px; height: 42px; border-radius: 12px; border: none;
-  background: #EF4444; color: #fff; cursor: pointer; display: flex;
+  width: 42px; height: 42px; border-radius: $radius-xl; border: none;
+  background: $color-danger; color: #fff; cursor: pointer; display: flex;
   align-items: center; justify-content: center; transition: background-color 0.15s;
   flex-shrink: 0;
 }
@@ -231,10 +231,10 @@ onMounted(async () => {
 /* 重试按钮 */
 .ai-retry-btn {
   display: flex; align-items: center; gap: 4px;
-  padding: 4px 12px; border-radius: 6px; border: 1px solid #EF4444;
-  background: transparent; color: #EF4444; font-size: 0.75rem;
-  cursor: pointer; font-family: inherit; transition: all 0.15s;
+  padding: 4px 12px; border-radius: $radius-md; border: 1px solid #EF4444;
+  background: transparent; color: $color-danger; font-size: $font-sm;
+  cursor: pointer; font-family: inherit; transition: $transition-base;
   white-space: nowrap;
 }
-.ai-retry-btn:hover { background: rgba(239,68,68,0.08); }
+.ai-retry-btn:hover { background: rgba($color-danger,0.08); }
 </style>

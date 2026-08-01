@@ -71,38 +71,38 @@ function select(lb: { id: number; name: string }) {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .book-switcher {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 6px 14px;
-  border-radius: 8px;
+  border-radius: $radius-lg;
   background: transparent;
-  border: 1px solid rgba(235,238,242,0.5);
+  border: 1px solid rgba($color-border-light,0.5);
   cursor: pointer;
-  transition: all 0.15s ease;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: #1A1A2E;
+  transition: $transition-base;
+  font-size: $font-base;
+  font-weight: $font-medium;
+  color: $color-text-primary;
   white-space: nowrap;
   user-select: none;
 }
 
 .book-switcher:hover {
-  border-color: #FFAD42;
-  background: #FFF5E6;
-  color: #FF8C00;
+  border-color: $color-primary-border;
+  background: $color-primary-light;
+  color: $color-primary;
 }
 
 .book-switcher svg {
   flex-shrink: 0;
-  color: #9CA3AF;
+  color: $color-text-muted;
   transition: color 0.15s;
 }
 
 .book-switcher:hover svg {
-  color: #FF8C00;
+  color: $color-primary;
 }
 
 .book-switcher__name {
@@ -119,7 +119,7 @@ function select(lb: { id: number; name: string }) {
 
 .book-switcher__dropdown {
   position: fixed;
-  background: #fff;
+  background: $color-bg-white;
   border: 1px solid #EBEEF2;
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.08);
@@ -137,28 +137,28 @@ function select(lb: { id: number; name: string }) {
   border: none;
   background: transparent;
   border-radius: 7px;
-  font-size: 0.8125rem;
-  color: #1A1A2E;
+  font-size: $font-base;
+  color: $color-text-primary;
   cursor: pointer;
   transition: background 0.12s ease;
 }
 
 .book-switcher__item:hover {
-  background: #F5F7FA;
+  background: $color-bg-hover;
 }
 
 .book-switcher__item.active {
-  background: #FFF5E6;
-  color: #FF8C00;
+  background: $color-primary-light;
+  color: $color-primary;
 }
 
 .book-switcher__item svg {
   flex-shrink: 0;
-  color: #9CA3AF;
+  color: $color-text-muted;
 }
 
 .book-switcher__item.active svg {
-  color: #FF8C00;
+  color: $color-primary;
 }
 
 .book-switcher__item-name {

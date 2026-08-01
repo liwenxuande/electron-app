@@ -105,7 +105,7 @@ function handleClose() {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .modal-overlay {
   position: fixed; inset: 0; z-index: 2000; display: flex;
   align-items: center; justify-content: center;
@@ -115,50 +115,50 @@ function handleClose() {
   background: rgba(0,0,0,0.4); backdrop-filter: blur(2px);
 }
 .modal-panel {
-  position: relative; background: #fff;
-  border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  position: relative; background: $color-bg-white;
+  border-radius: $radius-2xl; box-shadow: $shadow-xl;
   overflow: hidden; max-height: 85vh; display: flex; flex-direction: column;
 }
 .modal-header {
   padding: 20px 24px 14px; display: flex; align-items: center;
-  justify-content: space-between; border-bottom: 1px solid #F0F2F5;
+  justify-content: space-between; border-bottom: 1px solid $color-bg-page;
 }
 .modal-title {
-  font-size: 0.9375rem; font-weight: 600; color: #1A1A2E;
+  font-size: $font-lg; font-weight: $font-semibold; color: $color-text-primary;
 }
 .modal-close {
-  width: 28px; height: 28px; border-radius: 6px; border: none;
-  background: transparent; cursor: pointer; color: #9CA3AF;
+  width: 28px; height: 28px; border-radius: $radius-md; border: none;
+  background: transparent; cursor: pointer; color: $color-text-muted;
   display: flex; align-items: center; justify-content: center;
 }
-.modal-close:hover { background: #F5F7FA; color: #6B7280; }
+.modal-close:hover { background: $color-bg-hover; color: $color-text-secondary; }
 .modal-body {
   padding: 16px 24px; overflow-y: auto; flex: 1;
 }
 .cdd-scroll { max-height: 420px; }
 .cdd-table { width: 100%; border-collapse: collapse; }
 .cdd-table th {
-  text-align: left; font-size: 0.75rem; font-weight: 500; color: #9CA3AF;
-  padding: 8px 12px; border-bottom: 1px solid #F0F2F5;
+  text-align: left; font-size: $font-sm; font-weight: $font-medium; color: $color-text-muted;
+  padding: 8px 12px; border-bottom: 1px solid $color-bg-page;
 }
 .cdd-table td {
-  padding: 10px 12px; font-size: 0.8125rem; color: #1A1A2E;
+  padding: 10px 12px; font-size: $font-base; color: $color-text-primary;
   border-bottom: 1px solid #F5F7FA;
 }
 .cdd-table tbody tr:hover { background: #FAFBFC; }
-.cdd-income { color: #10B981; font-weight: 600; font-variant-numeric: tabular-nums; }
-.cdd-expense { color: #FF8C00; font-weight: 600; font-variant-numeric: tabular-nums; }
+.cdd-income { color: $color-success; font-weight: $font-semibold; font-variant-numeric: tabular-nums; }
+.cdd-expense { color: $color-primary; font-weight: $font-semibold; font-variant-numeric: tabular-nums; }
 .cdd-footer {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 24px 20px; border-top: 1px solid #F0F2F5;
+  padding: 14px 24px 20px; border-top: 1px solid $color-bg-page;
 }
-.cdd-summary { font-size: 0.8125rem; color: #6B7280; }
+.cdd-summary { font-size: $font-base; color: $color-text-secondary; }
 .cdd-btn-close {
-  padding: 7px 18px; border-radius: 6px; font-size: 0.8125rem; font-weight: 500;
-  cursor: pointer; font-family: inherit; border: 1px solid rgba(235,238,242,0.7);
-  background: transparent; color: #6B7280; transition: all 0.15s;
+  padding: 7px 18px; border-radius: $radius-md; font-size: $font-base; font-weight: $font-medium;
+  cursor: pointer; font-family: inherit; border: 1px solid rgba($color-border-light,0.7);
+  background: transparent; color: $color-text-secondary; transition: $transition-base;
 }
-.cdd-btn-close:hover { border-color: #FFAD42; color: #FF8C00; }
+.cdd-btn-close:hover { border-color: $color-primary-border; color: $color-primary; }
 .modal-fade-enter-active { transition: opacity 0.2s ease; }
 .modal-fade-leave-active { transition: opacity 0.15s ease; }
 .modal-fade-enter-from, .modal-fade-leave-to { opacity: 0; }

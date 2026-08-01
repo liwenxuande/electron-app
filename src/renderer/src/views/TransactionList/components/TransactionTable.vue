@@ -83,19 +83,19 @@ defineEmits<{
 }>()
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .txn-table-card {
-  background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
-  border: 1px solid rgba(235,238,242,0.7); border-radius: 12px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04); overflow: hidden;
+  background: rgba($color-bg-white, 0.85); backdrop-filter: blur(8px);
+  border: 1px solid rgba($color-border-light,0.7); border-radius: $radius-xl;
+  box-shadow: $shadow-sm; overflow: hidden;
   flex: 1; display: flex; flex-direction: column; min-height: 0;
 }
 
 .txn-table {
   --el-table-border-color: transparent;
   --el-table-header-bg-color: transparent;
-  --el-table-header-text-color: #9CA3AF;
-  --el-table-text-color: #1A1A2E;
+  --el-table-header-text-color: $color-text-muted;
+  --el-table-text-color: $color-text-primary;
   --el-table-row-hover-bg-color: rgba(0,0,0,0.015);
   --el-table-current-row-bg-color: transparent;
   background: transparent;
@@ -104,13 +104,13 @@ defineEmits<{
 
 .txn-table :deep(.el-table__header th) {
   padding: 12px 0 !important;
-  font-size: 0.6875rem;
-  font-weight: 600;
+  font-size: $font-xs;
+  font-weight: $font-semibold;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  color: #9CA3AF !important;
+  color: $color-text-muted !important;
   background: rgba(255,255,255,0.95) !important;
-  border-bottom: 1px solid rgba(235,238,242,0.7) !important;
+  border-bottom: 1px solid rgba($color-border-light,0.7) !important;
 }
 
 .txn-table :deep(.el-table__header-wrapper) {
@@ -121,7 +121,7 @@ defineEmits<{
 
 .txn-table :deep(.el-table__body td) {
   padding: 13px 0 !important;
-  border-bottom: 1px solid rgba(235,238,242,0.4) !important;
+  border-bottom: 1px solid rgba($color-border-light,0.4) !important;
 }
 
 .txn-table :deep(.el-table__body tr:last-child td) {
@@ -162,50 +162,50 @@ defineEmits<{
 }
 
 .txn-table :deep(.el-table .cell) {
-  font-size: 0.8125rem;
+  font-size: $font-base;
 }
 
 .txn-table :deep(.el-table__empty-text) {
-  color: #9CA3AF;
+  color: $color-text-muted;
 }
 
-.txn-cell-date { color: #6B7280; font-size: 0.8125rem; }
+.txn-cell-date { color: $color-text-secondary; font-size: $font-base; }
 
 .txn-cat-tag {
   display: inline-flex; align-items: center; gap: 5px;
-  padding: 3px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 500; white-space: nowrap;
+  padding: 3px 10px; border-radius: $radius-full; font-size: $font-sm; font-weight: $font-medium; white-space: nowrap;
 }
 .txn-cat-dot { width: 6px; height: 6px; border-radius: 50%; }
 
-.txn-amount-income { color: #10B981; font-weight: 600; font-variant-numeric: tabular-nums; }
-.txn-amount-expense { color: #1A1A2E; font-weight: 600; font-variant-numeric: tabular-nums; }
+.txn-amount-income { color: $color-success; font-weight: $font-semibold; font-variant-numeric: tabular-nums; }
+.txn-amount-expense { color: $color-text-primary; font-weight: $font-semibold; font-variant-numeric: tabular-nums; }
 
 .txn-action-btns { display: inline-flex; gap: 2px; justify-content: center; }
 
 .txn-action-btn {
-  width: 28px; height: 28px; border-radius: 6px; display: inline-flex;
+  width: 28px; height: 28px; border-radius: $radius-md; display: inline-flex;
   align-items: center; justify-content: center; border: none; background: transparent;
-  cursor: pointer; color: #9CA3AF; transition: all 0.15s;
+  cursor: pointer; color: $color-text-muted; transition: $transition-base;
 }
-.txn-action-edit:hover { color: #FF8C00; background: #FFF5E6; }
-.txn-action-delete:hover { color: #EF4444; background: #FEF2F2; }
+.txn-action-edit:hover { color: $color-primary; background: $color-primary-light; }
+.txn-action-delete:hover { color: $color-danger; background: #FEF2F2; }
 
 .txn-pagination {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 16px; border-top: 1px solid rgba(235,238,242,0.7);
+  padding: 12px 16px; border-top: 1px solid rgba($color-border-light,0.7);
   flex-shrink: 0;
 }
-.txn-pagination-info { font-size: 0.75rem; color: #9CA3AF; }
+.txn-pagination-info { font-size: $font-sm; color: $color-text-muted; }
 .txn-pagination-btns { display: flex; gap: 4px; }
 
 .txn-page-btn {
-  min-width: 30px; height: 30px; border-radius: 6px; display: inline-flex;
+  min-width: 30px; height: 30px; border-radius: $radius-md; display: inline-flex;
   align-items: center; justify-content: center;
-  border: 1px solid rgba(235,238,242,0.7); background: transparent;
-  color: #6B7280; font-size: 0.75rem; cursor: pointer;
-  transition: all 0.12s; font-family: inherit; padding: 0 6px;
+  border: 1px solid rgba($color-border-light,0.7); background: transparent;
+  color: $color-text-secondary; font-size: $font-sm; cursor: pointer;
+  transition: $transition-fast; font-family: inherit; padding: 0 6px;
 }
-.txn-page-btn:hover { border-color: #FFAD42; color: #FF8C00; }
-.txn-page-btn.active { background: #FF8C00; border-color: #FF8C00; color: #fff; }
+.txn-page-btn:hover { border-color: $color-primary-border; color: $color-primary; }
+.txn-page-btn.active { background: $color-primary; border-color: $color-primary; color: #fff; }
 .txn-page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 </style>

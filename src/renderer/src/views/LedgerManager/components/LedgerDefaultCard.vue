@@ -43,13 +43,13 @@ defineProps<{
 defineEmits<{ edit: [] }>()
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .ledger-default-card {
-  background: rgba(255,255,255,0.85);
+  background: rgba($color-bg-white, 0.85);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(235,238,242,0.7);
-  border-radius: 16px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  border: 1px solid rgba($color-border-light,0.7);
+  border-radius: $radius-2xl;
+  box-shadow: $shadow-md;
   padding: 28px 32px;
   display: flex;
   align-items: center;
@@ -60,36 +60,36 @@ defineEmits<{ edit: [] }>()
 .ledger-default-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 
 .ledger-default-icon {
-  width: 64px; height: 64px; border-radius: 16px;
-  background: #FFF5E6; display: flex;
+  width: 64px; height: 64px; border-radius: $radius-2xl;
+  background: $color-primary-light; display: flex;
   align-items: center; justify-content: center; flex-shrink: 0;
 }
 .ledger-default-body { flex: 1; min-width: 0; }
 .ledger-default-name-row {
   display: flex; align-items: center; gap: 10px; margin-bottom: 4px;
 }
-.ledger-default-name { font-size: 1.125rem; font-weight: 700; color: #1A1A2E; }
+.ledger-default-name { font-size: $font-2xl; font-weight: $font-bold; color: $color-text-primary; }
 .ledger-badge {
   display: inline-flex; align-items: center; padding: 3px 10px;
-  border-radius: 9999px; background: #FFF5E6; color: #FF8C00;
-  font-size: 0.75rem; font-weight: 600; flex-shrink: 0;
+  border-radius: $radius-full; background: $color-primary-light; color: $color-primary;
+  font-size: $font-sm; font-weight: $font-semibold; flex-shrink: 0;
 }
-.ledger-default-desc { font-size: 0.8125rem; color: #6B7280; margin-bottom: 10px; }
-.ledger-default-stats { display: flex; align-items: center; gap: 16px; font-size: 0.8125rem; }
+.ledger-default-desc { font-size: $font-base; color: $color-text-secondary; margin-bottom: 10px; }
+.ledger-default-stats { display: flex; align-items: center; gap: 16px; font-size: $font-base; }
 
-.ledger-stat { color: #9CA3AF; }
-.ledger-stat strong { color: #1A1A2E; font-weight: 600; }
-.ledger-stat-amount { color: #FF8C00; }
+.ledger-stat { color: $color-text-muted; }
+.ledger-stat strong { color: $color-text-primary; font-weight: $font-semibold; }
+.ledger-stat-amount { color: $color-primary; }
 .ledger-stat-divider {
-  width: 1px; height: 14px; background: rgba(235,238,242,0.7);
+  width: 1px; height: 14px; background: rgba($color-border-light,0.7);
 }
 
 .ledger-edit-btn {
   display: inline-flex; align-items: center; gap: 4px;
-  padding: 8px 14px; background: transparent; color: #6B7280;
-  border: 1px solid rgba(235,238,242,0.7); border-radius: 8px;
-  font-size: 0.8125rem; font-weight: 500; font-family: inherit;
-  cursor: pointer; transition: all 0.15s ease; white-space: nowrap; flex-shrink: 0;
+  padding: 8px 14px; background: transparent; color: $color-text-secondary;
+  border: 1px solid rgba($color-border-light,0.7); border-radius: $radius-lg;
+  font-size: $font-base; font-weight: $font-medium; font-family: inherit;
+  cursor: pointer; transition: $transition-base; white-space: nowrap; flex-shrink: 0;
 }
-.ledger-edit-btn:hover { border-color: #FFAD42; color: #FF8C00; }
+.ledger-edit-btn:hover { border-color: $color-primary-border; color: $color-primary; }
 </style>

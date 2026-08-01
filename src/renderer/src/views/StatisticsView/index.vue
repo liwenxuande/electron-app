@@ -470,7 +470,7 @@ onMounted(() => { validateGrain(); fetchStats() })
 watch(() => ledgerStore.currentId, () => { fetchStats() })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .stats-page {
   flex: 1;
   display: flex;
@@ -493,9 +493,9 @@ watch(() => ledgerStore.currentId, () => { fetchStats() })
 }
 
 .stats-title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1A1A2E;
+  font-size: $font-4xl;
+  font-weight: $font-bold;
+  color: $color-text-primary;
   letter-spacing: -0.02em;
   line-height: 1.3;
 }
@@ -509,35 +509,35 @@ watch(() => ledgerStore.currentId, () => { fetchStats() })
 .stats-period-toggle {
   display: inline-flex;
   align-items: center;
-  background: rgba(255,255,255,0.85);
+  background: rgba($color-bg-white, 0.85);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(235,238,242,0.7);
-  border-radius: 8px;
+  border: 1px solid rgba($color-border-light,0.7);
+  border-radius: $radius-lg;
   padding: 4px;
   gap: 2px;
 }
 
 .stats-period-btn {
   padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: #9CA3AF;
+  border-radius: $radius-sm;
+  font-size: $font-sm;
+  font-weight: $font-medium;
+  color: $color-text-muted;
   border: none;
   background: transparent;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: $transition-base;
   font-family: inherit;
   white-space: nowrap;
 }
 
 .stats-period-btn:hover {
-  background: #FFF5E6;
-  color: #FF8C00;
+  background: $color-primary-light;
+  color: $color-primary;
 }
 
 .stats-period-btn.active {
-  background: #FF8C00;
+  background: $color-primary;
   color: #fff;
 }
 
@@ -555,55 +555,55 @@ watch(() => ledgerStore.currentId, () => { fetchStats() })
 }
 
 .stats-kpi-card {
-  background: rgba(255,255,255,0.85);
+  background: rgba($color-bg-white, 0.85);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(235,238,242,0.7);
-  border-radius: 12px;
+  border: 1px solid rgba($color-border-light,0.7);
+  border-radius: $radius-xl;
   padding: 20px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  box-shadow: $shadow-sm;
   transition: transform 0.15s, box-shadow 0.15s;
   cursor: default;
 }
 
 .stats-kpi-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  box-shadow: $shadow-md;
 }
 
 .stats-kpi-icon {
   width: 32px;
   height: 32px;
-  border-radius: 8px;
+  border-radius: $radius-lg;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 10px;
 }
 
-.stats-kpi-icon--expense { background: rgba(255,140,0,0.1); color: #FF8C00; }
-.stats-kpi-icon--income { background: rgba(16,185,129,0.08); color: #10B981; }
-.stats-kpi-icon--daily { background: rgba(59,130,246,0.08); color: #3B82F6; }
-.stats-kpi-icon--rate { background: rgba(245,158,11,0.08); color: #F59E0B; }
-.stats-kpi-icon--count { background: rgba(139,92,246,0.08); color: #8B5CF6; }
+.stats-kpi-icon--expense { background: rgba($color-primary,0.1); color: $color-primary; }
+.stats-kpi-icon--income { background: rgba($color-success,0.08); color: $color-success; }
+.stats-kpi-icon--daily { background: rgba($color-info,0.08); color: $color-info; }
+.stats-kpi-icon--rate { background: rgba(245,158,11,0.08); color: $color-warning; }
+.stats-kpi-icon--count { background: rgba(139,92,246,0.08); color: $color-purple; }
 
 .stats-kpi-label {
-  font-size: 0.8125rem;
-  color: #6B7280;
+  font-size: $font-base;
+  color: $color-text-secondary;
   margin-bottom: 4px;
 }
 
 .stats-kpi-value {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: $font-3xl;
+  font-weight: $font-bold;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
-.stats-kpi-value.expense { color: #FF8C00; }
-.stats-kpi-value.income { color: #10B981; }
-.stats-kpi-value.daily { color: #3B82F6; }
-.stats-kpi-value.rate { color: #1A1A2E; }
-.stats-kpi-value.count { color: #8B5CF6; }
+.stats-kpi-value.expense { color: $color-primary; }
+.stats-kpi-value.income { color: $color-success; }
+.stats-kpi-value.daily { color: $color-info; }
+.stats-kpi-value.rate { color: $color-text-primary; }
+.stats-kpi-value.count { color: $color-purple; }
 
 .stats-charts-row {
   display: grid;
@@ -613,11 +613,11 @@ watch(() => ledgerStore.currentId, () => { fetchStats() })
 }
 
 .stats-chart-card {
-  background: rgba(255,255,255,0.85);
+  background: rgba($color-bg-white, 0.85);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(235,238,242,0.7);
-  border-radius: 12px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  border: 1px solid rgba($color-border-light,0.7);
+  border-radius: $radius-xl;
+  box-shadow: $shadow-sm;
   overflow: hidden;
   padding: 24px;
 }
@@ -630,40 +630,40 @@ watch(() => ledgerStore.currentId, () => { fetchStats() })
 }
 
 .stats-chart-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #1A1A2E;
+  font-size: $font-xl;
+  font-weight: $font-semibold;
+  color: $color-text-primary;
 }
 
 .stats-gran-toggle {
   display: inline-flex;
   align-items: center;
-  background: #F5F7FA;
-  border-radius: 6px;
+  background: $color-bg-hover;
+  border-radius: $radius-md;
   padding: 2px;
   gap: 1px;
 }
 
 .stats-gran-btn {
   padding: 4px 10px;
-  border-radius: 4px;
+  border-radius: $radius-sm;
   font-size: 0.7rem;
-  font-weight: 500;
-  color: #9CA3AF;
+  font-weight: $font-medium;
+  color: $color-text-muted;
   border: none;
   background: transparent;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: $transition-base;
   font-family: inherit;
 }
 
 .stats-gran-btn:hover {
-  color: #FF8C00;
+  color: $color-primary;
 }
 
 .stats-gran-btn.active {
   background: rgba(255,255,255,0.9);
-  color: #FF8C00;
+  color: $color-primary;
   box-shadow: 0 1px 2px rgba(0,0,0,0.06);
 }
 
@@ -676,11 +676,11 @@ watch(() => ledgerStore.currentId, () => { fetchStats() })
 }
 
 .stats-rank-card {
-  background: rgba(255,255,255,0.85);
+  background: rgba($color-bg-white, 0.85);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(235,238,242,0.7);
-  border-radius: 12px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  border: 1px solid rgba($color-border-light,0.7);
+  border-radius: $radius-xl;
+  box-shadow: $shadow-sm;
   overflow: hidden;
 }
 
@@ -696,8 +696,8 @@ watch(() => ledgerStore.currentId, () => { fetchStats() })
 }
 
 .stats-rank-period {
-  font-size: 0.8125rem;
-  color: #9CA3AF;
+  font-size: $font-base;
+  color: $color-text-muted;
 }
 
 .stats-rank-list {
@@ -715,7 +715,7 @@ watch(() => ledgerStore.currentId, () => { fetchStats() })
   display: flex;
   align-items: center;
   padding: 14px 12px;
-  border-radius: 8px;
+  border-radius: $radius-lg;
   gap: 16px;
   transition: background 0.12s;
 }
@@ -728,31 +728,31 @@ watch(() => ledgerStore.currentId, () => { fetchStats() })
 .stats-rank-num {
   width: 28px;
   height: 28px;
-  border-radius: 4px;
-  background: #F5F7FA;
+  border-radius: $radius-sm;
+  background: $color-bg-hover;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.8125rem;
-  font-weight: 700;
-  color: #6B7280;
+  font-size: $font-base;
+  font-weight: $font-bold;
+  color: $color-text-secondary;
   flex-shrink: 0;
 }
 
 .stats-rank-num.rank-gold {
-  background: rgba(255,140,0,0.12);
-  color: #FF8C00;
+  background: rgba($color-primary,0.12);
+  color: $color-primary;
   font-weight: 800;
 }
 .stats-rank-num.rank-silver {
   background: rgba(156,163,175,0.12);
-  color: #6B7280;
-  font-weight: 700;
+  color: $color-text-secondary;
+  font-weight: $font-bold;
 }
 .stats-rank-num.rank-bronze {
   background: rgba(217,119,6,0.1);
   color: #D97706;
-  font-weight: 700;
+  font-weight: $font-bold;
 }
 
 .stats-header-right :deep(.el-date-editor) {
@@ -773,7 +773,7 @@ watch(() => ledgerStore.currentId, () => { fetchStats() })
 .stats-rank-icon {
   width: 36px;
   height: 36px;
-  border-radius: 8px;
+  border-radius: $radius-lg;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -793,34 +793,34 @@ watch(() => ledgerStore.currentId, () => { fetchStats() })
 }
 
 .stats-rank-name {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #1A1A2E;
+  font-size: $font-md;
+  font-weight: $font-medium;
+  color: $color-text-primary;
 }
 
 .stats-rank-amount {
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: $font-md;
+  font-weight: $font-semibold;
   font-variant-numeric: tabular-nums;
 }
 
 .stats-rank-bar-bg {
   height: 6px;
-  background: #F0F2F5;
-  border-radius: 999px;
+  background: $color-bg-page;
+  border-radius: $radius-full;
   overflow: hidden;
 }
 
 .stats-rank-bar-fill {
   height: 100%;
-  border-radius: 999px;
+  border-radius: $radius-full;
   transition: width 0.5s ease;
 }
 
 .stats-rank-pct {
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: #6B7280;
+  font-size: $font-base;
+  font-weight: $font-medium;
+  color: $color-text-secondary;
   white-space: nowrap;
   flex-shrink: 0;
   width: 36px;
@@ -832,9 +832,9 @@ watch(() => ledgerStore.currentId, () => { fetchStats() })
 }
 
 .stats-single-title {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #1A1A2E;
+  font-size: $font-md;
+  font-weight: $font-semibold;
+  color: $color-text-primary;
   margin-bottom: 12px;
 }
 
@@ -850,33 +850,33 @@ watch(() => ledgerStore.currentId, () => { fetchStats() })
 
 .stats-single-num {
   width: 20px; height: 20px;
-  border-radius: 4px; background: #F5F7FA;
+  border-radius: $radius-sm; background: $color-bg-hover;
   display: flex; align-items: center; justify-content: center;
-  font-size: 0.6875rem; font-weight: 700; color: #6B7280;
+  font-size: $font-xs; font-weight: $font-bold; color: $color-text-secondary;
   flex-shrink: 0;
 }
 
 .stats-single-amount {
-  font-size: 0.8125rem; font-weight: 600;
+  font-size: $font-base; font-weight: $font-semibold;
   font-variant-numeric: tabular-nums; white-space: nowrap;
   min-width: 80px;
 }
 
-.stats-single-amount.expense { color: #FF8C00; }
-.stats-single-amount.income { color: #10B981; }
+.stats-single-amount.expense { color: $color-primary; }
+.stats-single-amount.income { color: $color-success; }
 
 .stats-single-cat {
-  font-size: 0.8125rem; color: #6B7280;
+  font-size: $font-base; color: $color-text-secondary;
   flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
 .stats-single-date {
-  font-size: 0.75rem; color: #9CA3AF;
+  font-size: $font-sm; color: $color-text-muted;
   white-space: nowrap; flex-shrink: 0;
 }
 
 .stats-single-divider {
-  height: 1px; background: #F0F2F5; margin: 0 24px;
+  height: 1px; background: $color-bg-page; margin: 0 24px;
 }
 
 .stats-rank-right {
@@ -884,7 +884,7 @@ watch(() => ledgerStore.currentId, () => { fetchStats() })
 }
 
 .stats-rank-count {
-  font-size: 0.75rem; color: #9CA3AF;
+  font-size: $font-sm; color: $color-text-muted;
   white-space: nowrap;
 }
 </style>

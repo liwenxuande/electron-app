@@ -120,7 +120,7 @@ onMounted(() => {
 })
 </script>
 
-<style>
+<style lang="scss">
 * {
   margin: 0;
   padding: 0;
@@ -155,8 +155,8 @@ body {
 
 .app-sidebar {
   width: 88px;
-  background: #fff;
-  border-right: 1px solid #EBEEF2;
+  background: $color-bg-white;
+  border-right: 1px solid $color-border-light;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -168,8 +168,8 @@ body {
 .sidebar-logo {
   width: 40px;
   height: 40px;
-  background: #FF8C00;
-  border-radius: 12px;
+  background: $color-primary;
+  border-radius: $radius-xl;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -190,24 +190,24 @@ body {
 .sidebar-nav-item {
   width: 60px;
   height: 44px;
-  border-radius: 8px;
+  border-radius: $radius-lg;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #9CA3AF;
-  transition: all 0.15s;
+  color: $color-text-muted;
+  transition: $transition-base;
   cursor: pointer;
   margin: 0 auto;
 }
 
 .sidebar-nav-item:hover {
-  background: #F5F7FA;
-  color: #6B7280;
+  background: $color-bg-hover;
+  color: $color-text-secondary;
 }
 
 .sidebar-nav-item.active {
-  background: #FFF5E6;
-  color: #FF8C00;
+  background: $color-primary-light;
+  color: $color-primary;
 }
 
 .sidebar-nav-icon {

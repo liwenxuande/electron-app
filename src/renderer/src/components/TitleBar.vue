@@ -27,7 +27,7 @@ async function handleClose() {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .title-bar {
   display: flex;
   align-items: center;
@@ -61,19 +61,19 @@ async function handleClose() {
   height: 28px;
   border: none;
   background: transparent;
-  color: #9CA3AF;
-  border-radius: 4px;
+  color: $color-text-muted;
+  border-radius: $radius-sm;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: $transition-base;
 }
 
 .title-bar__btn:hover {
-  background: #F5F7FA;
-  color: #6B7280;
+  background: $color-bg-hover;
+  color: $color-text-secondary;
 }
 
 .title-bar__btn--close:hover {
-  background: #EF4444;
+  background: $color-danger;
   color: #fff;
 }
 </style>

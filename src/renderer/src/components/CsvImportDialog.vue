@@ -196,7 +196,7 @@ async function handleImport() {
 function handleClose() { emit('update:visible', false) }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .modal-overlay {
   position: fixed; inset: 0; z-index: 2000; display: flex;
   align-items: center; justify-content: center;
@@ -206,37 +206,37 @@ function handleClose() { emit('update:visible', false) }
   background: rgba(0,0,0,0.4); backdrop-filter: blur(2px);
 }
 .modal-panel {
-  position: relative; background: #fff; border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.15); overflow: hidden;
+  position: relative; background: $color-bg-white; border-radius: $radius-2xl;
+  box-shadow: $shadow-xl; overflow: hidden;
   display: flex; flex-direction: column; max-height: 85vh;
 }
 .modal-header {
   padding: 24px 28px 16px; display: flex; align-items: center;
-  justify-content: space-between; border-bottom: 1px solid #F0F2F5;
+  justify-content: space-between; border-bottom: 1px solid $color-bg-page;
 }
-.modal-title { font-size: 1rem; font-weight: 600; color: #1A1A2E; }
-.modal-desc { font-size: 0.8125rem; color: #6B7280; margin-top: 4px; }
+.modal-title { font-size: $font-xl; font-weight: $font-semibold; color: $color-text-primary; }
+.modal-desc { font-size: $font-base; color: $color-text-secondary; margin-top: 4px; }
 .modal-close {
-  width: 32px; height: 32px; border-radius: 8px; border: none;
-  background: transparent; cursor: pointer; color: #9CA3AF;
+  width: 32px; height: 32px; border-radius: $radius-lg; border: none;
+  background: transparent; cursor: pointer; color: $color-text-muted;
   display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s; flex-shrink: 0;
+  transition: $transition-base; flex-shrink: 0;
 }
-.modal-close:hover { background: #F5F7FA; color: #6B7280; }
+.modal-close:hover { background: $color-bg-hover; color: $color-text-secondary; }
 
 .modal-body { padding: 24px 28px; overflow-y: auto; flex: 1; }
 
 .modal-footer {
   padding: 16px 28px 24px; display: flex; justify-content: flex-end;
-  gap: 10px; border-top: 1px solid #F0F2F5;
+  gap: 10px; border-top: 1px solid $color-bg-page;
 }
 
 .csv-upload-zone {
-  border: 2px dashed rgba(235,238,242,0.7); border-radius: 12px;
+  border: 2px dashed rgba($color-border-light,0.7); border-radius: $radius-xl;
   padding: 36px 24px; text-align: center; cursor: pointer;
-  transition: all 0.2s; margin-bottom: 16px;
+  transition: $transition-slow; margin-bottom: 16px;
 }
-.csv-upload-zone:hover { border-color: #FF8C00; background: rgba(255,140,0,0.03); }
+.csv-upload-zone:hover { border-color: $color-primary; background: rgba($color-primary,0.03); }
 
 .modal-body :deep(.el-upload) {
   width: 100%;
@@ -248,73 +248,73 @@ function handleClose() { emit('update:visible', false) }
 }
 
 .csv-upload-icon {
-  width: 48px; height: 48px; border-radius: 50%; background: #FFF5E6;
+  width: 48px; height: 48px; border-radius: 50%; background: $color-primary-light;
   display: flex; align-items: center; justify-content: center;
   margin: 0 auto 12px;
 }
 
-.csv-upload-text { font-size: 0.8125rem; font-weight: 500; color: #1A1A2E; margin-bottom: 4px; }
-.csv-upload-hint { font-size: 0.75rem; color: #9CA3AF; }
+.csv-upload-text { font-size: $font-base; font-weight: $font-medium; color: $color-text-primary; margin-bottom: 4px; }
+.csv-upload-hint { font-size: $font-sm; color: $color-text-muted; }
 
 .csv-file-card {
   display: flex; align-items: center; gap: 12px;
-  padding: 10px 16px; background: #FFF5E6; border-radius: 8px; margin-bottom: 20px;
+  padding: 10px 16px; background: $color-primary-light; border-radius: $radius-lg; margin-bottom: 20px;
 }
 
 .csv-file-icon {
-  width: 32px; height: 32px; border-radius: 4px; background: #FF8C00;
+  width: 32px; height: 32px; border-radius: $radius-sm; background: $color-primary;
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 
 .csv-file-info { flex: 1; min-width: 0; }
-.csv-file-name { font-size: 0.8125rem; font-weight: 500; color: #1A1A2E; }
-.csv-file-meta { font-size: 0.75rem; color: #6B7280; margin-top: 1px; }
+.csv-file-name { font-size: $font-base; font-weight: $font-medium; color: $color-text-primary; }
+.csv-file-meta { font-size: $font-sm; color: $color-text-secondary; margin-top: 1px; }
 
 .csv-file-remove {
   width: 24px; height: 24px; border: none; background: transparent;
-  cursor: pointer; color: #9CA3AF; display: flex; align-items: center;
+  cursor: pointer; color: $color-text-muted; display: flex; align-items: center;
   justify-content: center;
 }
-.csv-file-remove:hover { color: #EF4444; }
+.csv-file-remove:hover { color: $color-danger; }
 
 .csv-preview-section { margin-bottom: 16px; }
-.csv-preview-title { font-size: 0.8125rem; font-weight: 600; color: #1A1A2E; margin-bottom: 10px; }
+.csv-preview-title { font-size: $font-base; font-weight: $font-semibold; color: $color-text-primary; margin-bottom: 10px; }
 
 .csv-preview-wrap {
-  border: 1px solid rgba(235,238,242,0.7); border-radius: 8px; overflow: hidden;
+  border: 1px solid rgba($color-border-light,0.7); border-radius: $radius-lg; overflow: hidden;
 }
 
-.csv-preview-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+.csv-preview-table { width: 100%; border-collapse: collapse; font-size: $font-sm; }
 .csv-preview-table th {
-  text-align: left; padding: 8px 12px; font-weight: 600; color: #9CA3AF;
-  border-bottom: 1px solid rgba(235,238,242,0.7); background: rgba(0,0,0,0.01);
+  text-align: left; padding: 8px 12px; font-weight: $font-semibold; color: $color-text-muted;
+  border-bottom: 1px solid rgba($color-border-light,0.7); background: rgba(0,0,0,0.01);
 }
 .csv-preview-table td {
-  padding: 8px 12px; border-bottom: 1px solid rgba(235,238,242,0.4);
-  color: #1A1A2E;
+  padding: 8px 12px; border-bottom: 1px solid rgba($color-border-light,0.4);
+  color: $color-text-primary;
 }
 .csv-preview-table tr:last-child td { border-bottom: none; }
 
 .csv-result {
-  padding: 10px 16px; border-radius: 8px; font-size: 0.8125rem; font-weight: 500;
+  padding: 10px 16px; border-radius: $radius-lg; font-size: $font-base; font-weight: $font-medium;
 }
-.csv-result--ok { background: rgba(16,185,129,0.08); color: #10B981; }
-.csv-result--warn { background: rgba(245,158,11,0.08); color: #F59E0B; }
+.csv-result--ok { background: rgba($color-success,0.08); color: $color-success; }
+.csv-result--warn { background: rgba(245,158,11,0.08); color: $color-warning; }
 
 .mdb-btn-cancel {
-  padding: 8px 20px; border-radius: 8px; font-size: 0.8125rem; font-weight: 500;
-  cursor: pointer; font-family: inherit; border: 1px solid rgba(235,238,242,0.7);
-  background: transparent; color: #6B7280; transition: all 0.15s;
+  padding: 8px 20px; border-radius: $radius-lg; font-size: $font-base; font-weight: $font-medium;
+  cursor: pointer; font-family: inherit; border: 1px solid rgba($color-border-light,0.7);
+  background: transparent; color: $color-text-secondary; transition: $transition-base;
 }
-.mdb-btn-cancel:hover { border-color: #FFAD42; color: #FF8C00; }
+.mdb-btn-cancel:hover { border-color: $color-primary-border; color: $color-primary; }
 
 .mdb-btn-submit {
-  padding: 8px 20px; border-radius: 8px; font-size: 0.8125rem; font-weight: 600;
+  padding: 8px 20px; border-radius: $radius-lg; font-size: $font-base; font-weight: $font-semibold;
   cursor: pointer; font-family: inherit; border: none;
-  background: #FF8C00; color: #fff; transition: all 0.15s;
-  box-shadow: 0 2px 6px rgba(255,140,0,0.25);
+  background: $color-primary; color: #fff; transition: $transition-base;
+  box-shadow: 0 2px 6px rgba($color-primary,0.25);
 }
-.mdb-btn-submit:hover { background: #E07800; }
+.mdb-btn-submit:hover { background: $color-primary-hover; }
 .mdb-btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .modal-fade-enter-active { transition: opacity 0.2s ease; }

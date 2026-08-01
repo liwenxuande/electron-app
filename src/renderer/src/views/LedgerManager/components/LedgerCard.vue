@@ -45,56 +45,56 @@ defineEmits<{
 }>()
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .ledger-card {
-  background: rgba(255,255,255,0.85);
+  background: rgba($color-bg-white, 0.85);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(235,238,242,0.7);
-  border-radius: 12px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  border: 1px solid rgba($color-border-light,0.7);
+  border-radius: $radius-xl;
+  box-shadow: $shadow-sm;
   padding: 24px;
   display: flex; flex-direction: column; gap: 12px;
-  cursor: pointer; transition: all 0.2s ease;
+  cursor: pointer; transition: $transition-slow;
 }
 .ledger-card:hover {
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  box-shadow: $shadow-md;
   transform: translateY(-2px);
 }
 .ledger-card-top {
   display: flex; align-items: flex-start; justify-content: space-between;
 }
 .ledger-card-icon {
-  width: 44px; height: 44px; border-radius: 8px;
+  width: 44px; height: 44px; border-radius: $radius-lg;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; transition: transform 0.2s ease;
 }
 .ledger-card:hover .ledger-card-icon { transform: scale(1.06); }
 
 .ledger-menu-btn {
-  width: 28px; height: 28px; border-radius: 4px;
+  width: 28px; height: 28px; border-radius: $radius-sm;
   display: flex; align-items: center; justify-content: center;
   background: transparent; border: none; cursor: pointer;
-  color: #9CA3AF; transition: all 0.15s ease; flex-shrink: 0;
+  color: $color-text-muted; transition: $transition-base; flex-shrink: 0;
 }
-.ledger-menu-btn:hover { background: #F5F7FA; color: #6B7280; }
+.ledger-menu-btn:hover { background: $color-bg-hover; color: $color-text-secondary; }
 
 .ledger-card-body { min-width: 0; }
 .ledger-card-name {
-  font-size: 0.875rem; font-weight: 600; color: #1A1A2E; margin-bottom: 4px;
+  font-size: $font-md; font-weight: $font-semibold; color: $color-text-primary; margin-bottom: 4px;
 }
 .ledger-card-desc {
-  font-size: 0.75rem; color: #9CA3AF;
+  font-size: $font-sm; color: $color-text-muted;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .ledger-card-footer {
   display: flex; align-items: center; gap: 12px;
-  font-size: 0.75rem; padding-top: 8px;
-  border-top: 1px solid rgba(235,238,242,0.7);
+  font-size: $font-sm; padding-top: 8px;
+  border-top: 1px solid rgba($color-border-light,0.7);
 }
 
-.ledger-stat { color: #9CA3AF; }
-.ledger-stat strong { color: #1A1A2E; font-weight: 600; }
+.ledger-stat { color: $color-text-muted; }
+.ledger-stat strong { color: $color-text-primary; font-weight: $font-semibold; }
 .ledger-stat-divider {
-  width: 1px; height: 14px; background: rgba(235,238,242,0.7);
+  width: 1px; height: 14px; background: rgba($color-border-light,0.7);
 }
 </style>

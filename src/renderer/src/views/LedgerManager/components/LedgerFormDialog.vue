@@ -60,7 +60,7 @@ const description = computed({
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .modal-overlay {
   position: fixed; inset: 0; z-index: 2000; display: flex;
   align-items: center; justify-content: center;
@@ -70,61 +70,61 @@ const description = computed({
   background: rgba(0,0,0,0.4); backdrop-filter: blur(2px);
 }
 .modal-panel {
-  position: relative; background: #fff; border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.15); overflow: hidden;
+  position: relative; background: $color-bg-white; border-radius: $radius-2xl;
+  box-shadow: $shadow-xl; overflow: hidden;
   display: flex; flex-direction: column; max-height: 85vh;
 }
 .modal-header {
   padding: 20px 24px 14px; display: flex; align-items: center;
-  justify-content: space-between; border-bottom: 1px solid #F0F2F5;
+  justify-content: space-between; border-bottom: 1px solid $color-bg-page;
 }
-.modal-title { font-size: 0.9375rem; font-weight: 600; color: #1A1A2E; }
+.modal-title { font-size: $font-lg; font-weight: $font-semibold; color: $color-text-primary; }
 .modal-close {
-  width: 28px; height: 28px; border-radius: 6px; border: none;
-  background: transparent; cursor: pointer; color: #9CA3AF;
+  width: 28px; height: 28px; border-radius: $radius-md; border: none;
+  background: transparent; cursor: pointer; color: $color-text-muted;
   display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s;
+  transition: $transition-base;
 }
-.modal-close:hover { background: #F5F7FA; color: #6B7280; }
+.modal-close:hover { background: $color-bg-hover; color: $color-text-secondary; }
 .modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
 .modal-footer {
   padding: 14px 24px 20px; display: flex; justify-content: flex-end;
-  gap: 8px; border-top: 1px solid #F0F2F5;
+  gap: 8px; border-top: 1px solid $color-bg-page;
 }
 
 .ldb-row { margin-bottom: 16px; }
 .ldb-row:last-child { margin-bottom: 0; }
 .ldb-label {
-  font-size: 0.8125rem; font-weight: 500; color: #6B7280;
+  font-size: $font-base; font-weight: $font-medium; color: $color-text-secondary;
   display: block; margin-bottom: 6px;
 }
 .ldb-input {
-  width: 100%; padding: 8px 12px; border-radius: 6px;
-  border: 1px solid rgba(235,238,242,0.7); font-size: 0.8125rem;
-  color: #1A1A2E; outline: none; font-family: inherit; box-sizing: border-box;
+  width: 100%; padding: 8px 12px; border-radius: $radius-md;
+  border: 1px solid rgba($color-border-light,0.7); font-size: $font-base;
+  color: $color-text-primary; outline: none; font-family: inherit; box-sizing: border-box;
 }
-.ldb-input:focus { border-color: #FF8C00; }
+.ldb-input:focus { border-color: $color-primary; }
 .ldb-textarea {
-  width: 100%; padding: 8px 12px; border-radius: 6px;
-  border: 1px solid rgba(235,238,242,0.7); font-size: 0.8125rem;
-  color: #1A1A2E; outline: none; font-family: inherit;
+  width: 100%; padding: 8px 12px; border-radius: $radius-md;
+  border: 1px solid rgba($color-border-light,0.7); font-size: $font-base;
+  color: $color-text-primary; outline: none; font-family: inherit;
   resize: vertical; box-sizing: border-box;
 }
-.ldb-textarea:focus { border-color: #FF8C00; }
-.ldb-textarea::placeholder { color: #9CA3AF; }
+.ldb-textarea:focus { border-color: $color-primary; }
+.ldb-textarea::placeholder { color: $color-text-muted; }
 .ldb-btn-cancel {
-  padding: 7px 18px; border-radius: 6px; font-size: 0.8125rem; font-weight: 500;
-  cursor: pointer; font-family: inherit; border: 1px solid rgba(235,238,242,0.7);
-  background: transparent; color: #6B7280; transition: all 0.15s;
+  padding: 7px 18px; border-radius: $radius-md; font-size: $font-base; font-weight: $font-medium;
+  cursor: pointer; font-family: inherit; border: 1px solid rgba($color-border-light,0.7);
+  background: transparent; color: $color-text-secondary; transition: $transition-base;
 }
-.ldb-btn-cancel:hover { border-color: #FFAD42; color: #FF8C00; }
+.ldb-btn-cancel:hover { border-color: $color-primary-border; color: $color-primary; }
 .ldb-btn-submit {
-  padding: 7px 18px; border-radius: 6px; font-size: 0.8125rem; font-weight: 600;
+  padding: 7px 18px; border-radius: $radius-md; font-size: $font-base; font-weight: $font-semibold;
   cursor: pointer; font-family: inherit; border: none;
-  background: #FF8C00; color: #fff; transition: all 0.15s;
-  box-shadow: 0 2px 6px rgba(255,140,0,0.25);
+  background: $color-primary; color: #fff; transition: $transition-base;
+  box-shadow: 0 2px 6px rgba($color-primary,0.25);
 }
-.ldb-btn-submit:hover { background: #E07800; }
+.ldb-btn-submit:hover { background: $color-primary-hover; }
 .ldb-btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .modal-fade-enter-active { transition: opacity 0.2s ease; }

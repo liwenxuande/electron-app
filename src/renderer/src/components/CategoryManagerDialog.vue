@@ -196,7 +196,7 @@ watch(() => props.visible, (val) => {
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .modal-overlay {
   position: fixed; inset: 0; z-index: 2000; display: flex;
   align-items: center; justify-content: center;
@@ -206,8 +206,8 @@ watch(() => props.visible, (val) => {
   background: rgba(0,0,0,0.4); backdrop-filter: blur(2px);
 }
 .modal-panel {
-  position: relative; background: #fff; border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.15); overflow: hidden;
+  position: relative; background: $color-bg-white; border-radius: $radius-2xl;
+  box-shadow: $shadow-xl; overflow: hidden;
   display: flex; flex-direction: column; max-height: 80vh;
   width: 520px; max-width: 90vw;
 }
@@ -216,30 +216,30 @@ watch(() => props.visible, (val) => {
   padding: 24px 28px 16px; display: flex; align-items: center;
   justify-content: space-between;
 }
-.modal-title { font-size: 1rem; font-weight: 600; color: #1A1A2E; }
-.modal-desc { font-size: 0.8125rem; color: #6B7280; margin-top: 4px; }
+.modal-title { font-size: $font-xl; font-weight: $font-semibold; color: $color-text-primary; }
+.modal-desc { font-size: $font-base; color: $color-text-secondary; margin-top: 4px; }
 .modal-close {
-  width: 28px; height: 28px; border-radius: 6px; border: none;
-  background: transparent; cursor: pointer; color: #9CA3AF;
+  width: 28px; height: 28px; border-radius: $radius-md; border: none;
+  background: transparent; cursor: pointer; color: $color-text-muted;
   display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s; flex-shrink: 0;
+  transition: $transition-base; flex-shrink: 0;
 }
-.modal-close:hover { background: #F5F7FA; color: #6B7280; }
+.modal-close:hover { background: $color-bg-hover; color: $color-text-secondary; }
 
 .mdc-tabs {
-  display: flex; padding: 0 28px; border-bottom: 1px solid rgba(235,238,242,0.7);
+  display: flex; padding: 0 28px; border-bottom: 1px solid rgba($color-border-light,0.7);
   flex-shrink: 0;
 }
 .mdc-tab {
-  padding: 10px 0; margin-right: 24px; font-size: 0.8125rem;
-  font-weight: 500; color: #9CA3AF; border: none; background: none;
+  padding: 10px 0; margin-right: 24px; font-size: $font-base;
+  font-weight: $font-medium; color: $color-text-muted; border: none; background: none;
   cursor: pointer; position: relative; transition: color 0.15s;
   font-family: inherit;
 }
-.mdc-tab.active { color: #FF8C00; }
+.mdc-tab.active { color: $color-primary; }
 .mdc-tab.active::after {
   content: ''; position: absolute; bottom: -1px; left: 0; right: 0;
-  height: 2px; background: #FF8C00; border-radius: 1px;
+  height: 2px; background: $color-primary; border-radius: 1px;
 }
 
 .mdc-list {
@@ -249,73 +249,73 @@ watch(() => props.visible, (val) => {
 
 .mdc-row {
   display: flex; align-items: center; padding: 12px 16px;
-  border: 1px solid rgba(235,238,242,0.7); border-radius: 8px;
-  margin-bottom: 8px; gap: 12px; transition: all 0.15s;
+  border: 1px solid rgba($color-border-light,0.7); border-radius: $radius-lg;
+  margin-bottom: 8px; gap: 12px; transition: $transition-base;
 }
 .mdc-row:hover { background: rgba(0,0,0,0.015); }
 .mdc-row--editing {
-  border-color: #FF8C00; background: rgba(255,140,0,0.02);
+  border-color: $color-primary; background: rgba($color-primary,0.02);
 }
 
 .mdc-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-.mdc-name { flex: 1; font-weight: 500; font-size: 0.875rem; color: #1A1A2E; }
-.mdc-count { font-size: 0.75rem; color: #9CA3AF; margin-right: 4px; }
+.mdc-name { flex: 1; font-weight: $font-medium; font-size: $font-md; color: $color-text-primary; }
+.mdc-count { font-size: $font-sm; color: $color-text-muted; margin-right: 4px; }
 
 .mdc-actions { display: flex; gap: 4px; }
 
 .mdc-act {
-  width: 28px; height: 28px; border-radius: 6px; border: none;
-  background: transparent; cursor: pointer; color: #9CA3AF;
+  width: 28px; height: 28px; border-radius: $radius-md; border: none;
+  background: transparent; cursor: pointer; color: $color-text-muted;
   display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s;
+  transition: $transition-base;
 }
-.mdc-act-edit:hover { color: #FF8C00; background: rgba(255,140,0,0.08); }
-.mdc-act-del:hover { color: #EF4444; background: rgba(239,68,68,0.08); }
-.mdc-act-save:hover { color: #10B981; background: rgba(16,185,129,0.08); }
-.mdc-act-cancel:hover { color: #6B7280; background: rgba(107,114,128,0.08); }
+.mdc-act-edit:hover { color: $color-primary; background: rgba($color-primary,0.08); }
+.mdc-act-del:hover { color: $color-danger; background: rgba($color-danger,0.08); }
+.mdc-act-save:hover { color: $color-success; background: rgba($color-success,0.08); }
+.mdc-act-cancel:hover { color: $color-text-secondary; background: rgba(107,114,128,0.08); }
 
 .mdc-edit-input {
-  flex: 1; padding: 6px 10px; border: 1px solid #FF8C00; border-radius: 6px;
-  font-size: 0.875rem; font-weight: 500; color: #1A1A2E;
+  flex: 1; padding: 6px 10px; border: 1px solid #FF8C00; border-radius: $radius-md;
+  font-size: $font-md; font-weight: $font-medium; color: $color-text-primary;
   outline: none; font-family: inherit; background: transparent;
 }
 
 .mdc-empty {
-  text-align: center; padding: 32px 0; font-size: 0.8125rem; color: #9CA3AF;
+  text-align: center; padding: 32px 0; font-size: $font-base; color: $color-text-muted;
 }
 
 .mdc-add-row { display: flex; gap: 8px; flex: 1; }
 
 .mdc-add-input {
-  flex: 1; max-width: 200px; padding: 7px 12px; border-radius: 6px;
-  border: 1px solid rgba(235,238,242,0.7); font-size: 0.8125rem;
-  color: #1A1A2E; outline: none; font-family: inherit;
+  flex: 1; max-width: 200px; padding: 7px 12px; border-radius: $radius-md;
+  border: 1px solid rgba($color-border-light,0.7); font-size: $font-base;
+  color: $color-text-primary; outline: none; font-family: inherit;
 }
-.mdc-add-input:focus { border-color: #FF8C00; }
-.mdc-add-input::placeholder { color: #9CA3AF; }
+.mdc-add-input:focus { border-color: $color-primary; }
+.mdc-add-input::placeholder { color: $color-text-muted; }
 
 .mdc-add-btn {
   display: inline-flex; align-items: center; gap: 4px;
-  padding: 7px 14px; border-radius: 6px; border: 1px dashed rgba(235,238,242,0.7);
-  background: transparent; color: #FF8C00; font-size: 0.8125rem;
-  font-weight: 500; cursor: pointer; font-family: inherit;
-  transition: all 0.15s; white-space: nowrap;
+  padding: 7px 14px; border-radius: $radius-md; border: 1px dashed rgba($color-border-light,0.7);
+  background: transparent; color: $color-primary; font-size: $font-base;
+  font-weight: $font-medium; cursor: pointer; font-family: inherit;
+  transition: $transition-base; white-space: nowrap;
 }
-.mdc-add-btn:hover { border-color: #FF8C00; background: rgba(255,140,0,0.04); }
+.mdc-add-btn:hover { border-color: $color-primary; background: rgba($color-primary,0.04); }
 
 .modal-footer {
   padding: 14px 28px 20px; display: flex; align-items: center;
-  justify-content: space-between; border-top: 1px solid rgba(235,238,242,0.7);
+  justify-content: space-between; border-top: 1px solid rgba($color-border-light,0.7);
   flex-shrink: 0;
 }
 
 .mdb-btn-submit {
-  padding: 7px 20px; border-radius: 6px; font-size: 0.8125rem; font-weight: 600;
+  padding: 7px 20px; border-radius: $radius-md; font-size: $font-base; font-weight: $font-semibold;
   cursor: pointer; font-family: inherit; border: none;
-  background: #FF8C00; color: #fff; transition: all 0.15s;
-  box-shadow: 0 2px 6px rgba(255,140,0,0.25);
+  background: $color-primary; color: #fff; transition: $transition-base;
+  box-shadow: 0 2px 6px rgba($color-primary,0.25);
 }
-.mdb-btn-submit:hover { background: #E07800; }
+.mdb-btn-submit:hover { background: $color-primary-hover; }
 
 .modal-fade-enter-active { transition: opacity 0.2s ease; }
 .modal-fade-leave-active { transition: opacity 0.15s ease; }

@@ -203,50 +203,50 @@ defineExpose({
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .txn-page { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
 .txn-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 40px; flex-shrink: 0; }
 .txn-header-left { display: flex; align-items: center; gap: 24px; }
-.txn-title { font-size: 2rem; font-weight: 700; color: #1A1A2E; letter-spacing: -0.02em; line-height: 1.3; white-space: nowrap; }
+.txn-title { font-size: $font-4xl; font-weight: $font-bold; color: $color-text-primary; letter-spacing: -0.02em; line-height: 1.3; white-space: nowrap; }
 .txn-header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
 .txn-body { flex: 1; display: flex; flex-direction: column; padding: 0 40px 20px; gap: 14px; min-height: 0; }
 
 .txn-outline-btn {
   display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
-  background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
-  border: 1px solid rgba(235,238,242,0.7); border-radius: 8px;
-  font-size: 0.8125rem; font-weight: 500; color: #6B7280;
-  cursor: pointer; transition: all 0.15s; font-family: inherit; white-space: nowrap;
+  background: rgba($color-bg-white, 0.85); backdrop-filter: blur(8px);
+  border: 1px solid rgba($color-border-light,0.7); border-radius: $radius-lg;
+  font-size: $font-base; font-weight: $font-medium; color: $color-text-secondary;
+  cursor: pointer; transition: $transition-base; font-family: inherit; white-space: nowrap;
 }
-.txn-outline-btn:hover { border-color: #FFAD42; color: #FF8C00; }
+.txn-outline-btn:hover { border-color: $color-primary-border; color: $color-primary; }
 
 .txn-primary-btn {
   display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px;
-  background: #FF8C00; color: #fff; border: none; border-radius: 8px;
-  font-size: 0.8125rem; font-weight: 600; cursor: pointer; transition: all 0.15s;
-  font-family: inherit; box-shadow: 0 2px 8px rgba(255,140,0,0.25); white-space: nowrap;
+  background: $color-primary; color: #fff; border: none; border-radius: $radius-lg;
+  font-size: $font-base; font-weight: $font-semibold; cursor: pointer; transition: $transition-base;
+  font-family: inherit; box-shadow: 0 2px 8px rgba($color-primary,0.25); white-space: nowrap;
 }
-.txn-primary-btn:hover { background: #E07800; box-shadow: 0 4px 12px rgba(255,140,0,0.35); }
+.txn-primary-btn:hover { background: $color-primary-hover; box-shadow: 0 4px 12px rgba($color-primary,0.35); }
 
 .txn-summary-bar {
   display: flex; gap: 28px;
-  background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
-  border: 1px solid rgba(235,238,242,0.7); border-radius: 12px;
+  background: rgba($color-bg-white, 0.85); backdrop-filter: blur(8px);
+  border: 1px solid rgba($color-border-light,0.7); border-radius: $radius-xl;
   padding: 14px 24px; flex-shrink: 0;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  box-shadow: $shadow-sm;
 }
 .txn-summary-item { display: flex; flex-direction: column; gap: 3px; }
-.txn-summary-label { font-size: 0.6875rem; color: #9CA3AF; font-weight: 500; }
-.txn-summary-value { font-size: 1rem; font-weight: 700; color: #1A1A2E; }
-.txn-summary-value.income { color: #10B981; }
+.txn-summary-label { font-size: $font-xs; color: $color-text-muted; font-weight: $font-medium; }
+.txn-summary-value { font-size: $font-xl; font-weight: $font-bold; color: $color-text-primary; }
+.txn-summary-value.income { color: $color-success; }
 
 .txn-filter-bar {
-  background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
-  border: 1px solid rgba(235,238,242,0.7); border-radius: 12px;
+  background: rgba($color-bg-white, 0.85); backdrop-filter: blur(8px);
+  border: 1px solid rgba($color-border-light,0.7); border-radius: $radius-xl;
   padding: 10px 16px; flex-shrink: 0;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  box-shadow: $shadow-sm;
 }
 .txn-filter-top-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
 .txn-filter-top-row:last-child { margin-bottom: 0; }
@@ -254,26 +254,26 @@ defineExpose({
 .txn-date-input { width: 140px; }
 
 .txn-type-toggle {
-  display: inline-flex; border: 1px solid rgba(235,238,242,0.7);
-  border-radius: 6px; overflow: hidden; background: transparent;
+  display: inline-flex; border: 1px solid rgba($color-border-light,0.7);
+  border-radius: $radius-md; overflow: hidden; background: transparent;
 }
 .txn-type-btn {
-  padding: 4px 12px; font-size: 0.75rem; font-weight: 500; border: none;
-  background: transparent; color: #6B7280; cursor: pointer;
-  font-family: inherit; transition: all 0.15s;
+  padding: 4px 12px; font-size: $font-sm; font-weight: $font-medium; border: none;
+  background: transparent; color: $color-text-secondary; cursor: pointer;
+  font-family: inherit; transition: $transition-base;
 }
-.txn-type-btn.active { background: #FF8C00; color: #fff; }
+.txn-type-btn.active { background: $color-primary; color: #fff; }
 
 .txn-search-box {
   display: flex; align-items: center; gap: 8px;
-  padding: 5px 12px; border: 1px solid rgba(235,238,242,0.7);
-  border-radius: 6px; width: 180px; margin-left: auto;
+  padding: 5px 12px; border: 1px solid rgba($color-border-light,0.7);
+  border-radius: $radius-md; width: 180px; margin-left: auto;
 }
 .txn-search-box input {
   border: none; outline: none; background: transparent;
-  font-size: 0.8125rem; color: #1A1A2E; font-family: inherit; flex: 1; min-width: 0;
+  font-size: $font-base; color: $color-text-primary; font-family: inherit; flex: 1; min-width: 0;
 }
-.txn-search-box input::placeholder { color: #9CA3AF; }
+.txn-search-box input::placeholder { color: $color-text-muted; }
 
 .txn-filter-cat-row {
   display: flex; gap: 6px; overflow-x: auto;
@@ -282,13 +282,13 @@ defineExpose({
 .txn-filter-cat-row::-webkit-scrollbar { height: 0; }
 
 .txn-pill {
-  padding: 4px 12px; border-radius: 999px; font-size: 0.75rem; font-weight: 500;
-  border: 1px solid rgba(235,238,242,0.7); background: transparent; color: #9CA3AF;
-  cursor: pointer; transition: all 0.15s; display: inline-flex;
+  padding: 4px 12px; border-radius: $radius-full; font-size: $font-sm; font-weight: $font-medium;
+  border: 1px solid rgba($color-border-light,0.7); background: transparent; color: $color-text-muted;
+  cursor: pointer; transition: $transition-base; display: inline-flex;
   align-items: center; gap: 5px; flex-shrink: 0; white-space: nowrap;
 }
-.txn-pill:hover { border-color: #FFAD42; color: #FF8C00; }
-.txn-pill.active { border-color: #FF8C00; background: #FFF5E6; color: #FF8C00; }
+.txn-pill:hover { border-color: $color-primary-border; color: $color-primary; }
+.txn-pill.active { border-color: $color-primary; background: $color-primary-light; color: $color-primary; }
 .txn-pill-dot { width: 6px; height: 6px; border-radius: 50%; }
 
 </style>

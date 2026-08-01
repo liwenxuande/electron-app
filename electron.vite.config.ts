@@ -18,6 +18,14 @@ export default defineConfig({
       alias: {
         '@': resolve(__dirname, 'src/renderer/src')
       }
+    },
+    css: {
+      preprocessorOptions: {
+        scss: {
+          additionalData: `@use "@/styles/variables.scss" as *;`,
+          api: 'modern-compiler'
+        }
+      }
     }
   }
 })
