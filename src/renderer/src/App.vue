@@ -60,11 +60,19 @@ import { useAI } from './composables/useAI'
 import TitleBar from './components/TitleBar.vue'
 import AISettingsDialog from './components/AISettingsDialog.vue'
 
-const DashboardView = defineAsyncComponent(() => import('./views/DashboardView/index.vue'))
-const TransactionList = defineAsyncComponent(() => import('./views/TransactionList/index.vue'))
-const StatisticsView = defineAsyncComponent(() => import('./views/StatisticsView/index.vue'))
-const LedgerManager = defineAsyncComponent(() => import('./views/LedgerManager/index.vue'))
-const AIView = defineAsyncComponent(() => import('./views/AIView/index.vue'))
+const viewLoaders = {
+  DashboardView: () => import('./views/DashboardView/index.vue'),
+  TransactionList: () => import('./views/TransactionList/index.vue'),
+  StatisticsView: () => import('./views/StatisticsView/index.vue'),
+  LedgerManager: () => import('./views/LedgerManager/index.vue'),
+  AIView: () => import('./views/AIView/index.vue')
+}
+
+const DashboardView = defineAsyncComponent(viewLoaders.DashboardView)
+const TransactionList = defineAsyncComponent(viewLoaders.TransactionList)
+const StatisticsView = defineAsyncComponent(viewLoaders.StatisticsView)
+const LedgerManager = defineAsyncComponent(viewLoaders.LedgerManager)
+const AIView = defineAsyncComponent(viewLoaders.AIView)
 
 const activeNav = ref('dashboard')
 const transactionListRef = ref<InstanceType<typeof TransactionList> | null>(null)
@@ -116,6 +124,14 @@ function onImportCsv() {
 
 onMounted(() => {
   ledgerStore.fetchList()
+  // 首屏（仪表盘）就绪后，后台预加载其余页面组件，避免用户切换页面时出现加载空隙
+  const idle = window.requestIdleCallback ?? ((cb: IdleRequestCallback) => setTimeout(cb, 200) as unknown as number)
+  idle(() => {
+    viewLoaders.TransactionList()
+    viewLoaders.StatisticsView()
+    viewLoaders.LedgerManager()
+    viewLoaders.AIView()
+  })
   window.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.ctrlKey && e.shiftKey && e.key === 'I') {
       window.electronAPI.toggleDevTools()
