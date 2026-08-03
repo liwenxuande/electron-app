@@ -181,10 +181,7 @@ app.whenReady().then(() => {
   registerTransactionController()
   registerAIController()
 
-  // ⑤ 启动 MCP HTTP 服务（外部 AI 通过 mcp-agent.cjs → localhost:19527 访问）
-  startMCPServer()
-
-  // ⑥ 注册系统通知 IPC（测试用）
+  // ⑤ 注册系统通知 IPC（测试用）
   ipcMain.handle('notification:show', (_event, title: string, body: string) => {
     try {
       const notif = new Notification({ title, body })
@@ -198,8 +195,11 @@ app.whenReady().then(() => {
     }
   })
 
-  // ⑦ 创建渲染窗口（后台加载）
+  // ⑥ 创建渲染窗口（后台加载）
   createWindow()
+
+  // ⑦ 启动 MCP HTTP 服务（外部 AI 通过 mcp-agent.cjs → localhost:19527 访问）
+  startMCPServer()
 
   // macOS：点击 dock 图标重新创建窗口
   app.on('activate', () => {
