@@ -233,6 +233,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import dayjs from 'dayjs'
+import VChart from '@/utils/echarts'
 import { useLedgerStore } from '@/stores/ledgerStore'
 import BookSwitcher from '@/components/BookSwitcher.vue'
 import QuarterPicker from '@/components/QuarterPicker.vue'

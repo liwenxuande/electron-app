@@ -1,19 +1,10 @@
 import { createApp } from 'vue'
-import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import ElementPlusX from 'vue-element-plus-x'
 import { createPinia } from 'pinia'
-import ECharts from 'vue-echarts'
-import { use } from 'echarts/core'
-import { CanvasRenderer } from 'echarts/renderers'
-import { LineChart, PieChart } from 'echarts/charts'
-import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components'
 import App from './App.vue'
-
-use([CanvasRenderer, LineChart, PieChart, GridComponent, TooltipComponent, LegendComponent])
 
 console.time('[启动耗时] 渲染进程 bootstrap')
 const app = createApp(App)
-app.component('v-chart', ECharts)
 app.use(ElementPlusX)
 app.use(createPinia())
 app.mount('#app')
