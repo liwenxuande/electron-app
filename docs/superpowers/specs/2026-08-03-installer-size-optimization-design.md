@@ -13,6 +13,7 @@ NSIS 安装包 134MB、安装过程卡顿。根因是**重复打包**：渲染�
 - 不改变任何业务功能与交互行为
 - 主进程运行期真实 require 的依赖（`better-sqlite3`、`p-queue`、`winston`、`dayjs`）必须保留在 `dependencies`
 - `externalizeDepsPlugin` 只作用于 main/preload，渲染进程打包不受依赖位次影响，无需改动构建配置
+- **`dependencies`/`devDependencies` 分区只影响 electron-builder 往 asar 打包哪些 node_modules，不影响 vite 打包**：vite 构建只看 `import` 语句（devDependencies 在开发环境同样被安装、可正常解析），渲染进程运行时加载的是 `out/renderer` 产物而非安装目录的 node_modules。项目中 `element-plus`、`echarts`、`vue`、`pinia` 已在 devDependencies，渲染进程运行正常，即为既有证明
 - 优化前后需量化对比验证（安装包体积、asar 体积、asar 文件数）
 
 ## 第 1 节：依赖归位
