@@ -38,7 +38,7 @@
             <TransactionList ref="transactionListRef" v-if="activeNav === 'transactions'" />
             <StatisticsView v-if="activeNav === 'statistics'" />
             <LedgerManager v-if="activeNav === 'ledger'" />
-            <AIView v-show="activeNav === 'ai'" />
+            <AIView v-if="activeNav === 'ai'" />
           </div>
         </div>
       </div>
@@ -53,17 +53,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, defineAsyncComponent } from 'vue'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import { useLedgerStore } from './stores/ledgerStore'
 import { useAI } from './composables/useAI'
 import TitleBar from './components/TitleBar.vue'
-import DashboardView from './views/DashboardView/index.vue'
-import TransactionList from './views/TransactionList/index.vue'
-import StatisticsView from './views/StatisticsView/index.vue'
-import LedgerManager from './views/LedgerManager/index.vue'
 import AISettingsDialog from './components/AISettingsDialog.vue'
-import AIView from './views/AIView/index.vue'
+
+const DashboardView = defineAsyncComponent(() => import('./views/DashboardView/index.vue'))
+const TransactionList = defineAsyncComponent(() => import('./views/TransactionList/index.vue'))
+const StatisticsView = defineAsyncComponent(() => import('./views/StatisticsView/index.vue'))
+const LedgerManager = defineAsyncComponent(() => import('./views/LedgerManager/index.vue'))
+const AIView = defineAsyncComponent(() => import('./views/AIView/index.vue'))
 
 const activeNav = ref('dashboard')
 const transactionListRef = ref<InstanceType<typeof TransactionList> | null>(null)
