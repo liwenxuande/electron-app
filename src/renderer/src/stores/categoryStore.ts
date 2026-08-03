@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { ElMessage } from 'element-plus'
 
 export const useCategoryStore = defineStore('category', () => {
   const list = ref<CategoryRow[]>([])

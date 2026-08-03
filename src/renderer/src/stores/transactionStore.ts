@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
-import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
 
 export const useTransactionStore = defineStore('transaction', () => {

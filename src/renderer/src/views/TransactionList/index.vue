@@ -97,7 +97,6 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
-import { ElMessageBox } from 'element-plus'
 import { useTransactionStore } from '@/stores/transactionStore'
 import { useCategoryStore } from '@/stores/categoryStore'
 import { useLedgerStore } from '@/stores/ledgerStore'

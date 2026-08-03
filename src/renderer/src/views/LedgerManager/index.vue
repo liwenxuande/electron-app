@@ -80,7 +80,6 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
 import { useLedgerStore } from '@/stores/ledgerStore'
 import BookSwitcher from '@/components/BookSwitcher.vue'
 import { useBookStats } from './composables/useBookStats'
