@@ -1,57 +1,60 @@
 <template>
-  <div id="app-root">
-    <div class="app-body">
-      <aside class="app-sidebar">
-        <div class="sidebar-logo">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-          </svg>
-        </div>
-
-        <nav class="sidebar-nav">
-          <div
-            v-for="nav in navItems"
-            :key="nav.key"
-            class="sidebar-nav-item"
-            :class="{ active: activeNav === nav.key }"
-            :title="nav.label"
-            @click="activeNav = nav.key"
-          >
-            <span class="sidebar-nav-icon" v-html="nav.icon"></span>
-          </div>
-        </nav>
-
-        <div class="sidebar-bottom">
-          <div class="sidebar-nav-item" title="设置" @click="openSettings()">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+  <el-config-provider :locale="zhCn">
+    <div id="app-root">
+      <div class="app-body">
+        <aside class="app-sidebar">
+          <div class="sidebar-logo">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
             </svg>
           </div>
-        </div>
-      </aside>
 
-      <div class="app-main">
-        <TitleBar />
-        <div class="app-content">
-          <DashboardView v-if="activeNav === 'dashboard'" @add-record="onAddRecord" @import-csv="onImportCsv" @go-transactions="activeNav = 'transactions'" @go-to="activeNav = $event" />
-          <TransactionList ref="transactionListRef" v-if="activeNav === 'transactions'" />
-          <StatisticsView v-if="activeNav === 'statistics'" />
-          <LedgerManager v-if="activeNav === 'ledger'" />
-          <AIView v-show="activeNav === 'ai'" />
+          <nav class="sidebar-nav">
+            <div
+              v-for="nav in navItems"
+              :key="nav.key"
+              class="sidebar-nav-item"
+              :class="{ active: activeNav === nav.key }"
+              :title="nav.label"
+              @click="activeNav = nav.key"
+            >
+              <span class="sidebar-nav-icon" v-html="nav.icon"></span>
+            </div>
+          </nav>
+
+          <div class="sidebar-bottom">
+            <div class="sidebar-nav-item" title="设置" @click="openSettings()">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+              </svg>
+            </div>
+          </div>
+        </aside>
+
+        <div class="app-main">
+          <TitleBar />
+          <div class="app-content">
+            <DashboardView v-if="activeNav === 'dashboard'" @add-record="onAddRecord" @import-csv="onImportCsv" @go-transactions="activeNav = 'transactions'" @go-to="activeNav = $event" />
+            <TransactionList ref="transactionListRef" v-if="activeNav === 'transactions'" />
+            <StatisticsView v-if="activeNav === 'statistics'" />
+            <LedgerManager v-if="activeNav === 'ledger'" />
+            <AIView v-show="activeNav === 'ai'" />
+          </div>
         </div>
       </div>
-    </div>
 
-    <AISettingsDialog
-      v-model:visible="settingsVisible"
-      :config="aiConfig"
-      @save="saveAIConfig"
-    />
-  </div>
+      <AISettingsDialog
+        v-model:visible="settingsVisible"
+        :config="aiConfig"
+        @save="saveAIConfig"
+      />
+    </div>
+  </el-config-provider>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import { useLedgerStore } from './stores/ledgerStore'
 import { useAI } from './composables/useAI'
 import TitleBar from './components/TitleBar.vue'
