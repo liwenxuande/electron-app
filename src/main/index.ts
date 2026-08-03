@@ -39,6 +39,7 @@ process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
 
 let mainWindow: BrowserWindow | null = null
 let splashWindow: BrowserWindow | null = null
+let bootStart = 0
 
 /** 创建启动动画窗口 */
 function createSplashWindow(): void {
@@ -136,6 +137,7 @@ function createWindow(): void {
       splashWindow = null
     }
     mainWindow?.show()
+    logger.info(`[启动耗时] 主窗口就绪: ${Date.now() - bootStart}ms`)
     // 开发模式自动打开 DevTools
     if (!app.isPackaged) {
       mainWindow?.webContents.openDevTools()
@@ -148,6 +150,7 @@ function createWindow(): void {
 // ========== 应用生命周期 ==========
 
 app.whenReady().then(() => {
+  bootStart = Date.now()
   // ① 第一时间显示启动动画（避免白屏，必须在所有耗时操作之前）
   createSplashWindow()
 

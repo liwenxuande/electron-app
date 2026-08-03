@@ -13,12 +13,14 @@ import App from './App.vue'
 
 use([CanvasRenderer, LineChart, PieChart, GridComponent, TooltipComponent, LegendComponent])
 
+console.time('[启动耗时] 渲染进程 bootstrap')
 const app = createApp(App)
 app.component('v-chart', ECharts)
 app.use(ElementPlus, { locale: zhCn })
 app.use(ElementPlusX)
 app.use(createPinia())
 app.mount('#app')
+console.timeEnd('[启动耗时] 渲染进程 bootstrap')
 
 const style = document.createElement('style')
 style.textContent = `
