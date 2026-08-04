@@ -10,7 +10,7 @@
     "preview": "electron-vite preview",
     "postinstall": "electron-builder install-app-deps",
     "postinstall2": "node node_modules/electron/install.js",
-    "package:win": "electron-vite build && electron-builder --win",
+    "package:win": "electron-vite build && electron-builder --win --publish never",
     "package:mac": "electron-vite build && electron-builder --mac",
     "logs:ai": "node scripts/view-ai-log.js"
   },
