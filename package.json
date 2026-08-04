@@ -15,16 +15,13 @@
     "logs:ai": "node scripts/view-ai-log.js"
   },
   "dependencies": {
-    "@element-plus/icons-vue": "^2.3.2",
     "better-sqlite3": "^12.11.1",
     "dayjs": "^1.11.13",
-    "mermaid": "^11.16.0",
     "p-queue": "^8.1.0",
-    "vue-element-plus-x": "^2.0.3",
-    "winston": "^3.17.0",
-    "x-markdown-vue": "^0.0.201"
+    "winston": "^3.17.0"
   },
   "devDependencies": {
+    "@element-plus/icons-vue": "^2.3.2",
     "@types/better-sqlite3": "^7.6.12",
     "@vitejs/plugin-vue": "^5.2.3",
     "echarts": "^6.1.0",
@@ -32,12 +29,15 @@
     "electron-builder": "^26.15.3",
     "electron-vite": "^6.0.0-beta.1",
     "element-plus": "^2.9.7",
+    "mermaid": "^11.16.0",
     "pinia": "^2.3.1",
     "sass": "^1.102.0",
     "typescript": "^5.7.3",
     "unplugin-auto-import": "^21.1.0",
     "unplugin-vue-components": "^32.1.0",
     "vue": "^3.5.13",
-    "vue-echarts": "^8.0.1"
+    "vue-echarts": "^8.0.1",
+    "vue-element-plus-x": "^2.0.3",
+    "x-markdown-vue": "^0.0.201"
   }
 }

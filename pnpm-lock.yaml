@@ -8,31 +8,22 @@ importers:
 
   .:
     dependencies:
-      '@element-plus/icons-vue':
-        specifier: ^2.3.2
-        version: 2.3.2(vue@3.5.39(typescript@5.9.3))
       better-sqlite3:
         specifier: ^12.11.1
         version: 12.11.1
       dayjs:
         specifier: ^1.11.13
         version: 1.11.21
-      mermaid:
-        specifier: ^11.16.0
-        version: 11.16.0
       p-queue:
         specifier: ^8.1.0
         version: 8.1.1
-      vue-element-plus-x:
-        specifier: ^2.0.3
-        version: 2.0.3(element-plus@2.14.2(vue@3.5.39(typescript@5.9.3)))(rollup@4.62.2)(vue@3.5.39(typescript@5.9.3))
       winston:
         specifier: ^3.17.0
         version: 3.19.0
-      x-markdown-vue:
-        specifier: ^0.0.201
-        version: 0.0.201(mermaid@11.16.0)(vue@3.5.39(typescript@5.9.3))
     devDependencies:
+      '@element-plus/icons-vue':
+        specifier: ^2.3.2
+        version: 2.3.2(vue@3.5.39(typescript@5.9.3))
       '@types/better-sqlite3':
         specifier: ^7.6.12
         version: 7.6.13
@@ -54,6 +45,9 @@ importers:
       element-plus:
         specifier: ^2.9.7
         version: 2.14.2(vue@3.5.39(typescript@5.9.3))
+      mermaid:
+        specifier: ^11.16.0
+        version: 11.16.0
       pinia:
         specifier: ^2.3.1
         version: 2.3.1(typescript@5.9.3)(vue@3.5.39(typescript@5.9.3))
@@ -75,6 +69,12 @@ importers:
       vue-echarts:
         specifier: ^8.0.1
         version: 8.0.1(echarts@6.1.0)(vue@3.5.39(typescript@5.9.3))
+      vue-element-plus-x:
+        specifier: ^2.0.3
+        version: 2.0.3(element-plus@2.14.2(vue@3.5.39(typescript@5.9.3)))(rollup@4.62.2)(vue@3.5.39(typescript@5.9.3))
+      x-markdown-vue:
+        specifier: ^0.0.201
+        version: 0.0.201(mermaid@11.16.0)(vue@3.5.39(typescript@5.9.3))
 
 packages:
 
