@@ -19,6 +19,8 @@ win:
       arch:
         - x64
   icon: build/icon.ico
+  electronLanguages:
+    - zh-CN
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
