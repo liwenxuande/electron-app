@@ -1,0 +1,275 @@
+.settings-page {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 32px 24px;
+  overflow: hidden;
+}
+
+.settings-header {
+  flex-shrink: 0;
+  margin-bottom: 20px;
+}
+
+.settings-title {
+  font-size: $font-4xl;
+  font-weight: $font-bold;
+  color: $color-text-primary;
+  line-height: 1.2;
+}
+
+.settings-subtitle {
+  margin-top: 6px;
+  font-size: $font-base;
+  color: $color-text-muted;
+}
+
+.settings-body {
+  flex: 1;
+  display: flex;
+  gap: 20px;
+  min-height: 0;
+}
+
+.settings-nav {
+  width: 168px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px;
+  border-radius: $radius-xl;
+  @include glass-surface;
+  box-shadow: $shadow-sm;
+  align-self: flex-start;
+}
+
+.settings-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: none;
+  border-radius: $radius-lg;
+  background: transparent;
+  color: $color-text-secondary;
+  font-family: inherit;
+  font-size: $font-base;
+  text-align: left;
+  cursor: pointer;
+  transition: $transition-base;
+}
+
+.settings-nav-item:hover {
+  background: $color-bg-hover;
+  color: $color-text-primary;
+}
+
+.settings-nav-item.active {
+  background: $color-primary-light;
+  color: $color-primary;
+  font-weight: $font-semibold;
+}
+
+.settings-nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-content {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.settings-panel {
+  max-width: 720px;
+}
+
+.settings-panel-head {
+  margin-bottom: 16px;
+}
+
+.settings-panel-head h2 {
+  font-size: $font-2xl;
+  font-weight: $font-semibold;
+  color: $color-text-primary;
+}
+
+.settings-panel-head p {
+  margin-top: 4px;
+  font-size: $font-sm;
+  color: $color-text-muted;
+}
+
+.settings-card {
+  margin-bottom: 16px;
+  padding: 18px 20px;
+  border-radius: $radius-xl;
+  @include glass-surface;
+  box-shadow: $shadow-sm;
+}
+
+.settings-card-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: $font-xl;
+  font-weight: $font-semibold;
+  color: $color-text-heading;
+}
+
+.settings-tag {
+  padding: 2px 8px;
+  border-radius: $radius-full;
+  background: $color-primary-light;
+  color: $color-primary;
+  font-size: $font-xs;
+  font-weight: $font-medium;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.settings-row .el-input {
+  flex: 1;
+}
+
+.settings-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.settings-label {
+  font-size: $font-base;
+  color: $color-text-secondary;
+}
+
+.settings-hint {
+  margin-top: 8px;
+  font-size: $font-sm;
+  color: $color-text-muted;
+  line-height: 1.5;
+}
+
+.settings-mono :deep(.el-input__inner) {
+  font-family: 'Consolas', 'Monaco', monospace;
+}
+
+.settings-model-select {
+  flex: 1;
+}
+
+.settings-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.settings-test {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.settings-ok {
+  font-size: $font-base;
+  font-weight: $font-medium;
+  color: $color-success;
+}
+
+.settings-fail {
+  font-size: $font-base;
+  font-weight: $font-medium;
+  color: $color-danger;
+}
+
+.mcp-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: $font-md;
+  color: $color-text-primary;
+}
+
+.mcp-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: $radius-full;
+  flex-shrink: 0;
+}
+
+.mcp-dot.on { background: $color-success; box-shadow: 0 0 0 3px rgba($color-success, 0.15); }
+.mcp-dot.off { background: $color-text-muted; }
+.mcp-dot.error { background: $color-danger; box-shadow: 0 0 0 3px rgba($color-danger, 0.15); }
+
+.mcp-address {
+  margin-left: 4px;
+  padding: 2px 8px;
+  border-radius: $radius-md;
+  background: $color-bg-card;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: $font-sm;
+  color: $color-text-secondary;
+}
+
+.mcp-config {
+  max-height: 220px;
+  overflow: auto;
+  padding: 12px 14px;
+  border-radius: $radius-lg;
+  background: $color-bg-card;
+  border: 1px solid $color-border-light;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: $font-sm;
+  line-height: 1.6;
+  color: $color-text-secondary;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.settings-empty {
+  padding: 40px 0;
+  text-align: center;
+  font-size: $font-base;
+  color: $color-text-muted;
+}
+
+.settings-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settings-info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.settings-info-label {
+  width: 92px;
+  flex-shrink: 0;
+  font-size: $font-base;
+  color: $color-text-muted;
+}
+
+.settings-info-value {
+  flex: 1;
+  min-width: 0;
+  font-size: $font-base;
+  color: $color-text-primary;
+  word-break: break-all;
+}
