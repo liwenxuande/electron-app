@@ -1,4 +1,4 @@
-import { reactive, ref } from 'vue'
+import { reactive, ref, watch } from 'vue'
 
 const DEFAULT_MODELS = ['deepseek-v4-flash', 'deepseek-v4-pro']
 
@@ -35,6 +35,8 @@ export function useSettings() {
   function clearTestResult() {
     testResult.value = null
   }
+
+  watch(() => aiForm.apiKey, clearTestResult)
 
   async function saveAIConfig() {
     const apiKey = aiForm.apiKey.trim()

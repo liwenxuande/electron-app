@@ -162,7 +162,7 @@
   line-height: 1.5;
 }
 
-.settings-mono :deep(.el-input__inner) {
+.settings-mono .el-input__inner {
   font-family: 'Consolas', 'Monaco', monospace;
 }
 
