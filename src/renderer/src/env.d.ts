@@ -32,6 +32,7 @@ declare global {
     transactionAPI: TransactionAPI
     ledgerAPI: LedgerAPI
     aiAPI: AIAPI
+    settingsAPI: SettingsAPI
   }
 }
 
@@ -149,12 +150,7 @@ interface AISessionSummary {
   recordCount: number
 }
 
-type AIModel = 'deepseek-v4-flash' | 'deepseek-v4-pro'
-
 interface AIAPI {
-  saveConfig(config: { key: string; model: AIModel }): Promise<ApiResponse<null>>
-  getConfig(): Promise<ApiResponse<{ hasKey: boolean; model: AIModel; apiKey: string | '(已保存)' }>>
-  testConnection(params?: { key?: string; model?: string }): Promise<ApiResponse<null>>
   chat(params: { messages: Array<{ role: string; content: string | null }>; ledgerId: number; sessionId?: string }): Promise<ApiResponse<{ sessionId: string }>>
   cancelChat(sessionId: string): Promise<ApiResponse<null>>
   reportMonthly(params: { yearMonth: string; ledgerId: number }): Promise<ApiResponse<null>>
@@ -173,6 +169,44 @@ interface AIAPI {
   onReportDone(cb: (result: string) => void): void
   onReportError(cb: (err: string) => void): void
   removeAllListeners(): void
+}
+
+interface AIConfigData {
+  apiKey: string
+  model: string
+}
+
+interface MCPConfigData {
+  enabled: boolean
+  port: number
+  running: boolean
+  error: string | null
+  clientConfig: string
+}
+
+interface MCPStatusData {
+  running: boolean
+  port: number | null
+  error: string | null
+}
+
+interface AppInfoData {
+  version: string
+  dataDir: string
+  dbPath: string
+  configPath: string
+}
+
+interface SettingsAPI {
+  getAIConfig(): Promise<ApiResponse<AIConfigData>>
+  saveAIConfig(config: { apiKey: string; model: string }): Promise<ApiResponse<null>>
+  testAIConnection(params?: { apiKey?: string; model?: string }): Promise<ApiResponse<null>>
+  listModels(params?: { apiKey?: string }): Promise<ApiResponse<string[]>>
+  getMCPConfig(): Promise<ApiResponse<MCPConfigData>>
+  saveMCPConfig(config: { enabled: boolean; port: number }): Promise<ApiResponse<MCPStatusData | null>>
+  getAppInfo(): Promise<ApiResponse<AppInfoData>>
+  openPath(path: string): Promise<ApiResponse<null>>
+  copyText(text: string): Promise<ApiResponse<null>>
 }
 
 export {}

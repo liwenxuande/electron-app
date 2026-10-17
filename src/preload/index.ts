@@ -125,13 +125,6 @@ contextBridge.exposeInMainWorld('ledgerAPI', {
 })
 
 contextBridge.exposeInMainWorld('aiAPI', {
-  saveConfig: (config: { key: string; model: string }) =>
-    ipcRenderer.invoke('ai:config:save', config),
-  getConfig: () =>
-    ipcRenderer.invoke('ai:config:get'),
-  testConnection: (params?: { key?: string; model?: string }) =>
-    ipcRenderer.invoke('ai:config:test', params ?? {}),
-
   chat: (params: { messages: Array<{ role: string; content: string | null }>; ledgerId: number; sessionId?: string }) =>
     ipcRenderer.invoke('ai:chat', params),
   cancelChat: (sessionId: string) =>
@@ -179,4 +172,27 @@ contextBridge.exposeInMainWorld('aiAPI', {
     ipcRenderer.removeAllListeners('ai:report:error')
     ipcRenderer.removeAllListeners('ai:chat:tool-status')
   },
+})
+
+contextBridge.exposeInMainWorld('settingsAPI', {
+  getAIConfig: () =>
+    ipcRenderer.invoke('settings:ai:get'),
+  saveAIConfig: (config: { apiKey: string; model: string }) =>
+    ipcRenderer.invoke('settings:ai:save', config),
+  testAIConnection: (params?: { apiKey?: string; model?: string }) =>
+    ipcRenderer.invoke('settings:ai:test', params ?? {}),
+  listModels: (params?: { apiKey?: string }) =>
+    ipcRenderer.invoke('settings:ai:models', params ?? {}),
+
+  getMCPConfig: () =>
+    ipcRenderer.invoke('settings:mcp:get'),
+  saveMCPConfig: (config: { enabled: boolean; port: number }) =>
+    ipcRenderer.invoke('settings:mcp:save', config),
+
+  getAppInfo: () =>
+    ipcRenderer.invoke('settings:app:info'),
+  openPath: (path: string) =>
+    ipcRenderer.invoke('settings:app:open-path', { path }),
+  copyText: (text: string) =>
+    ipcRenderer.invoke('settings:app:copy', { text }),
 })
