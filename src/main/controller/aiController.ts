@@ -1,5 +1,4 @@
 import { ipcMain, BrowserWindow } from 'electron'
-import { aiConfigService } from '../service/ai/aiConfigService'
 import { AIAnalysisService } from '../service/ai/aiAnalysisService'
 import {
   createSession,
@@ -18,36 +17,6 @@ import type { ChatMessage } from '../service/ai/deepseekClient'
 
 export function registerAIController(): void {
   const abortControllers = new Map<string, AbortController>()
-
-  ipcMain.handle('ai:config:save', async (_event, { key, model }: { key: string; model: string }) => {
-    try {
-      // 只有传入真实 Key 时才保存，避免 "(已保存)" 等占位符覆盖真实 Key
-      if (key && key !== '(已保存)') {
-        aiConfigService.saveApiKey(key)
-      }
-      aiConfigService.saveModel(model)
-      return { code: 0, data: null, msg: '保存成功' }
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e)
-      return { code: -1, data: null, msg }
-    }
-  })
-
-  ipcMain.handle('ai:config:get', async () => ({
-    code: 0,
-    data: { hasKey: aiConfigService.hasKey(), model: aiConfigService.getModel(), apiKey: aiConfigService.hasKey() ? '(已保存)' : '' },
-    msg: 'ok',
-  }))
-
-  ipcMain.handle('ai:config:test', async (_event, params?: { key?: string; model?: string }) => {
-    try {
-      const ok = await aiConfigService.testConnection(params?.key, params?.model)
-      return { code: ok ? 0 : -1, data: null, msg: ok ? '连接成功' : '连接失败，请检查 API Key' }
-    } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e)
-      return { code: -1, data: null, msg }
-    }
-  })
 
   ipcMain.handle('ai:chat:cancel', async (_event, sessionId: string) => {
     const controller = abortControllers.get(sessionId)

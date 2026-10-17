@@ -5,6 +5,7 @@ import { registerTransactionController } from './controller/transactionControlle
 import { registerCategoryController } from './controller/categoryController'
 import { registerLedgerController } from './controller/ledgerController'
 import { registerAIController } from './controller/aiController'
+import { registerSettingsController } from './controller/settingsController'
 import { startMCPServer, stopMCPServer } from './mcp/mcp-server'
 import DbManager from './db/database'
 import { logger, initFileTransport } from './utils/logger'
@@ -186,6 +187,7 @@ app.whenReady().then(() => {
   registerLedgerController()
   registerTransactionController()
   registerAIController()
+  registerSettingsController()
 
   // ⑤ 注册系统通知 IPC（测试用）
   ipcMain.handle('notification:show', (_event, title: string, body: string) => {
