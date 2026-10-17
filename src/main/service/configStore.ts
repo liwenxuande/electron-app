@@ -15,26 +15,22 @@ const defaults: AppConfig = {
 }
 
 const schema = {
-  type: 'object',
-  properties: {
-    ai: {
-      type: 'object',
-      properties: {
-        apiKey: { type: 'string' },
-        model: { type: 'string', minLength: 1 },
-      },
-      required: ['apiKey', 'model'],
+  ai: {
+    type: 'object',
+    properties: {
+      apiKey: { type: 'string' },
+      model: { type: 'string', minLength: 1 },
     },
-    mcp: {
-      type: 'object',
-      properties: {
-        enabled: { type: 'boolean' },
-        port: { type: 'integer', minimum: 1024, maximum: 65535 },
-      },
-      required: ['enabled', 'port'],
-    },
+    required: ['apiKey', 'model'],
   },
-  required: ['ai', 'mcp'],
+  mcp: {
+    type: 'object',
+    properties: {
+      enabled: { type: 'boolean' },
+      port: { type: 'integer', minimum: 1024, maximum: 65535 },
+    },
+    required: ['enabled', 'port'],
+  },
 }
 
 let store: Store<AppConfig> | null = null
