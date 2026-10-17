@@ -34,6 +34,32 @@ declare global {
     aiAPI: AIAPI
     settingsAPI: SettingsAPI
   }
+
+  interface AIConfigData {
+    apiKey: string
+    model: string
+  }
+
+  interface MCPConfigData {
+    enabled: boolean
+    port: number
+    running: boolean
+    error: string | null
+    clientConfig: string
+  }
+
+  interface MCPStatusData {
+    running: boolean
+    port: number | null
+    error: string | null
+  }
+
+  interface AppInfoData {
+    version: string
+    dataDir: string
+    dbPath: string
+    configPath: string
+  }
 }
 
 interface LedgerAPI {
@@ -169,32 +195,6 @@ interface AIAPI {
   onReportDone(cb: (result: string) => void): void
   onReportError(cb: (err: string) => void): void
   removeAllListeners(): void
-}
-
-interface AIConfigData {
-  apiKey: string
-  model: string
-}
-
-interface MCPConfigData {
-  enabled: boolean
-  port: number
-  running: boolean
-  error: string | null
-  clientConfig: string
-}
-
-interface MCPStatusData {
-  running: boolean
-  port: number | null
-  error: string | null
-}
-
-interface AppInfoData {
-  version: string
-  dataDir: string
-  dbPath: string
-  configPath: string
 }
 
 interface SettingsAPI {

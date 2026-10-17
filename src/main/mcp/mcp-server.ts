@@ -144,6 +144,7 @@ export async function stopMCPServer(): Promise<void> {
   const server = httpServer
   httpServer = null
   currentPort = null
+  lastError = null
   if (!server) return
   await closeServer(server)
   logger.info('MCP HTTP 服务已关闭')

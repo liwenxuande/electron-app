@@ -66,7 +66,11 @@ export function migrateLegacyAIConfig(): void {
     }
 
     let plainKey: string
-    if (raw.encrypted !== false && safeStorage.isEncryptionAvailable()) {
+    if (raw.encrypted !== false) {
+      if (!safeStorage.isEncryptionAvailable()) {
+        logger.warn('safeStorage 不可用，跳过迁移并保留旧配置')
+        return
+      }
       plainKey = safeStorage.decryptString(Buffer.from(raw.encryptedKey, 'base64'))
     } else {
       plainKey = Buffer.from(raw.encryptedKey, 'base64').toString()

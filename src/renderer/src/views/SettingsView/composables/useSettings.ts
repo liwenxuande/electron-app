@@ -165,6 +165,11 @@ export function useSettings() {
         ElMessage.success(res.msg || '配置已保存')
         await loadMCPConfig()
       } else {
+        if (res.data) {
+          mcpStatus.running = res.data.running
+          mcpStatus.port = res.data.port
+          mcpStatus.error = res.data.error
+        }
         ElMessage.error(res.msg)
       }
     } catch (e: unknown) {
