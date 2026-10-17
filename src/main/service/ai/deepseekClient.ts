@@ -89,6 +89,50 @@ function postJSON(
   })
 }
 
+function getJSON(
+  path: string,
+  apiKey: string,
+  signal?: AbortSignal,
+): Promise<unknown> {
+  return new Promise((resolve, reject) => {
+    if (signal?.aborted) { reject(new Error('请求已取消')); return }
+    const req = https.request({
+      hostname: BASE_URL,
+      path,
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      timeout: TIMEOUT_MS,
+    }, (res) => {
+      let data = ''
+      res.on('data', (chunk: Buffer) => { data += chunk.toString() })
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(data)
+          if (res.statusCode && res.statusCode >= 400) {
+            const err = json as { error?: { message?: string } }
+            reject(new Error(err.error?.message || `HTTP ${res.statusCode}`))
+          } else {
+            resolve(json)
+          }
+        } catch {
+          reject(new Error(`解析响应失败: ${data.slice(0, 200)}`))
+        }
+      })
+    })
+    signal?.addEventListener('abort', () => {
+      req.removeAllListeners('error')
+      req.destroy()
+      reject(new Error('ABORTED'))
+    }, { once: true })
+    req.on('error', reject)
+    req.on('timeout', () => { req.destroy(); reject(new Error('请求超时')) })
+    req.end()
+  })
+}
+
 export function postStream(
   path: string,
   body: Record<string, unknown>,
@@ -168,6 +212,15 @@ export class DeepSeekClient {
   constructor(apiKey: string, model: string = 'deepseek-v4-flash') {
     this.apiKey = apiKey
     this.model = model
+  }
+
+  static async listModels(apiKey: string): Promise<string[]> {
+    const res = await getJSON('/models', apiKey) as {
+      data?: Array<{ id?: string }>
+    }
+    return (res.data || [])
+      .map((item) => item.id)
+      .filter((id): id is string => !!id)
   }
 
   async chat(
