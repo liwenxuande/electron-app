@@ -51,7 +51,7 @@ function createServer(): http.Server {
     dbManager
   )
   const ledgerService = new LedgerService(new LedgerRepository(dbManager), dbManager)
-  const categoryService = new CategoryService(new CategoryRepository(dbManager))
+  const categoryService = new CategoryService(new CategoryRepository(dbManager), dbManager)
 
   return http.createServer((req, res) => {
     if (req.method !== 'POST' || req.url !== '/mcp') {
