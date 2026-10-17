@@ -23,7 +23,12 @@
           </nav>
 
           <div class="sidebar-bottom">
-            <div class="sidebar-nav-item" title="设置" @click="openSettings()">
+            <div
+              class="sidebar-nav-item"
+              :class="{ active: activeNav === 'settings' }"
+              title="设置"
+              @click="activeNav = 'settings'"
+            >
               <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
               </svg>
@@ -39,15 +44,10 @@
             <StatisticsView v-if="activeNav === 'statistics'" />
             <LedgerManager v-if="activeNav === 'ledger'" />
             <AIView v-if="activeNav === 'ai'" />
+            <SettingsView v-if="activeNav === 'settings'" />
           </div>
         </div>
       </div>
-
-      <AISettingsDialog
-        v-model:visible="settingsVisible"
-        :config="aiConfig"
-        @save="saveAIConfig"
-      />
     </div>
   </el-config-provider>
 </template>
@@ -56,16 +56,15 @@
 import { ref, onMounted, defineAsyncComponent } from 'vue'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import { useLedgerStore } from './stores/ledgerStore'
-import { useAI } from './composables/useAI'
 import TitleBar from './components/TitleBar.vue'
-import AISettingsDialog from './components/AISettingsDialog.vue'
 
 const viewLoaders = {
   DashboardView: () => import('./views/DashboardView/index.vue'),
   TransactionList: () => import('./views/TransactionList/index.vue'),
   StatisticsView: () => import('./views/StatisticsView/index.vue'),
   LedgerManager: () => import('./views/LedgerManager/index.vue'),
-  AIView: () => import('./views/AIView/index.vue')
+  AIView: () => import('./views/AIView/index.vue'),
+  SettingsView: () => import('./views/SettingsView/index.vue')
 }
 
 const DashboardView = defineAsyncComponent(viewLoaders.DashboardView)
@@ -73,11 +72,11 @@ const TransactionList = defineAsyncComponent(viewLoaders.TransactionList)
 const StatisticsView = defineAsyncComponent(viewLoaders.StatisticsView)
 const LedgerManager = defineAsyncComponent(viewLoaders.LedgerManager)
 const AIView = defineAsyncComponent(viewLoaders.AIView)
+const SettingsView = defineAsyncComponent(viewLoaders.SettingsView)
 
 const activeNav = ref('dashboard')
 const transactionListRef = ref<InstanceType<typeof TransactionList> | null>(null)
 const ledgerStore = useLedgerStore()
-const { settingsVisible, config: aiConfig, openSettings, saveConfig: saveAIConfig } = useAI()
 
 const navItems = [
   {
@@ -131,6 +130,7 @@ onMounted(() => {
     viewLoaders.StatisticsView()
     viewLoaders.LedgerManager()
     viewLoaders.AIView()
+    viewLoaders.SettingsView()
   })
   window.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.ctrlKey && e.shiftKey && e.key === 'I') {
