@@ -9,6 +9,8 @@ import { startMCPServer, stopMCPServer } from './mcp/mcp-server'
 import DbManager from './db/database'
 import { logger, initFileTransport } from './utils/logger'
 import { initAILogTransport } from './utils/aiLogger'
+import { getConfigStore, migrateLegacyAIConfig } from './service/configStore'
+import { getDataDir, getDbPath } from './utils/paths'
 
 // Windows 下修复控制台中文乱码（切换代码页为 UTF-8）
 import { execSync } from 'child_process'
@@ -159,10 +161,10 @@ app.whenReady().then(() => {
   initAILogTransport()
 
   // ③ 初始化数据库（统一放 userData，升级不丢数据）
-  const dbFile = app.isPackaged ? 'data.db' : 'data.dev.db'
-  const dbDir = app.getPath('userData')
+  const dbDir = getDataDir()
   fs.mkdirSync(dbDir, { recursive: true })
-  const dbPath = path.join(dbDir, dbFile)
+  const dbPath = getDbPath()
+  const dbFile = path.basename(dbPath)
 
   // 迁移旧数据：如果安装目录下有旧 db 且 userData 下还没有，自动迁移
   if (app.isPackaged) {
@@ -174,6 +176,10 @@ app.whenReady().then(() => {
   }
 
   DbManager.getInstance().init(dbPath)
+
+  // 初始化 electron-store，并迁移旧版 AI 配置
+  getConfigStore()
+  migrateLegacyAIConfig()
 
   // ④ 注册 IPC 通信控制器
   registerCategoryController()
@@ -198,8 +204,16 @@ app.whenReady().then(() => {
   // ⑥ 创建渲染窗口（后台加载）
   createWindow()
 
-  // ⑦ 启动 MCP HTTP 服务（外部 AI 通过 mcp-agent.cjs → localhost:19527 访问）
-  startMCPServer()
+  // ⑦ 启动 MCP HTTP 服务（外部 AI 通过 mcp-agent.cjs → localhost:<port> 访问）
+  const mcpConfig = getConfigStore().get('mcp')
+  if (mcpConfig.enabled) {
+    startMCPServer(mcpConfig.port).catch((e: unknown) => {
+      const msg = e instanceof Error ? e.message : String(e)
+      logger.error(`MCP 服务启动失败: ${msg}`)
+    })
+  } else {
+    logger.info('MCP 服务已在配置中禁用')
+  }
 
   // macOS：点击 dock 图标重新创建窗口
   app.on('activate', () => {
@@ -228,6 +242,6 @@ app.on('window-all-closed', () => {
 
 // 退出前清理
 app.on('before-quit', () => {
-  stopMCPServer()
+  void stopMCPServer()
   logger.info('应用即将退出')
 })

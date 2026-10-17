@@ -4,7 +4,8 @@
 'use strict'
 
 const http = require('http')
-const ELECTRON_URL = 'http://127.0.0.1:19527/mcp'
+const PORT = process.env.PF_MCP_PORT || 19527
+const ELECTRON_URL = `http://127.0.0.1:${PORT}/mcp`
 
 const SERVER_INFO = {
   name: 'personal-finance-mcp',

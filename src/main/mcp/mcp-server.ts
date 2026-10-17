@@ -10,11 +10,9 @@ import DbManager from '../db/database'
 import { ApiResponse } from '../types'
 
 let httpServer: http.Server | null = null
+let currentPort: number | null = null
+let lastError: string | null = null
 
-/**
- * 根据 tool 名称分发到对应 Service 方法
- * 复用 100% 现有 Service 校验逻辑
- */
 function dispatchTool(
   tool: string,
   args: Record<string, unknown>,
@@ -45,21 +43,17 @@ function dispatchTool(
   }
 }
 
-/**
- * 启动 MCP HTTP 服务，监听 localhost:19527
- * 必须在 app.whenReady() 后、数据库初始化完成后调用
- */
-export function startMCPServer(): void {
+function createServer(): http.Server {
   const dbManager = DbManager.getInstance()
-  const txRepository = new TransactionRepository(dbManager)
-  const categoryRepository = new CategoryRepository(dbManager)
-  const ledgerRepository = new LedgerRepository(dbManager)
-  const txService = new TransactionService(txRepository, categoryRepository, dbManager)
-  const ledgerService = new LedgerService(ledgerRepository, dbManager)
-  const categoryService = new CategoryService(categoryRepository)
+  const txService = new TransactionService(
+    new TransactionRepository(dbManager),
+    new CategoryRepository(dbManager),
+    dbManager
+  )
+  const ledgerService = new LedgerService(new LedgerRepository(dbManager), dbManager)
+  const categoryService = new CategoryService(new CategoryRepository(dbManager))
 
-  httpServer = http.createServer((req, res) => {
-    // 仅处理 POST /mcp
+  return http.createServer((req, res) => {
     if (req.method !== 'POST' || req.url !== '/mcp') {
       res.writeHead(404).end()
       return
@@ -82,25 +76,83 @@ export function startMCPServer(): void {
       }
     })
   })
+}
 
-  httpServer.listen(19527, '127.0.0.1', () => {
-    logger.info('MCP HTTP 服务已启动: http://127.0.0.1:19527')
-  })
-  httpServer.on('error', (err: NodeJS.ErrnoException) => {
-    if (err.code === 'EADDRINUSE') {
-      logger.error('MCP HTTP 服务启动失败：端口 19527 已被占用')
-    } else {
-      logger.error(`MCP HTTP 服务启动失败: ${err.message}`)
+function listen(port: number): Promise<http.Server> {
+  return new Promise((resolve, reject) => {
+    const server = createServer()
+
+    const onError = (err: NodeJS.ErrnoException) => {
+      server.removeListener('listening', onListening)
+      lastError = err.code === 'EADDRINUSE'
+        ? `端口 ${port} 已被占用`
+        : err.message
+      reject(new Error(lastError))
     }
+
+    const onListening = () => {
+      server.removeListener('error', onError)
+      server.on('error', (err: Error) => {
+        lastError = err.message
+        logger.error(`[MCP] 服务运行异常: ${err.message}`)
+      })
+      resolve(server)
+    }
+
+    server.once('error', onError)
+    server.once('listening', onListening)
+    server.listen(port, '127.0.0.1')
+  })
+}
+
+function closeServer(server: http.Server): Promise<void> {
+  return new Promise((resolve) => {
+    server.close(() => resolve())
+    server.closeAllConnections?.()
   })
 }
 
 /**
- * 关闭 MCP HTTP 服务
+ * 启动 MCP HTTP 服务。
+ * 端口变化时先在新端口启动，成功后再关闭旧实例；失败时旧实例保持运行。
  */
-export function stopMCPServer(): void {
-  if (httpServer) {
-    httpServer.close()
-    logger.info('MCP HTTP 服务已关闭')
+export async function startMCPServer(port: number): Promise<void> {
+  if (httpServer && currentPort === port) {
+    lastError = null
+    return
+  }
+
+  const server = await listen(port)
+  const previous = httpServer
+  const previousPort = currentPort
+
+  httpServer = server
+  currentPort = port
+  lastError = null
+  logger.info(`MCP HTTP 服务已启动: http://127.0.0.1:${port}`)
+
+  if (previous && previousPort !== null) {
+    await closeServer(previous)
+    logger.info(`MCP 旧服务已停止: http://127.0.0.1:${previousPort}`)
+  }
+}
+
+/**
+ * 关闭 MCP HTTP 服务。
+ */
+export async function stopMCPServer(): Promise<void> {
+  const server = httpServer
+  httpServer = null
+  currentPort = null
+  if (!server) return
+  await closeServer(server)
+  logger.info('MCP HTTP 服务已关闭')
+}
+
+export function getMCPStatus(): { running: boolean; port: number | null; error: string | null } {
+  return {
+    running: !!httpServer?.listening,
+    port: currentPort,
+    error: lastError,
   }
 }
