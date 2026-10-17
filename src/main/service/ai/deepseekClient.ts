@@ -109,14 +109,19 @@ function getJSON(
       let data = ''
       res.on('data', (chunk: Buffer) => { data += chunk.toString() })
       res.on('end', () => {
+        if (res.statusCode && res.statusCode >= 400) {
+          try {
+            const err = JSON.parse(data) as { error?: { message?: string } }
+            if (err.error?.message) {
+              reject(new Error(err.error.message))
+              return
+            }
+          } catch { /* 非 JSON 错误响应体，降级为 HTTP 状态 */ }
+          reject(new Error(`HTTP ${res.statusCode}`))
+          return
+        }
         try {
-          const json = JSON.parse(data)
-          if (res.statusCode && res.statusCode >= 400) {
-            const err = json as { error?: { message?: string } }
-            reject(new Error(err.error?.message || `HTTP ${res.statusCode}`))
-          } else {
-            resolve(json)
-          }
+          resolve(JSON.parse(data))
         } catch {
           reject(new Error(`解析响应失败: ${data.slice(0, 200)}`))
         }
