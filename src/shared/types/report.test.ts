@@ -38,4 +38,19 @@ describe('aiNarrativeSchema', () => {
     const bad = { ...valid, scoreDims: valid.scoreDims.slice(0, 4) }
     expect(aiNarrativeSchema.safeParse(bad).success).toBe(false)
   })
+
+  it('拒绝少于 10 字的 overview', () => {
+    const bad = { ...valid, overview: '太短了' }
+    expect(aiNarrativeSchema.safeParse(bad).success).toBe(false)
+  })
+
+  it('拒绝只有 1 条 insights 的对象', () => {
+    const bad = { ...valid, insights: valid.insights.slice(0, 1) }
+    expect(aiNarrativeSchema.safeParse(bad).success).toBe(false)
+  })
+
+  it('拒绝超过 100 的 score', () => {
+    const bad = { ...valid, score: 101 }
+    expect(aiNarrativeSchema.safeParse(bad).success).toBe(false)
+  })
 })
