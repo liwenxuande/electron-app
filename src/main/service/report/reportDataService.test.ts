@@ -1,7 +1,10 @@
 import { describe, it, expect, beforeAll, vi } from 'vitest'
 
-// logger.ts 依赖 Electron 运行时才存在的 'electron/main'，测试环境需打桩
-vi.mock('electron/main', () => ({ app: { getPath: () => '' } }))
+// 打桩 logger，避免 SQL 调试日志污染测试输出（同时规避 logger 对 'electron/main' 的运行时依赖）
+vi.mock('../../utils/logger', () => ({
+  logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
+  initFileTransport: vi.fn(),
+}))
 
 import DbManager from '../../db/database'
 import { ReportDataService } from './reportDataService'
