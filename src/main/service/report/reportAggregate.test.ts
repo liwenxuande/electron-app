@@ -43,8 +43,10 @@ describe('buildCategories', () => {
     expect(rows[1]).toEqual({ name: '购物', amount: 1906, percent: 42.1, count: 18, prev: 0 })
   })
 
-  it('当月无支出时占比为 0', () => {
-    expect(buildCategories([], [])).toEqual([])
+  it('总支出为 0 时占比为 0', () => {
+    expect(buildCategories([{ name: '其他', amount: 0, count: 0 }], [])).toEqual([
+      { name: '其他', amount: 0, percent: 0, count: 0, prev: 0 },
+    ])
   })
 })
 
@@ -61,6 +63,12 @@ describe('buildDaily', () => {
     expect(daily[0]).toEqual({ day: 1, expense: 100, weekend: false, hasRecord: true })
     expect(daily[2]).toEqual({ day: 3, expense: 50, weekend: true, hasRecord: true })
     expect(daily[4]).toEqual({ day: 5, expense: 0, weekend: false, hasRecord: false })
+  })
+
+  it('按不同月份补齐 28/29/30 天', () => {
+    expect(buildDaily([], '2026-02')).toHaveLength(28)
+    expect(buildDaily([], '2024-02')).toHaveLength(29)
+    expect(buildDaily([], '2026-04')).toHaveLength(30)
   })
 })
 
