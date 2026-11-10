@@ -39,7 +39,7 @@ export class ReportDataService {
 
   private categoryRaw(yearMonth: string, type: 'expense' | 'income'): RawCategoryRow[] {
     return this.db.all<RawCategoryRow>(
-      `SELECT c.name as name, SUM(t.amount) as amount, COUNT(*) as count
+      `SELECT COALESCE(c.name, '未分类') as name, SUM(t.amount) as amount, COUNT(*) as count
       FROM transactions t
       LEFT JOIN category c ON t.category_id = c.id
       WHERE t.ledger_id = ? AND t.trans_date LIKE ? AND t.type = ?
@@ -82,7 +82,10 @@ export class ReportDataService {
     return row?.name || '默认账本'
   }
 
-  /** 近 N 月汇总（含结束月），按时间升序；ytd 为结束月所在年 1 月至结束月累计 */
+  /**
+   * series：近 N 月汇总（含结束月，按时间升序）
+   * ytd：结束月所在年 1 月至结束月（含）的累计，与近 N 月窗口无关
+   */
   getMonthlySummaries(
     endYM: string,
     months: number,
@@ -96,8 +99,13 @@ export class ReportDataService {
       const ym = dayjs(`${endYM}-01`).subtract(i, 'month').format('YYYY-MM')
       rows.push({ ym, ...this.monthRaw(ym) })
     }
+
     const endYear = endYM.slice(0, 4)
-    const ytdRows = rows.filter((r) => r.ym.startsWith(endYear))
+    const endMonth = Number(endYM.slice(5, 7))
+    const ytdRows: RawMonthSummary[] = []
+    for (let m = 1; m <= endMonth; m++) {
+      ytdRows.push(this.monthRaw(`${endYear}-${String(m).padStart(2, '0')}`))
+    }
     return { series: buildMonthlySeries(rows), ytd: buildYtd(ytdRows) }
   }
 

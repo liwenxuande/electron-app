@@ -22,6 +22,11 @@ function seed(): void {
   insert.run('income', 5000, 901, 2, '2026-01-10', '工资')
   insert.run('expense', 300, 900, 2, '2026-02-07', '外卖')
   insert.run('expense', 999, 900, 1, '2026-02-08', '其他账本不应计入')
+  insert.run('expense', 50, 900, 2, '2026-08-03', '书店')
+  // better-sqlite3 默认开启外键约束，构造孤儿分类数据时需临时关闭
+  db.pragma('foreign_keys = OFF')
+  insert.run('expense', 20, 9999, 2, '2026-06-04', '孤儿分类')
+  db.pragma('foreign_keys = ON')
 }
 
 beforeAll(() => {
@@ -46,10 +51,17 @@ describe('getMonthlySummaries', () => {
       savingsRate: 90,
     })
   })
+
+  it('YTD 覆盖近 N 月窗口外的当年月份', () => {
+    const svc = new ReportDataService(2)
+    const { series, ytd } = svc.getMonthlySummaries('2026-08', 3)
+    expect(series.map((s) => s.ym)).toEqual(['6月', '7月', '8月'])
+    expect(ytd).toEqual({ income: 5000, expense: 570, savingsRate: 88.6 })
+  })
 })
 
 describe('getCategoryComparison', () => {
-  it('返回分类环比并在上月无该分类时 prev=0', () => {
+  it('返回分类环比并从上月取 prev', () => {
     const svc = new ReportDataService(2)
     const rows = svc.getCategoryComparison('2026-01', '2025-12')
     expect(rows).toEqual([{ name: '餐饮', amount: 200, percent: 100, count: 1, prev: 100 }])
@@ -78,5 +90,10 @@ describe('buildBase', () => {
     expect(base.summary.count).toBe(0)
     expect(base.categories).toEqual([])
     expect(base.topEntries).toEqual([])
+  })
+
+  it('分类不存在时归入未分类', () => {
+    const svc = new ReportDataService(2)
+    expect(svc.buildBase('2026-06').categories[0]).toMatchObject({ name: '未分类', amount: 20, count: 1 })
   })
 })
